@@ -1,0 +1,430 @@
+# Estudiantes
+
+## Descriptivos generales
+
+```{r}
+#| echo: false
+#| label: tbl-desc-carreras
+#| tbl-cap: Estadísticas descriptivas del promedio por carrera y cohorte
+#| tbl-cap-location: top
+
+tabla_desc %>%
+  arrange(carrera) %>%
+  knitr::kable(
+    format = if (knitr::is_latex_output()) "latex" else "html",
+    align = "lcccc"
+  ) %>%
+  kableExtra::kable_styling(
+    bootstrap_options = if (knitr::is_html_output()) c("striped", "hover", "condensed") else NULL,
+    latex_options = if (knitr::is_latex_output()) c("hold_position", "scale_down") else NULL,
+    full_width = FALSE
+  ) %>%
+  kableExtra::row_spec(0, bold = TRUE) %>%
+  kableExtra::column_spec(1, bold = TRUE, width = "4cm") %>%
+  kableExtra::collapse_rows(columns = 1, valign = "top")
+```
+
+La @tbl-desc-carreras muestra los promedios de notas de las distintas cohortes de las carreras que imparte la facultad. Se evidencia un patrón en todas las carreras: las notas disminuyen en las cohortes más recientes. Esto quiere decir que las notas de los estudiantes pertenecientes a las cohortes más antiguas son más altas que las de los más nuevos. Llama la atención el caso de Antropología, pues su variación entre cohortes es sólo de una décima, y la desviación estándar se mantiene en 0.4 aproximadamente, siendo consistente en casi todas sus cohortes. En el caso contrario, Psicología y Trabajo Social son carreras que experimentaron una baja considerable en sus notas entre 2021 y 2024, donde ambas carreras presentan una diferencia de 0.6 décimas entre la primera y última cohorte.
+
+## Género cohortes
+
+
+```{r}
+#| echo: false
+
+promedios_ic <- base_madre %>%
+  group_by(cohorte, sexo) %>%
+  summarise(
+    media = mean(promedio_calculado, na.rm = TRUE),
+    se = sd(promedio_calculado, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+```
+
+```{r}
+#| echo: false
+#| label: fig-gen-year
+#| fig-cap: Promedios por año según género
+#| fig-cap-location: top
+
+fig <- plot_ly(data = promedios_ic) %>%
+  
+  # Líneas y bandas para Hombres (sexo = 0)
+  add_ribbons(
+    data = filter(promedios_ic, sexo == "0"),
+    x = ~cohorte,
+    ymin = ~media - 1.96 * se,
+    ymax = ~media + 1.96 * se,
+    fillcolor = 'rgba(31, 119, 180, 0.25)',
+    line = list(color = 'transparent'),
+    name = "IC Hombre",
+    legendgroup = "Hombre",
+    showlegend = TRUE,
+    hoverinfo = 'skip'
+  ) %>%
+  add_lines(
+    data = filter(promedios_ic, sexo == "0"),
+    x = ~cohorte,
+    y = ~media,
+    line = list(color = 'rgb(31, 119, 180)', width = 2),
+    name = "Hombre",
+    legendgroup = "Hombre",
+    showlegend = TRUE,
+    hovertemplate = paste(
+      '<b>Hombre</b><br>',
+      'Cohorte: %{x}<br>',
+      'Promedio: %{y:.2f}<br>',
+      '<extra></extra>'
+    )
+  ) %>%
+  
+  # Líneas y bandas para Mujeres (sexo = 1)
+  add_ribbons(
+    data = filter(promedios_ic, sexo == "1"),
+    x = ~cohorte,
+    ymin = ~media - 1.96 * se,
+    ymax = ~media + 1.96 * se,
+    fillcolor = 'rgba(255, 127, 14, 0.25)',
+    line = list(color = 'transparent'),
+    name = "IC Mujer",
+    legendgroup = "Mujer",
+    showlegend = TRUE,
+    hoverinfo = 'skip'
+  ) %>%
+  add_lines(
+    data = filter(promedios_ic, sexo == "1"),
+    x = ~cohorte,
+    y = ~media,
+    line = list(color = 'rgb(255, 127, 14)', width = 2),
+    name = "Mujer",
+    legendgroup = "Mujer",
+    showlegend = TRUE,
+    hovertemplate = paste(
+      '<b>Mujer</b><br>',
+      'Cohorte: %{x}<br>',
+      'Promedio: %{y:.2f}<br>',
+      '<extra></extra>'
+    )
+  ) %>%
+  
+  # Configuración del layout
+  layout(
+    title = list(
+      text = "Trayectoria de notas según género",
+      x = 0.5,
+      xanchor = "center"
+    ),
+    xaxis = list(
+      title = "Cohorte",
+      showgrid = TRUE,
+      gridcolor = 'rgb(230, 230, 230)'
+    ),
+    yaxis = list(
+      title = "Promedio de notas",
+      range = c(1, 7),
+      dtick = 1,
+      showgrid = TRUE,
+      gridcolor = 'rgb(230, 230, 230)'
+    ),
+    legend = list(
+      title = list(text = '<b>Sexo</b>'),
+      x = 1.02,
+      y = 1,
+      xanchor = 'left'
+    ),
+    hovermode = 'x unified',
+    plot_bgcolor = 'white',
+    paper_bgcolor = 'white'
+  ) %>%
+  
+  # Habilitar herramientas de zoom y pan
+  config(
+    displayModeBar = TRUE,
+    modeBarButtonsToAdd = list('drawopenpath', 'eraseshape'),
+    modeBarButtonsToRemove = list('lasso2d', 'select2d')
+  )
+```
+
+```{r}
+#| echo: false
+#| label: fig-plotly-gen
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: top
+
+if (knitr::is_latex_output()) {
+  ggplot(
+    promedios_ic,
+    aes(
+      x = cohorte,
+      y = media,
+      color = factor(sexo, levels = c("0", "1"), labels = c("Hombre", "Mujer")),
+      fill = factor(sexo, levels = c("0", "1"), labels = c("Hombre", "Mujer"))
+    )
+  ) +
+    geom_ribbon(aes(ymin = media - 1.96 * se, ymax = media + 1.96 * se), alpha = 0.2, color = NA) +
+    geom_line(linewidth = 1.1) +
+    geom_point(size = 2) +
+    scale_y_continuous(limits = c(1, 7), breaks = seq(1, 7, 1)) +
+    labs(
+      title = "Trayectoria de notas según género",
+      x = "Cohorte",
+      y = "Promedio de notas",
+      color = "Sexo",
+      fill = "Sexo"
+    ) +
+    theme_minimal()
+} else {
+  fig
+}
+```
+
+@fig-plotly-gen presenta los promedios a nivel facultad de cada cohorte distinguiendo por género. Aquí se evidencian dos cosas: con el paso de nuevas cohortes, tanto hombres como mujeres han disminuido en promedio sus notas, pasando de 5.9 y 6.1, respectivamente, a 5.5 y 5.8. A partir de esto, se desprende un segundo resultado, develando que, de manera sistemática, las mujeres han obtenido mejores calificaciones que los varones, independientemente del año en que hayan ingresado.
+
+## Tipo colegio cohortes
+
+
+```{r}
+#| echo: false
+
+promedios_ic_col <- base_madre %>%
+  filter(!is.na(colegio)) %>% 
+  group_by(cohorte, colegio) %>%
+  summarise(
+    media = mean(promedio_calculado, na.rm = TRUE),
+    se = sd(promedio_calculado, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+```
+
+```{r}
+
+# Preparar los datos con las etiquetas
+plotly_colegio <- plot_ly(data = promedios_ic_col) %>%
+  # Agregar las bandas de confianza (ribbons) primero para que queden detrás
+  add_ribbons(
+    x = ~cohorte,
+    ymin = ~media - 1.96 * se,
+    ymax = ~media + 1.96 * se,
+    color = ~factor(colegio),
+    colors = NULL,  # usa colores por defecto
+    opacity = 0.25,
+    line = list(width = 0),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  ) %>%
+  # Agregar las líneas
+  add_lines(
+    x = ~cohorte,
+    y = ~media,
+    color = ~factor(colegio),
+    colors = NULL,
+    line = list(width = 2),
+    name = ~factor(colegio, labels = c("1" = "Municipal", "2" = "Particular Subvencionado", "3" = "Particular Pagado"))
+  ) %>%
+  # Configurar el layout
+  layout(
+    title = list(
+      text = "Trayectoria de notas según tipo de colegio",
+      x = 0.5,
+      xanchor = "center"
+    ),
+    xaxis = list(title = "Cohorte"),
+    yaxis = list(
+      title = "Promedio de notas",
+      range = c(1, 7),
+      tickmode = "linear",
+      tick0 = 1,
+      dtick = 1
+    ),
+    legend = list(title = list(text = "Colegio")),
+    hovermode = "x unified"
+  )
+```
+
+```{r}
+#| echo: false
+#| label: fig-time-col
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: top
+
+if (knitr::is_latex_output()) {
+  ggplot(
+    promedios_ic_col,
+    aes(
+      x = cohorte,
+      y = media,
+      color = factor(colegio),
+      fill = factor(colegio),
+      group = factor(colegio)
+    )
+  ) +
+    geom_ribbon(aes(ymin = media - 1.96 * se, ymax = media + 1.96 * se), alpha = 0.2, color = NA) +
+    geom_line(linewidth = 1.1) +
+    geom_point(size = 2) +
+    scale_y_continuous(limits = c(1, 7), breaks = seq(1, 7, 1)) +
+    labs(
+      title = "Trayectoria de notas según tipo de colegio",
+      x = "Cohorte",
+      y = "Promedio de notas",
+      color = "Colegio",
+      fill = "Colegio"
+    ) +
+    theme_minimal()
+} else {
+  plotly_colegio
+}
+```
+
+ @fig-time-col presenta los promedios de notas por cohorte según el tipo de colegio. Tanto los particulares subvencionados como los pagados mantienen un gran nivel de similitud, cuyas diferencias no son apreciables sin ampliar el gráfico. Sin embargo, los provenientes de colegios municipales se distancian paulatinamente de los otros dos tipos de colegio, lo cual se nota con mayor claridad en las cohortes 2023 y 2024. Esto da a entender que, a medida que ingresan nuevos estudiantes a la facultad, en las nuevas cohortes la brecha de notas entre quienes provienen de colegios municipales y particulares se amplía.
+
+ ## NSE cohortes
+
+
+```{r}
+#| echo: false
+
+promedios_ic_nse <- base_madre %>%
+  group_by(cohorte, nse) %>%
+  summarise(
+    media = mean(promedio_calculado, na.rm = TRUE),
+    se = sd(promedio_calculado, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+```
+
+```{r}
+#| echo: false 
+
+nse_break <- plot_ly(data = promedios_ic_nse) %>%
+  add_ribbons(
+    x = ~cohorte,
+    ymin = ~media - 1.96 * se,
+    ymax = ~media + 1.96 * se,
+    color = ~factor(nse),
+    colors = NULL, 
+    opacity = 0.25,
+    line = list(width = 0),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  ) %>%
+  # Agregar las líneas
+  add_lines(
+    x = ~cohorte,
+    y = ~media,
+    color = ~factor(nse),
+    colors = NULL,
+    line = list(width = 2),
+    name = ~factor(nse, labels = c("1" = "Bajo", "2" = "Medio", "3" = "Alto"))
+  ) %>%
+  # Configurar el layout
+  layout(
+    title = list(
+      text = "Trayectoria de notas según nivel socioeconómico",
+      x = 0.5,
+      xanchor = "center"
+    ),
+    xaxis = list(title = "Cohorte"),
+    yaxis = list(
+      title = "Promedio de notas",
+      range = c(1, 7),
+      tickmode = "linear",
+      tick0 = 1,
+      dtick = 1
+    ),
+    legend = list(title = list(text = "NSE")),
+    hovermode = "x unified"
+  ) %>%
+  config(
+    displayModeBar = TRUE,
+    modeBarButtonsToAdd = list('drawopenpath', 'eraseshape'),
+    modeBarButtonsToRemove = list('lasso2d', 'select2d')
+  )
+```
+
+```{r}
+#| echo: false
+#| label: fig-plotly-nse
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: top
+
+if (knitr::is_latex_output()) {
+  ggplot(
+    promedios_ic_nse,
+    aes(
+      x = cohorte,
+      y = media,
+      color = factor(nse),
+      fill = factor(nse),
+      group = factor(nse)
+    )
+  ) +
+    geom_ribbon(aes(ymin = media - 1.96 * se, ymax = media + 1.96 * se), alpha = 0.2, color = NA) +
+    geom_line(linewidth = 1.1) +
+    geom_point(size = 2) +
+    scale_y_continuous(limits = c(1, 7), breaks = seq(1, 7, 1)) +
+    labs(
+      title = "Trayectoria de notas según nivel socioeconómico",
+      x = "Cohorte",
+      y = "Promedio de notas",
+      color = "NSE",
+      fill = "NSE"
+    ) +
+    theme_minimal()
+} else {
+  nse_break
+}
+```
+
+@fig-plotly-nse presenta los promedios por cohorte diferenciando los niveles socioeconómicos. En primer lugar, no se observa una variación notable entre los tres niveles, lo cual se respalda por el solapamiento de los intervalos de confianza. Ahora bien, al ampliar el gráfico, se puede notar que el nivel bajo se distancia de los dos restantes en la cohorte de 2023, pero en la siguiente vuelve a homogeneizarse el promedio de notas. En suma, la figura no permite visualizar las diferencias por nivel socioeconómico entre las distintas cohortes de la facultad. 
+
+## PSU - PAES cohortes
+
+```{r}
+#| echo: false
+#| label: fig-scat-pct
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: top
+
+base_madre %>% 
+  filter(!is.na(pct_paes_psu)) %>%
+  ggplot(aes(x = pct_paes_psu, y = promedio_calculado, color = factor(cohorte))) +
+  geom_point(alpha = 0) +
+  geom_smooth(method = "lm", se = TRUE, linewidth = 1) +
+  labs(
+    x = "Percentil Prueba Admisión",
+    y = "Nota universidad",
+    color = "Año de ingreso",
+    title = "Relación notas universidad y percentil PAES-PSU por carrera"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+En @fig-scat-pct se grafican las rectas por cohorte en la asociación entre notas universitarias y percentil de la prueba de admisión. En términos generales, se observa una asociación positiva entre las dos variables para todas las cohortes analizadas. Esto indica que un mejor desempeño relativo en la prueba de admisión se traduce sistemáticamente en un mayor rendimiento académico posterior, independientemente del año de ingreso. En mayor profundidad, se aprecian diferencias consistentes entre cohortes, donde la del 2021 presenta los niveles más altos de rendimiento esperado en prácticamente todos los puntos del percentil, seguida por las cohortes 2022 y 2023, mientras que la cohorte 2024 exhibe de manera consistente los valores más bajos. Este patrón sugiere un desplazamiento negativo de las cohortes más recientes en sus calificaciones, aun cuando obtienen buenos resultados en las pruebas de admisión universitaria. 
+
+## Resumen ejecutivo 
+
+- En primer lugar, se observan diferencias relevantes entre carreras. Educación Parvularia presenta los promedios más altos, posicionándose como la carrera con mejor desempeño académico dentro de la facultad. Le sigue Psicología, mientras que Antropología, Sociología y Trabajo Social muestran niveles de rendimiento similares entre sí. En todas las carreras se detectan valores atípicos bajos, lo que indica la presencia de estudiantes con promedios considerablemente inferiores al promedio general.
+
+- El análisis de la relación entre el percentil en la prueba de admisión y las notas universitarias muestra una asociación positiva pero baja: estudiantes con mejor desempeño relativo en la prueba tienden a obtener mayores calificaciones en la universidad. No obstante, las cohortes más recientes presentan niveles de rendimiento sistemáticamente inferiores, lo que sugiere un desplazamiento negativo en las notas a lo largo del tiempo.
+
+- Un modelo de regresión multivariado confirma varios de los patrones descriptivos. Los estudiantes de nivel socioeconómico bajo presentan un rendimiento significativamente inferior en comparación con aquellos de nivel alto. Asimismo, las mujeres obtienen en promedio 0.201 puntos más que los hombres en la escala de notas. También se observa una ventaja moderada para los estudiantes provenientes de colegios particulares subvencionados respecto de los particulares pagados, lo cual resulta llamativo. En términos temporales, las cohortes más recientes muestran una disminución progresiva del rendimiento, siendo la cohorte 2024 la que presenta el resultado más negativo. Finalmente, al comparar carreras, los estudiantes de Antropología, Sociología, Psicología y Trabajo Social presentan, en promedio, rendimientos significativamente inferiores a los observados en Educación Parvularia, incluso controlando por las demás variables.
+
+- Los cursos con menos de diez estudiantes presentan una distribución de calificaciones sustantivamente distinta a la de los cursos de mayor tamaño: mientras los primeros concentran sus resultados en valores próximos al 7.0, los segundos exhiben una dispersión considerablemente mayor, con calificaciones que se distribuyen principalmente entre el 5.5 y el 6.5.
+
+- Los cursos con mayor proporción de mujeres tienden a obtener mejores calificaciones que aquellos con menor representación femenina. Este patrón, sin embargo, no es uniforme entre carreras, siendo Antropología un caso que se aleja de dicha tendencia. Cabe señalar que Trabajo Social y Educación Parvularia, al ser programas altamente feminizados, presentan limitaciones de comparabilidad intracarrera en esta dimensión.
+
+- A nivel facultad, los cursos de menor tamaño tienden a concentrar mejores calificaciones que los más numerosos. Esta asociación, sin embargo, no es generalizable: solo Sociología y Psicología reproducen dicho patrón de forma consistente, mientras que las demás carreras presentan comportamientos irregulares, lo que sugiere que esta relación responde principalmente a dinámicas propias de cada programa.
+
+## Conclusión
+
+
+El Estudio de Notas de la Facultad de Ciencias Sociales ha entregado luces acerca de cómo se distribuyen las calificaciones, enfocándose en los estudiantes, a partir de un nivel agregado de facultad, así como desagregado por carrera. Para el análisis, se consideraron variables sociodemográficas que permitieran identificar los factores asociados más determinantes del rendimiento académico de las y los estudiantes entre 2021 y 2024. En este marco, el estudio conducido desde la Dirección de Investigación ha encontrado diversos resultados, entre los que uno de los hallazgos iniciales, pero también llamativos, es el promedio de la facultad con un 5.9, lo que difiere sustancialmente del 6.4 que encontró el estudio de la Dirección de Pregrado. No obstante, la diferencia entre los promedios no es un problema en sí, ya que se realizaron cálculos a partir de información distinta.
+
+Al desagregar por carrera, se reportaron diferencias claras al analizarlas por sí solas, así como en conjunto a variables de caracterización utilizadas, a saber, sexo, tipo de colegio, nivel socioeconómico y percentil de la prueba de admisión universitaria. En primer lugar, se encontró que educación parvularia es la que tiene un mejor promedio de notas a nivel comparativo, seguida de psicología, mientras que sociología, trabajo social y antropología se mantienen sin diferencias destacables. En cuanto al género, se observó una tendencia en la facultad y sus carreras sin excepción, donde las mujeres superan en calificaciones a su contraparte, una brecha consistente al analizar por cohortes. En cuanto al tipo de colegio, si bien se cumple un patrón estratificado de logro académico, en carreras como psicología y trabajo social, los estudiantes de particulares subvencionados superan en nota a los de particulares pagados. Sin embargo, al analizar por cohortes, con el paso del tiempo, los estudiantes de municipales presentan un aumento de la brecha académica negativa en comparación con quienes provienen de particulares, evidenciando una dificultad en la compensación de las brechas educativas por las condiciones socioeconómicas de origen. En relación con ello, al cruzar las notas con el nivel socioeconómico se encontraron hallazgos llamativos: las distribuciones por carrera presentan patrones diversos, y generalmente los niveles medios y altos son los que concentran las mejores notas. Ahora bien, al analizar por cohortes, estas diferencias resultan poco perceptibles.
+
+Al realizar el cruce de notas universitarias con el percentil de la prueba de admisión universitaria, se encontraron asociaciones positivas, pero en su mayoría débiles, por lo que un percentil alto no asegura una mejor calificación en la universidad. Incluso en el caso de educación parvularia, esta relación era llamativamente negativa. Ahora bien, al desagregar por cohortes, se observa que, con el paso de nuevas cohortes, las notas son efectivamente más bajas que las de cohortes anteriores. El modelo de regresión permitió reafirmar esto y respaldar las diferencias en las notas por sexo a favor de las mujeres. Sin embargo, se encontró que los provenientes de particulares subvencionados tienen una diferencia positiva en comparación a los de particulares pagados. A pesar de que los municipales pueden quedar rezagados en el logro académico, este hallazgo da a entender que incluso aquellos que no egresaron de los colegios más económicamente costosos logran obtener mejores resultados en la universidad que quienes sí salieron de ese tipo de establecimientos.
+
+A esto se suman los hallazgos a nivel de cursos, que permiten complementar los hallazgos sobre estudiantes como unidad de análisis. En este marco, el análisis descriptivo de los cursos de la Facultad de Ciencias Sociales permitió identificar patrones relevantes en la distribución de las calificaciones. En primer lugar, se constató que los cursos con menos de diez estudiantes presentan una distribución de notas sustantivamente distinta a la de los cursos de mayor tamaño: mientras los primeros concentran sus resultados en valores próximos al 7.0, los segundos exhiben una dispersión considerablemente mayor, con calificaciones que se distribuyen principalmente entre el 5.5 y el 6.5. En segundo lugar, se identificaron diferencias temporales en las calificaciones al comparar el período prepandémico con el pospandémico, observándose un alza sostenida en las calificaciones entre 2020 y 2021 que, en algunas carreras, ha mostrado una tendencia a la convergencia hacia los niveles registrados con anterioridad a dicho período. En tercer lugar, destaca como rasgo estructural del sistema evaluativo, tanto a nivel de facultad como al interior de las carreras, una tasa de reprobación extremadamente reducida, la cual promedia un 3% en FACSO, lo que implica, a su vez, una aprobación casi universal. Finalmente, se observó que la dispersión de las calificaciones a nivel facultad ha seguido una tendencia decreciente en el período analizado, evidenciando una progresiva homogeneización de los resultados evaluativos; no obstante, al desagregar por carrera, este patrón pierde nitidez y adquiere un comportamiento más fluctuante e irregular.
+
+Posterior a los resultados descriptivos, las asociaciones entre las calificaciones y distintas características de los cursos permitieron ahondar en los hallazgos. En primer lugar, se constató una diferencia sistemática entre cursos obligatorios y electivos, siendo estos últimos los que registran calificaciones consistentemente más elevadas, lo que sugiere que la naturaleza optativa de estos cursos —y la consecuente mayor afinidad o motivación de quienes los seleccionan— podría operar como un factor que contribuye a elevar los promedios individuales de los estudiantes. En segundo lugar, al cruzar las calificaciones con la composición de género de los cursos, se encontró que aquellos con mayor proporción de mujeres tienden a obtener mejores calificaciones que los de menor representación femenina; sin embargo, al desagregar por carrera, este patrón no se sostiene de manera uniforme, presentando Antropología como un caso que se aleja de dicha tendencia. En este marco, cabe señalar que Trabajo Social y Educación Parvularia son programas altamente feminizados en términos de matrícula, lo que reduce la disponibilidad de categorías con baja presencia femenina y, por tanto, limita la comparabilidad intracarrera en esta dimensión. En tercer lugar, al examinar la relación entre tamaño del curso y calificaciones, se observó que, a nivel facultad, los cursos de menor tamaño tienden a concentrar mejores resultados, aunque esta asociación no es generalizable entre carreras: solo Sociología y Psicología se alinean con dicho patrón, mientras que las demás carreras presentan comportamientos irregulares, lo que sugiere que la relación entre tamaño y rendimiento responde, en mayor medida, a dinámicas propias de cada programa que a un fenómeno transversal de la facultad.

@@ -1,0 +1,2317 @@
+---
+title: "Resultados: Cursos"
+code-fold: true
+toc: true
+toc-depth: 2
+toc-expand: 3
+---
+
+Este apartado tiene como objetivo presentar los principales resultados de la investigación con los cursos como unidad de análisis. En primer lugar, se exponen resultados descriptivos de la cantidad de cursos disponibles para introducir un contexto general, y luego se presentan los descriptivos de tres variables que son una expresión relevante de las calificaciones: las notas, el porcentaje de aprobación y la dispersión de las notas.
+
+Posterior a los descriptivos, se presentan análisis de cruces entre las notas y tres variables de caracterización de los cursos: el tipo de curso, la composición de género y el tamaño de los cursos. 
+
+La presentación de los resultados se estructura de la siguiente manera: gráficos descriptivos de facultad (1), trayectoria temporal de la facultad (2), análisis desagregado por carreras (3) y trayectoria temporal desagregada por carreras (4).  Esta estructura presenta una excepción en el punto **5.3 Tasa de aprobación**, donde se muestran tablas en vez de gráficos para facilitar la interpretación.
+
+
+## Descriptivos generales
+
+Antes de entrar de lleno al análisis de las notas y sus aristas asociadas, es importante comprender la estructura de cursos de la Facultad de Ciencias Sociales. A modo de introducción, se presentan algunos descriptivos clave para entender el el desarrollo del informe, así como las decisiones más relevantes a hora de qué cursos considerar en el análisis.
+
+```{r}
+#| echo: false
+pacman::p_load(knitr, digest, stargazer, sjPlot, codebook, summarytools, dplyr, tidyr,
+ # tidyLPA, 
+ lme4, ggplot2, ggeffects, skimr, table1, patchwork, here, kableExtra, ggthemes, tidyverse,
+ texreg, coefplot, plotly, modelsummary, paletteer)
+options(scipen = 999)
+
+here::i_am("output/reports/book-estudio-notas/04-resultados-curso.qmd")
+```
+
+```{r}
+#| echo: false
+
+cc_facso <- readRDS(here::here("input/data/proc_data/cc_sec.rds"))
+```
+
+### Contexto de la conformación de cursos
+
+```{r}
+#| echo: false
+
+cc_facso <- cc_facso %>%
+  filter(ano != 2026)
+
+cc_resumen <- cc_facso %>%
+  group_by(ano, carrera) %>%
+  summarise(n_cursos = n(), .groups = "drop")
+
+cc_resumen_facso <- cc_facso %>%
+  group_by(ano) %>%
+  summarise(n_cursos = n(), .groups = "drop")
+```
+
+La cantidad de cursos que se imparten en la Facultad de Ciencias Sociales no es un dato que tenga un registro claro, y sin embargo es una información valiosa a la hora de estudiar cómo se distribuyen las calificaciones. 
+
+```{r}
+
+cursos_por_anio <- cc_facso %>%
+  group_by(codigo, ano) %>%
+  mutate(tipo_seccion = if_else(n_distinct(seccion) > 1, "Multisección", "Sección única")) %>%
+  ungroup() %>%
+  group_by(ano, tipo_seccion) %>%
+  summarise(n = n(), .groups = "drop")
+
+cursos_carrera <- cc_facso %>%
+  group_by(codigo, carrera) %>%
+  mutate(tipo_seccion = if_else(n_distinct(seccion) > 1, "Multisección", "Sección única")) %>%
+  ungroup() %>%
+  group_by(carrera, tipo_seccion) %>%
+  summarise(n = n(), .groups = "drop")
+
+```
+
+:::panel-tabset
+
+#### Total de cursos
+
+```{r}
+#| label: fig-cursos-facso
+#| fig-cap:  Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(cc_resumen_facso, aes(x = factor(ano), y = n_cursos)) +
+  geom_col(fill = "#952626", position = position_dodge(width = 0.9)) +
+  geom_text(
+    aes(label = n_cursos),
+    position = position_dodge(width = 0.9),
+    vjust = -0.2,
+    size = 3
+  ) +
+  labs(
+    title = "Cantidad de cursos por año FACSO",    
+    x     = "Año",
+    y     = "Cantidad de cursos",
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom"
+  )
+```
+
+#### Distinción por curso
+
+```{r}
+#| label: fig-cursos-facso-stack
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+#| fig-height: 5.6
+
+# Gráfico de barras
+ggplot(cursos_por_anio, aes(x = factor(ano), y = n, fill = tipo_seccion)) +
+  geom_col(position = "stack") +
+  geom_text(aes(label = n), 
+            position = position_stack(vjust = 0.5),
+            size = 3, color = "white", fontface = "bold") +
+  scale_fill_manual(values = c("Multisección" = "#0082fc", "Sección única" = "#952626")) +
+  labs(
+    title = "Cantidad de cursos por año según tipo de sección FACSO",
+    x = "Año",
+    y = "Número de cursos",
+    fill = "Tipo de sección"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+:::
+
+En la @fig-cursos-facso se observa la cantidad de cursos por año que ofrece la facultad en Sociología, Psicología, Antropología, Trabajo Social y Educación Parvularia. El resultado más llamativo y claro es el patrón ascendente en la cantidad de cursos conforme el paso del tiempo. Si bien el crecimiento de los cursos parece paulatino por la forma de las barras, resulta interesante que los cursos en el año 2024 crecen de manera exponencial, marcando una diferencia de más de 300 cursos con el año anterior. En la @fig-cursos-facso-stack se muestra el mismo análisis pero desagregado por los cursos con sección única y aquellos con más de una sección. Aquí hay una pista clara: el crecimiento de los cursos se debe principalmente al incremento de cursos multisección. Entre 2021 y 2025 los cursos de sección única se mantienen estables, pero son aquellos con más de una sección los que terminan por marcar una pauta clara en la oferta programática. Esto puede también deberse a la formalización de cursos en las plataformas de la universidad que, en años anteriores, no contaban con un registro oficial.
+
+```{r}
+#| label: fig-cursos-carrera-stack
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(cursos_carrera, aes(x = factor(carrera), y = n, fill = tipo_seccion)) +
+  geom_col(position = "stack") +
+  geom_text(aes(label = n), 
+            position = position_stack(vjust = 0.5),
+            size = 3, color = "white", fontface = "bold") +
+  scale_fill_manual(values = c("Multisección" = "#0082fc", "Sección única" = "#952626")) +
+  labs(
+    title = "Cantidad de tipos de cursos según tipo de sección por carrera (2018-2025)",
+    x = "Carrera",
+    y = "Número de cursos",
+    fill = "Tipo de sección"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+En la @fig-cursos-carrera-stack se presentan los cursos que existen por carrera entre el 2018 y el 2025. Se pueden observar diferencias claras entre carreras: Antropología y Psicología son las carreras que ofrecen más cursos en la facultad. Por su parte, Sociología ofrece menos cursos que las dos carreras anteriores, pero se caracteriza por tener la mayor cantidad de cursos con más de una sección en términos proporcionales como absolutos. Educación Parvularia y Trabajo Social son las carreras que tienen la oferta programática más baja, ofreciendo menos de la mitad de cursos que las tres carreras ya mencionadas. 
+
+```{r}
+#| label: fig-facso-notasnof
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(cc_facso, aes(x = nota_promedio)) +
+  geom_histogram(
+    binwidth = 0.1,
+    fill = "#952626",
+    color = "white"
+  ) +
+  geom_vline(
+    xintercept = mean(cc_facso$nota_promedio, na.rm = TRUE),
+    linewidth = 1.2,
+    linetype = "dashed",
+    color = "black"
+  ) +
+  labs(
+    x = "Notas",
+    y = "Frecuencia",
+    title = "Distribución de notas FACSO (2018-2025) (N = 4659)"
+  ) +
+  theme_minimal()
+```
+
+La @fig-facso-notasnof muestra la distribución de notas en FACSO entre 2018 y 2025, la cual es marcadamente asimétrica, con una fuerte concentración de notas entre 6 y 7 y donde el valor más frecuente es precisamente 7 (cerca de 500 casos). La línea punteada vertical representa el promedio, ubicándose aproximadamente en 6.3 al considerar el curso como unidad de análisis. Las notas bajo 5 son muy poco frecuentes, y prácticamente no existen registros entre 2 y 3. 
+
+```{r}
+#| label: fig-density-est
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(cc_facso, aes(x = n_estudiantes)) +
+  geom_density(fill = "#952626", color = "white", alpha = 0.7) +
+  labs(
+    x = "Número de estudiantes",
+    y = "Densidad",
+    title = "Concentración de cantidad de estudiantes por cursos FACSO (2018-2025)"
+  ) +
+  theme_minimal()
+```
+
+La @fig-density-est muestra la concentración de estudiantes por cursos a nivel facultad. El gráfico entrega un resultado importante: el volumen mayoritario de cursos tiene aproximadamente entre 1 a 10 estudiantes. Si bien hay una parte que cubre hasta los 60 estudiantes aproximadamente, la curva de la parte izquierda de la figura es sumamente pronunciada, resaltando con creces en comparación a las otras áreas. Este resultado es llamativo, pero es necesario profundizar un poco más en el análisis para encontrar alguna razón a ello.
+
+```{r}
+#| label: fig-semestres
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+cc_facso %>%
+  filter(!is.na(semestre_cv)) %>%
+  group_by(semestre_cv) %>%
+  summarise(promedio_estudiantes = mean(n_estudiantes, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = factor(semestre_cv), y = promedio_estudiantes, group = 1)) +
+  geom_line(color = "#952626") +
+  geom_point(color = "#680505") +
+  labs(
+    x = "Semestre curricular",
+    y = "Promedio de estudiantes por curso",
+    title = "Cantidad de estudiantes promedio por cursos impartidos en semestres FACSO (2018-2025)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Ante este panorama, es necesario ahondar en la composición de los cursos para entender en qué medida las calificaciones de distintos cursos son comparables. Al respecto, un elemento fundamental es el número de estudiantes por curso, ya que carece de sentido comparar cursos muy distintos en esta magnitud. Además, también se debe establecer cómo varía el tamaño de los cursos a medida que se avanza en las carreras, ya que es esperable que este vaya disminuyendo. En la @fig-semestres se muestra una caída pronunciada y sostenida en el número de estudiantes por curso a medida que avanza el semestre curricular. Los primeros cuatro semestres mantienen tamaños relativamente grandes y estables (~50–54 estudiantes), lo que refleja la estructura de cursos obligatorios masivos propios de los ciclos iniciales de las carreras. A partir del quinto semestre se produce un quiebre, con una caída que lleva el promedio de ~53 a ~35 estudiantes, y que continúa de forma acelerada hasta estabilizarse en valores muy bajos en los semestres finales. Esta trayectoria es consistente con la lógica curricular esperada: los semestres avanzados concentran cursos electivos, seminarios y actividades de titulación de menor matrícula.
+
+```{r}
+peq <- ggplot((cc_facso %>% filter (n_estudiantes < 10)), aes(x = nota_promedio)) +
+  geom_histogram(
+    binwidth = 0.1,
+    fill = "#952626",
+    color = "white"
+  ) +
+  scale_x_continuous(limits = c(0, 7)) +
+  scale_y_continuous(limits = c(0, 200)) +
+  labs(
+    x = "Notas",
+    y = "Frecuencia",
+    title = "Cursos menores a 10 estudiantes (N = 2368)"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+gr <- ggplot((cc_facso %>% filter (n_estudiantes >= 10)), aes(x = nota_promedio)) +
+  geom_histogram(
+    binwidth = 0.1,
+    fill = "#952626",
+    color = "white"
+  ) +
+  scale_x_continuous(limits = c(0, 7)) +
+  scale_y_continuous(limits = c(0, 200)) +
+  labs(
+    x = "Notas",
+    y = "Frecuencia",
+    title = "Cursos 10 o más estudiantes (N = 2291)"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+#| echo: false 
+#| label: fig-tamano
+#| fig-cap: Distribución de notas de cursos pequeños y normales FACSO (2018-2025)
+#| fig-cap-location: bottom
+#| fig-height: 8
+#| fig-width: 6
+
+peq / gr
+```
+
+Con el fin de despejar incógnitas, la @fig-tamano muestra la distribución de notas para cursos con menos de 10 estudiantes y para cursos con 10 o más estudiantes. Ambos gráficos muestran una concentración de notas en los rangos altos de la escala, pero las diferencias entre ambas distribuciones son sustantivas. Los cursos con menos de 10 estudiantes presentan una distribución fuertemente concentrada en las notas máximas —especialmente en torno a 7,0— y una marcada asimetría, junto con algunos casos extremos de notas bajas, lo que sugiere una menor variabilidad interna y una tendencia a calificaciones más altas. En cambio, los cursos con 10 o más estudiantes exhiben una distribución más equilibrada y dispersa, con una forma cercana a la normal y una concentración principal entre 5,5 y 6,5. Así, mientras los cursos pequeños tienden a acumular calificaciones excepcionalmente altas, los cursos más numerosos muestran patrones de evaluación más heterogéneos y moderados.
+
+Estos cursos pequeños, en la mayoría de los casos, son cursos con sólo  un estudiante, puesto que son ramos donde las personas desarrollan sus prácticas profesionales y/o memorias de título. El problema con esto es que un curso de una persona tendría el mismo peso que un curso de 100 estudiantes, por ejemplo, lo cual distorsionaría en gran medida los resultados de los análisis. Con el objetivo de realizar un estudio con el menor margen de error, en este informe se toma la  decisión de dejar fuera de los análisis posteriores todo curso que tenga menos de 10 estudiantes, lo que corresponde a 2368 cursos.
+
+### Notas
+
+#### Nivel facultad
+
+```{r}
+#| echo: false
+
+cc_facso <- cc_facso %>%
+  filter(n_estudiantes >= 10)
+```
+
+```{r}
+#| label: fig-facso-notas
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(cc_facso, aes(x = nota_promedio)) +
+  geom_histogram(
+    binwidth = 0.1,
+    fill = "#952626",
+    color = "white"
+  ) +
+  geom_vline(
+    xintercept = mean(cc_facso$nota_promedio, na.rm = TRUE),
+    linewidth = 1.2,
+    linetype = "dashed",
+    color = "black"
+  ) +
+  labs(
+    x = "Notas",
+    y = "Frecuencia",
+    title = "Distribución de notas FACSO (2018-2025)"
+  ) +
+  theme_minimal()
+```
+
+La @fig-facso-notas presenta la distribución de las notas a nivel facultad una vez eliminados los cursos con menos de 10 estudiantes. El gráfico muestra una distribución de notas con un promedio 6.0, difiriendo con el resultado antes del filtrado. Su distribución se concentra principalmente entre 5,5 y 6,5, representando un 67% del total, y con su punto máximo en torno a 6,1–6,3, lo que indica un predominio de cursos con calificaciones altas en la facultad. La distribución presenta una leve asimetría hacia la izquierda, evidenciada por una cola de casos con notas más bajas, aunque estos son relativamente poco frecuentes. Asimismo, las notas extremas bajo 5,0 aparecen de manera marginal, mientras que las calificaciones cercanas a 7,0 disminuyen progresivamente. En conjunto, los resultados sugieren calificaciones elevadas y homogéneas.
+
+#### Facultad y carreras a lo largo del tiempo
+
+```{r}
+#| echo: false
+#| label: fig-facso-notas-tiempo
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(cc_facso, aes(x = factor(ano), y = nota_promedio)) +
+  geom_boxplot(fill = "#952626") +
+  labs(
+    x = "Año",
+    y = "Notas",
+    title = "Distribución de notas FACSO por año"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+En @fig-facso-notas-tiempo se presentan las notas promedio por año a nivel facultad junto a otras medidas estadísticas. El gráfico muestra un aumento sostenido de las notas promedio de la facultad entre 2018 y 2021, pasando desde medianas cercanas a 5,5–5,7 hacia valores sobre 6,1, lo que sugiere un incremento generalizado en las calificaciones, bien la flexibilización de los estándares de evaluación durante ese período. A partir de 2021, las distribuciones tienden a estabilizarse en torno a promedios altos, manteniéndose relativamente constantes hasta 2025, aunque con una leve disminución en 2024 y una recuperación parcial en 2025. Asimismo, desde 2020 en adelante se observa una mayor dispersión y una presencia más frecuente de valores atípicos bajos, especialmente entre 2022 y 2025, indicando que, pese a la estabilidad de las medianas, persisten diferencias importantes en el desempeño de algunos cursos o estudiantes. 
+
+```{r}
+#| echo: false
+#| label: fig-box-notas-facso
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(cc_facso, aes(x = carrera, y = nota_promedio, fill = carrera)) +
+  geom_boxplot() +
+    scale_fill_paletteer_d("ggsci::default_nejm") +
+  labs(
+    x = "Carrera",
+    y = "Notas",
+    title = "Distribución de notas promedio por carrera (2018-2025)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+En @fig-box-notas-facso se pueden observar los promedios de las distintas carreras considerando información entre 2018 y 2025. El gráfico evidencia diferencias moderadas pero consistentes entre carreras en la distribución de las notas. Psicología y Educación Parvularia presentan las medianas más altas, ambas sobre 6,2, mientras Antropología, Sociología y Trabajo Social muestran medianas alrededor de 6,0. Sociología y Antropología destacan además por exhibir una mayor dispersión y una mayor cantidad de valores atípicos bajos, indicando heterogeneidad en sus cursos. Por su parte, Educación Parvularia presenta una distribución más compacta y homogénea, mientras que Psicología combina medianas altas con una dispersión relativamente amplia. En conjunto, aunque todas las carreras concentran sus notas en niveles elevados, existen diferencias relevantes en términos de variabilidad de los desempeños académicos.
+
+```{r}
+#| echo: false
+#| label: fig-trayec-notas-facso
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+cc_facso %>%
+  group_by(ano, carrera) %>%
+  summarise(nota_media = mean(nota_promedio, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = factor(ano), y = nota_media, color = carrera, group = carrera)) +
+
+  geom_line(linewidth = 1) +
+  geom_point(size = 2.5) +
+
+  scale_color_paletteer_d("ggsci::default_nejm") +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x      = "Año",
+    y      = "Nota promedio",
+    color  = "Carrera",
+    title  = "Trayectoria de notas por carrera"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position    = "bottom",
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  ) +
+  coord_cartesian(ylim = c(4, 7))
+```
+
+ @fig-trayec-notas-facso presenta la evolución de las notas promedio por carrera entre 2018 y 2025. En términos generales, todas las carreras muestran un patrón similar: las notas aumentan entre 2018 y 2020-2021, para luego estabilizarse o descender levemente hacia el final del período. Este comportamiento es especialmente claro en Psicología y Educación Parvularia, que mantienen de manera consistente los promedios más altos durante todo el período, superando en la mayoría de los años el 6,0. En contraste, Antropología presenta una trayectoria de menor rendimiento, partiendo desde 5,6 en 2018, alcanzando un peak en 2020 cercano al 6,0, y mostrando un descenso sostenido hacia 2025 hasta situarse en torno al 5,7. Sociología y Trabajo Social exhiben trayectorias intermedias y relativamente similares entre sí, con valores que oscilan entre 5,5 y 6,0 a lo largo del período, aunque con algunas fluctuaciones puntuales como la caída de Sociología en 2019.
+
+Un elemento destacable es el alza generalizada observada entre 2019 y 2021, presente en todas las carreras, lo que podría asociarse al contexto de pandemia y los ajustes en las modalidades de evaluación. En conjunto, los resultados evidencian una convergencia general hacia niveles altos de notas, con Educación Parvularia y Psicología liderando consistentemente el período, y Antropología como la carrera con el rendimiento promedio más bajo y la tendencia más descendente en los últimos años.
+
+### Tasa de aprobación
+
+Otra arista importante para entender las calificaciones en la facultad, y que está directamente ligada a las notas, es el porcentaje de aprobación dentro de los cursos. El porcentaje de aprobación puede entregar pistas de la complejidad que implica cursar ramos universitarios y superarlos exitosamente. En este sentido, el aprobar un ramo debería ser signo de reconocimiento respecto al cumplimiento de los aprendizajes esperados dentro de una cátedra.
+
+#### Facultad en el tiempo
+
+```{r}
+#| label: tbl-aprobacion
+#| tbl-cap: Elaboración propia (2026)
+#| tbl-cap-location: bottom
+
+tabla_aprobacion <- cc_facso %>%
+  group_by(ano) %>%
+  summarise(
+    aprobacion_promedio =
+      round(mean(porcentaje_aprobacion, na.rm = TRUE), 2),
+    n_cursos = n()
+  ) %>%
+  bind_rows(
+    tibble(
+      ano = "Total",
+      aprobacion_promedio = round(
+        mean(.$aprobacion_promedio, na.rm = TRUE), 2
+      ),
+      n_cursos = sum(.$n_cursos, na.rm = TRUE)
+    )
+  )
+
+tabla_aprobacion %>%
+  kable(
+    col.names = c(
+      "Año",
+      "Aprobación promedio (%)",
+      "N cursos"
+    ),
+    caption = "Porcentaje de aprobación de la facultad por año:"
+  ) %>%
+  kable_styling(
+    bootstrap_options = c(
+      "striped",
+      "hover",
+      "condensed",
+      "responsive"
+    ),
+    latex_options = c("hold_position", "scale_down"),
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#952626") %>%
+  row_spec(nrow(tabla_aprobacion),
+           bold = TRUE,
+           background = "#f2f2f2")
+```
+
+La @tbl-aprobacion presenta los porcentajes de aprobación en FACSO por año. Se puede observar un patrón estable en el tiempo: todos los años tienen un 97% de aprobación promedio, variando solamente en algunas décimas. A pesar de que 2022 y 2023 concentran mayores cantidades de cursos que otros años, la consistencia en la aprobación de los cursos es persistente. Este resultado indica que en FACSO existe una cantidad mínima de cursos que cuentan con estudiantes reprobados, lo cual también se puede comprender como una alta homogeneización en términos evaluativos al notar que solamente un 3% de la población estudiantil reprueba.
+
+#### Carreras en el tiempo
+
+```{r}
+#| label: fig-aprobacion
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+cc_aprob <- cc_facso %>%
+  group_by(ano, carrera) %>%
+  summarise(
+    porcentaje_aprobacion = mean(porcentaje_aprobacion, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+ggplot(cc_aprob, aes(x = ano, y = porcentaje_aprobacion, group = carrera, color = carrera)) +
+  geom_line(linewidth = 1) +
+  geom_point() +
+  scale_x_discrete(limits = as.character(2018:2025)) +
+  scale_color_paletteer_d("ggsci::default_nejm") +
+
+  scale_y_continuous(
+    limits = c(90, 100),
+    breaks = c(90, 92, 94, 96, 98, 100)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Porcentaje de aprobación",
+    color = "Carrera",
+    title = "Porcentaje de aprobación en el tiempo por carrera"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position    = "bottom",
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+```
+
+En la @fig-aprobacion se muestran los porcentajes de aprobación promedio de cada carrera desde el 2018 hasta el 2025. El gráfico muestra que las tasas de aprobación en todas las carreras de FACSO se mantienen consistentemente elevadas a lo largo del período 2018–2025, oscilando casi siempre entre el 95% y el 100%, lo que indica que la reprobación es un fenómeno marginal en la facultad con independencia de la carrera o el año. Dicho esto, emergen algunas diferencias relevantes: Psicología y Educación Parvularia son las carreras más estables y con tasas sostenidamente altas, rozando el 99% en varios años. Antropología, en cambio, muestra la trayectoria más volátil y una tendencia levemente decreciente, partiendo cerca del 100% en 2018 y situándose en torno al 96% hacia 2024–2025. Por su parte, Sociología es la carrera con mayor variabilidad entre años y registra los valores más bajos del conjunto, con una caída en 2019 (~94%) y fluctuaciones persistentes que la ubican por debajo del resto de carreras. Trabajo Social presenta un comportamiento intermedio, con ciertas variaciones pero relativamente estable. En suma, aunque el nivel general de aprobación es alto en toda la facultad, Sociología y Antropología exhiben una fragilidad relativa que las distingue del resto al ser durante varios años las carreras con las tasas de aprobación más bajas, aunque el panorama general sigue mostrando una alta aprobación en todas las carreras.
+
+### Dispersión de notas
+
+Hasta ahora, sabemos que las notas individuales son altas, y que la tasa de reprobación es muy baja, pero no sabemos qué tanto varían las notas dentro de cada curso. Esto es especialmente importante, ya que cursos con una dispersión más homogénea no permiten distinguir a los y las estudiantes que tienen un rendimiento sobresaliente de aquellos con un rendimiento regular, inhibiendo el rol diferenciador de las evaluaciones, lo que puede causar una sensación de injusticia en la población estudiantil. Por ello, además de estudiar las calificaciones, es relevante entender la dispersión de las notas.
+
+La desviación estándar es una medida estadística que permite evaluar el grado de dispersión o variabilidad de las notas respecto de su promedio. En términos simples, indica qué tan homogéneo o heterogéneo es el desempeño académico de los y las estudiantes dentro de un curso. Por ejemplo, si el promedio de notas de la facultad es 5.9 y tiene una desviación estándar de 1, esto significa el 68% de los casos se encuentra entre +1 y -1 desviación estándar, es decir, entre el 5.8 y el 6.0 (asumiendo una distribución normal de las notas).
+
+El análisis de esta medida resulta especialmente relevante para comprender las dinámicas de evaluación al interior de los cursos, ya que permite complementar la información entregada por los promedios de notas. De esta manera, la desviación estándar contribuye a identificar cursos con evaluaciones más homogéneas o más diferenciadoras, entregando una visión más completa sobre las prácticas de evaluación y el desempeño estudiantil.
+
+
+
+#### Nivel facultad 
+
+```{r}
+#| label: fig-desv-facso
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(cc_facso, aes(x = desv_std)) +
+  geom_density(
+    fill = "#952626",
+    alpha = 0.4
+  ) +
+  labs(
+    x = "Desviación estándar",
+    y = "Densidad",
+    title = "Distribución de dispersión de notas FACSO (2018-2025)"
+  ) +
+  theme_minimal()
+```
+
+En la @fig-desv-facso se muestra la concentración de las desviaciones estándar de los cursos impartidos en FACSO. Se puede observar que la mayoría de los cursos presentan desviaciones estándar entre 0 y 1, donde la mayor concentración se ubica en el 0.4. Esto quiere decir que el patrón más recurrente es que los cursos tienden a variar + o - 0.4 décimas respecto a su promedio. Con ello, los resultados indican que la mayoría de los cursos en FACSO mantienen una variabilidad media baja.  
+
+Considerando que el promedio de notas de la facultad es 6.0, una desviación estándar de 0.4 implica que aproximadamente el 68% de los estudiantes en un curso típico se encuentra entre 5.6 y 6.4, mientras que el 96% se halla entre 5.2 y 6.8, lo que sugiere una alta homogeneidad en las calificaciones. Sin embargo, también se observa una cola hacia desviaciones estándar más altas, lo que indica que existen cursos con mayor heterogeneidad en las notas, aunque estos son menos frecuentes.
+
+#### Facultad en el tiempo
+
+```{r}
+#| label: fig-desv-facso-tiempo
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+sd_anual <- cc_facso %>%
+  group_by(ano) %>%
+  summarise(
+    sd_promedio =
+      mean(desv_std, na.rm = TRUE)
+  )
+
+sd_anual <- sd_anual %>%
+  mutate(ano = as.numeric(ano))
+
+ggplot(sd_anual,
+       aes(x = ano, y = sd_promedio)) +
+
+  geom_line(
+    color = "#952626",
+    linewidth = 1,
+    alpha = 0.5
+  ) +
+
+  geom_point(
+    color = "#952626",
+    size = 2.5
+  ) +
+
+  scale_x_continuous(
+    breaks = sd_anual$ano
+  ) +
+
+  coord_cartesian(ylim = c(0, 1)) +
+
+  labs(
+    x = "Año",
+    y = "Desviación estándar promedio",
+    title = "Desviación estándar promedio por año FACSO"
+  ) +
+
+  theme_minimal()
+```
+
+En la @fig-desv-facso-tiempo se presentan las desviaciones estándar promedios por año a nivel facultad. En el gráfico se puede observar que el 2019 es el año con mayor dispersión de notas, seguido de una baja el 2020 que posteriormente vuelve a tomar un patrón ascendente hasta 2022. Seguido de esto, la trayectoria presenta un comportamiento irregular donde 2023 disminuye la dispersión, el año siguiente aumenta y, finalmente, el 2025 se caracteriza por ser el año con mayor homogeneidad en las calificaciones. Con todo, se puede evidenciar que a medida que pasa el tiempo las evaluaciones tienden a homogeneizarse, lo cual se expresa en una menor dispersión promedio. 
+
+#### Nivel carrera
+
+```{r}
+#| label: fig-desv-carr
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(
+  (cc_facso %>% filter(n_estudiantes >= 10)),
+  aes(x = desv_std, fill = carrera)
+) +
+  geom_density(alpha = 0.5) +
+  scale_fill_paletteer_d("ggsci::default_nejm") +
+  labs(
+    x = "Desviación estándar",
+    y = "Densidad",
+    title = "Distribución de dispersión de notas por carrera(2018-2025)",
+    fill = "Carrera"
+  ) +
+  theme_minimal()
+```
+
+En la @fig-desv-carr se muestran las concentraciones de desviaciones estándar por carrera. En el gráfico se puede observar que todas las carreras comparten un patrón similar: la gran mayoría de sus cursos concentra desviaciones estándar bajas (entre 0.2 y 0.5), lo que indica que en general el rendimiento estudiantil tiende a ser homogéneo. Sin embargo, existen diferencias relevantes en las colas de la distribución: Antropología destaca claramente del resto al presentar una cola derecha notoriamente más extensa, con cursos que alcanzan desviaciones estándar de hasta 2.0–2.5, evidenciando que poseen una proporción mayor de cursos con rendimiento altamente heterogéneo. Educación Parvularia y Trabajo Social, en cambio, muestran las distribuciones más concentradas y con colas más cortas, sugiriendo mayor uniformidad en sus calificaciones. Psicología presenta la forma más alta y estrecha, lo que la posiciona como la carrera con menor dispersión interna en sus calificaciones. Por su parte, Sociología ocupa una posición intermedia con una dispersión moderada, pero con una cola derecha más amplia que las demás carreras, sugiriendo que presenta una mayor cantidad de cursos con desviaciones estándar mayores a 1. En síntesis, si bien el patrón general apunta hacia notas homogéneas en toda la facultad, Antropología y Sociología resaltan como la excepción, con una variabilidad interna mayor que el resto de las carreras.
+
+#### Carreras en el tiempo
+
+```{r}
+#| label: fig-desv-carr-tiempo
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+sd_anual <- cc_facso %>%
+  group_by(ano, carrera) %>%
+  summarise(
+    sd_promedio = mean(desv_std, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    ano = as.numeric(ano)
+  )
+
+ggplot(
+  sd_anual,
+  aes(x = ano,
+      y = sd_promedio,
+      color = carrera,
+      group = carrera)
+) +
+
+  geom_line(
+    linewidth = 1,
+    alpha = 0.7
+  ) +
+
+  geom_point(
+    size = 2.5
+  ) +
+
+  scale_color_paletteer_d("ggsci::default_nejm") +
+
+  scale_x_continuous(
+    breaks = sort(unique(sd_anual$ano))
+  ) +
+
+  coord_cartesian(ylim = c(0, 1)) +
+
+  labs(
+    x = "Año",
+    y = "Desviación estándar promedio",
+    color = "Carrera",
+    title = "Trayectoria de la desviación estándar promedio por carrera"
+  ) +
+
+  theme_minimal()
+```
+
+En la @fig-desv-carr-tiempo se muestra la evolución de la dispersión de notas por carrera entre 2018 y 2025, revelando trayectorias claramente diferenciadas. Psicología destaca por una tendencia decreciente sostenida, convergiendo hacia valores cercanos a 0.43–0.47 en 2025, lo que indica una progresiva homogeneización del rendimiento. Si bien Educación Parvularia también presenta una trayectoria descendente, tiene la particularidad que el año 2024 su dispersión se dispara en términos heterogéneos para luego decaer abruptamente el año siguiente. Sociología, en contraste, es la carrera con mayor y más persistente dispersión a lo largo de todo el período, alcanzando su punto más alto el 2019 y niveles que se mantienen elevados hasta 2022 para luego descender moderadamente, confirmando la heterogeneidad en los cursos que la carrera. Por su lado, Antropología se presenta con una tendencia ascendente entre 2018 y 2024 que los años posteriores decae, mientras que Trabajo Social tiene sus puntos de dispersión más altos los años límites del estudio, notándose un patrón homogeneización entre 2020 y 2023. En conjunto, los datos sugieren que la dispersión en FACSO no es un fenómeno uniforme sino que responde a dinámicas propias de cada carrera.
+
+
+
+## Cruces
+
+Esta subsección tiene el objetivo de profundizar en los resultados ya encontrados a partir de la asociación de las calificaciones de los cursos con variables que caracterizan a estos mismos. En esta línea, el paso siguiente es comprender en qué medida el tipo de curso, el género y el tamaño del curso determinan las notas universitarias. 
+
+### Tipo de curso
+
+#### Nivel facultad
+
+```{r}
+#| label: fig-car-facso
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot((cc_facso %>% filter(!is.na(caracter))),
+       aes(x = caracter,
+           y = nota_promedio,
+           fill = caracter)) +
+  scale_fill_manual(values = c(
+    "Obligatorio"  = "#0082fc",
+    "Electivo"     = "#fa7a03"
+  )) +
+  geom_boxplot(alpha = 0.7) +
+  labs(
+    x = "Carácter del curso",
+    y = "Notas",
+    title = "Concentración de notas según carácter FACSO (2018-2025)"
+  ) +
+
+  theme_minimal()
+```
+
+En la @fig-car-facso se presentan las distribuciones de notas distinguiendo por cursos obligatorios y electivos. El gráfico muestra que los cursos electivos tienen una mediana 6.3 con una distribución compacta y con algunos casos extremos. Por su parte, los cursos obligatorios poseen una mediana cercana al 6.0 con una distribución ligeramente más dispersa que los cursos electivos, pero con una mayor cantidad de cursos que presentan valores muy bajos. En síntesis, los cursos electivos tienen valores más altos y concentrados en la parte alta de la escala de notas en comparación a los cursos obligatorios.
+
+
+#### Trayectoria nivel facultad
+
+```{r}
+trayectoria_caracter <- cc_facso %>%
+  filter(!is.na(caracter)) %>%
+  group_by(ano, caracter) %>%
+  summarise(
+    nota_promedio = mean(nota_promedio, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+trayectoria_carrera <- cc_facso %>%
+  group_by(ano, caracter, carrera) %>%
+  summarise(
+    nota_promedio = mean(nota_promedio, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+```{r}
+#| label: fig-car-facso-tiempo
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(trayectoria_caracter,
+       aes(x = ano,
+           y = nota_promedio,
+           color = caracter,
+           group = caracter)) +
+
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "Obligatorio" = "#0082fc",
+      "Electivo"    = "#fa7a03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(5, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Nota promedio",
+    color = "Carácter",
+    title = "Trayectoria de notas por año según carácter FACSO"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+```
+
+En la @fig-car-facso-tiempo se muestran los promedios de notas de los cursos electivos obligatorios por año. Los resultados muestran que durante todo el período analizado los cursos electivos mantienen notas promedio consistentemente superiores a los obligatorios. Ambas categorías experimentan un alza notable en 2020–2021, atribuible a la flexibilidad académica durante la pandemia, pero la trayectoria post-pandemia revela una divergencia estructural: mientras los electivos se estabilizan en torno a 6.2–6.3, los cursos obligatorios muestran una caída sostenida que hacia 2025 los sitúa cerca a los niveles pre-pandemia (~5.8), sugiriendo que el retorno a la presencialidad impactó de forma asimétrica ambos tipos de cursos.
+
+#### Nivel carrera
+
+:::panel-tabset
+
+#### Sociología
+```{r}
+#| echo: false
+#| label: fig-box-socio
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+aa <- ggplot((cc_facso %>% filter(carrera == "Sociología")),
+       aes(x = caracter,
+           y = nota_promedio,
+           fill = caracter)) +
+  scale_fill_manual(values = c(
+    "Obligatorio"  = "#0082fc",
+    "Electivo"     = "#fa7a03"
+  )) +
+
+  geom_boxplot(alpha = 0.7) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  labs(
+    x = "Carácter del curso",
+    y = "Notas",
+    title = "Sociología"
+  ) +
+
+  theme_minimal()
+
+aa
+```
+
+#### Psicología
+```{r}
+#| echo: false
+#| label: fig-box-psico
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ab <- ggplot((cc_facso %>% filter(carrera == "Psicología")),
+       aes(x = caracter,
+           y = nota_promedio,
+           fill = caracter)) +
+  scale_fill_manual(values = c(
+    "Obligatorio"  = "#0082fc",
+    "Electivo"     = "#fa7a03"
+  )) +
+
+  geom_boxplot(alpha = 0.7) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  labs(
+    x = "Carácter del curso",
+    y = "Notas",
+    title = "Psicología"
+  ) +
+
+  theme_minimal()
+
+ab
+```
+
+#### Antropología
+```{r}
+#| echo: false
+#| label: fig-box-ant
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ac <- ggplot((cc_facso %>% filter(carrera == "Antropología")),
+       aes(x = caracter,
+           y = nota_promedio,
+           fill = caracter)) +
+  scale_fill_manual(values = c(
+    "Obligatorio"  = "#0082fc",
+    "Electivo"     = "#fa7a03"
+  )) +
+
+  geom_boxplot(alpha = 0.7) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  labs(
+    x = "Carácter del curso",
+    y = "Notas",
+    title = "Antropología"
+  ) +
+
+  theme_minimal()
+
+ac
+```
+
+#### Trabajo Social
+```{r}
+#| echo: false
+#| label: fig-box-ts
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ad <- ggplot((cc_facso %>% filter(carrera == "Trabajo Social")),
+       aes(x = caracter,
+           y = nota_promedio,
+           fill = caracter)) +
+  scale_fill_manual(values = c(
+    "Obligatorio"  = "#0082fc",
+    "Electivo"     = "#fa7a03"
+  )) +
+
+  geom_boxplot(alpha = 0.7) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  labs(
+    x = "Carácter del curso",
+    y = "Notas",
+    title = "Trabajo Social"
+  ) +
+
+  theme_minimal()
+
+ad
+```
+
+#### Educación Parvularia
+```{r}
+#| echo: false
+#| label: fig-box-ed
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ae <- ggplot((cc_facso %>% filter(carrera == "Educación Parvularia") %>% filter(!is.na(caracter))),
+       aes(x = caracter,
+           y = nota_promedio,
+           fill = caracter)) +
+  scale_fill_manual(values = c(
+    "Obligatorio"  = "#0082fc",
+    "Electivo"     = "#fa7a03"
+  )) +
+
+  geom_boxplot(alpha = 0.7) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  labs(
+    x = "Carácter del curso",
+    y = "Notas",
+    title = "Educación Parvularia"
+  ) +
+
+  theme_minimal()
+
+ae
+```
+:::
+
+En este panel se observan las distribuciones de las notas distinguiendo cursos electivos y obligatorios por carrera. Los boxplots muestran un patrón consistente en las 5 carreras de FACSO: los cursos electivos presentan medianas levemente superiores exceptuando Educación Parvularia, con cajas estrechas y prácticamente sin valores atípicos en comparación a los cursos obligatorios, lo que refleja calificaciones homogéneas concentradas en el tramo alto. Los cursos obligatorios, en cambio, exhiben mayor variabilidad y outliers hacia la baja en todas las unidades académicas —particularmente en Antropología y Educación Parvularia—, evidenciando una distribución más heterogénea con presencia de rendimientos inferiores. Con todo, el hecho de que este patrón se replique de forma casi idéntica en Sociología, Psicología, Antropología y Trabajo Social sugiere que se trata de un fenómeno estructural de la facultad y no de una particularidad de alguna carrera específica.
+
+#### Trayectorias por carrera
+
+:::panel-tabset
+
+#### Sociología
+```{r}
+#| echo: false
+#| label: fig-car-socio-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+af <- ggplot((trayectoria_carrera %>% filter(carrera == "Sociología")),
+       aes(x = ano,
+           y = nota_promedio,
+           color = caracter,
+           group = caracter)) +
+
+  geom_line(linewidth = 1.2) +
+
+  geom_point(size = 2.5) +
+
+
+  scale_color_manual(
+    values = c(
+      "Obligatorio" = "#0082fc",
+      "Electivo"    = "#fa7a03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x       = "Año",
+    y       = "Nota promedio",
+    color   = "Carácter",
+    title   = "Sociología",
+    caption = "Los años sin puntos no tienen información disponible"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+af
+```
+
+#### Psicología
+```{r}
+#| echo: false
+#| label: fig-car-psico-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ag <- ggplot((trayectoria_carrera %>% filter(carrera == "Psicología")),
+       aes(x = ano,
+           y = nota_promedio,
+           color = caracter,
+           group = caracter)) +
+
+  geom_line(linewidth = 1.2) +
+
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "Obligatorio" = "#0082fc",
+      "Electivo"    = "#fa7a03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x       = "Año",
+    y       = "Nota promedio",
+    color   = "Carácter",
+    title   = "Psicología",
+    caption = "Los años sin puntos no tienen información disponible"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+ag
+```
+
+#### Antropología
+```{r}
+#| echo: false
+#| label: fig-car-ant-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ah <- ggplot((trayectoria_carrera %>% filter(carrera == "Antropología")),
+       aes(x = ano,
+           y = nota_promedio,
+           color = caracter,
+           group = caracter)) +
+
+  geom_line(linewidth = 1.2) +
+
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "Obligatorio" = "#0082fc",
+      "Electivo"    = "#fa7a03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x       = "Año",
+    y       = "Nota promedio",
+    color   = "Carácter",
+    title   = "Antropología",
+    caption = "Los años sin puntos no tienen información disponible"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+ah
+```
+
+#### Trabajo Social
+
+```{r}
+#| echo: false
+#| label: fig-car-ts-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ai <- ggplot((trayectoria_carrera %>% filter(carrera == "Trabajo Social")),
+       aes(x = ano,
+           y = nota_promedio,
+           color = caracter,
+           group = caracter)) +
+
+  geom_line(linewidth = 1.2) +
+
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "Obligatorio" = "#0082fc",
+      "Electivo"    = "#fa7a03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x       = "Año",
+    y       = "Nota promedio",
+    color   = "Carácter",
+    title   = "Trabajo Social",
+    caption = "Los años sin puntos no tienen información disponible"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+ai
+```
+
+#### Educación Parvularia
+```{r}
+#| echo: false
+#| label: fig-car-ed-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+aj <- ggplot((trayectoria_carrera %>% filter(carrera == "Educación Parvularia") %>% filter(!is.na(caracter))),
+       aes(x = ano,
+           y = nota_promedio,
+           color = caracter,
+           group = caracter)) +
+
+  geom_line(linewidth = 1.2) +
+
+  geom_point(size = 2.5) +
+
+  coord_cartesian(ylim = c(4, 7)) +
+
+  scale_color_manual(
+    values = c(
+      "Obligatorio" = "#0082fc",
+      "Electivo"    = "#fa7a03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x       = "Año",
+    y       = "Nota promedio",
+    color   = "Carácter",
+    title   = "Educación Parvularia",
+    caption = "Los años sin puntos no tienen información disponible"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+aj
+```
+::::
+
+Este panel de gráficos muestra la trayectoria de notas promedio por carácter del curso en cada carrera. Los electivos superan consistentemente a los obligatorios en casi todas las carreras, pero con matices importantes. Sociología mantiene una brecha estable y persistente a lo largo de todo el período, con los obligatorios mostrando una caída hacia 2025 que amplía la diferencia respecto a los electivos. Asimismo, Psicología presenta la brecha más pronunciada de la facultad, con electivos que se estabilizan en torno a 6.4 mientras los obligatorios descienden sostenidamente desde 2020, llegando a ~5.8 en 2025, lo que configura una divergencia post-pandemia particularmente marcada. Antropología es el caso más llamativo: ambas líneas convergen casi completamente desde 2020 en adelante, rondando el 5.8–6.0, sugiriendo que en esta carrera el carácter del curso no genera diferencias relevantes en el rendimiento. Por su parte, Trabajo Social muestra una brecha moderada pero con obligatorios que se estabilizan cerca del 5.9, mientras los electivos tienen un patrón estable sobre el 6.0. Educación Parvularia vuelve a destacar como caso atípico: los obligatorios parten más altos que los electivos en 2018 y ambas líneas se mantienen entrelazadas durante todo el período, con los electivos superando levemente el 2025 (~6.6 vs ~6.2), reforzando la idea de que en esta carrera el carácter del curso tiene escasa incidencia en las calificaciones.
+
+### Género
+
+#### Nivel facultad
+
+```{r}
+base_genero <- cc_facso %>%
+  mutate(
+    pct_mujeres = (n_mujeres / n_estudiantes) * 100,
+
+    tramo_mujeres = case_when(
+      pct_mujeres <= 20 ~ "0-20%",
+      pct_mujeres <= 40 ~ "21-40%",
+      pct_mujeres <= 60 ~ "41-60%",
+      pct_mujeres <= 80 ~ "61-80%",
+      TRUE ~ "81-100%"
+    )
+  )
+
+```
+
+```{r}
+#| label: fig-gen-facso
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(base_genero,
+       aes(x = tramo_mujeres,
+           y = nota_promedio,
+           fill = tramo_mujeres)) +
+
+  geom_boxplot(alpha = 0.8) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  scale_fill_manual(
+    values = c(
+      "0-20%" = "#f7ae8c",
+      "21-40%" = "#df8d09",
+      "41-60%" = "#e75838",
+      "61-80%" = "#952626",
+      "81-100%" = "#784c03"
+    )
+  ) +
+
+  labs(
+    x = "Porcentaje de mujeres",
+    y = "Nota promedio",
+    fill = "% mujeres",
+    title = "Distribución de notas según composición de género FACSO (2018-2025)"
+  ) +
+
+  theme_minimal()
+```
+
+La @fig-gen-facso muestra una asociación leve pero visible entre la composición de género y las notas: los cursos con mayor proporción de mujeres (81–100%) presentan las medianas más altas (~6.3) y menor dispersión, mientras que los grupos de composición mixta (21–80%) exhiben medianas más bajas (~5.9–6.0) y mayor variabilidad, con outliers que descienden hasta notas cercanas a 4.0. Aun así, las diferencias absolutas son pequeñas y deben interpretarse con cautela.
+
+#### Facultad en el tiempo
+
+```{r}
+#| echo: false
+
+genero_tiempo <- cc_facso %>%
+  mutate(
+    pct_mujeres = (n_mujeres / n_estudiantes) * 100,
+
+    tramo_mujeres = case_when(
+      pct_mujeres <= 20 ~ "0-20%",
+      pct_mujeres <= 40 ~ "21-40%",
+      pct_mujeres <= 60 ~ "41-60%",
+      pct_mujeres <= 80 ~ "61-80%",
+      TRUE ~ "81-100%"
+    )
+  ) %>%
+
+  group_by(ano, tramo_mujeres) %>%
+  summarise(
+    nota_promedio = mean(nota_promedio, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+```
+
+```{r}
+#| label: fig-gen-facso-tiempo
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(genero_tiempo,
+       aes(x = ano,
+           y = nota_promedio,
+           color = tramo_mujeres,
+           group = tramo_mujeres)) +
+
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "0-20%"   = "#f7ae8c",
+      "21-40%"  = "#df8d09",
+      "41-60%"  = "#e75838",
+      "61-80%"  = "#952626",
+      "81-100%" = "#784c03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Nota promedio",
+    color = "% mujeres",
+    title = "Trayectoria de notas según composición de género"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+```
+
+En la @fig-gen-facso-tiempo se presentan las trayectorias de los cursos agrupando por composición de género. El gráfico confirma y enriquece el hallazgo anterior: los cursos con mayor proporción de mujeres (81–100%) mantienen una ventaja sostenida y estable a lo largo de todo el período 2018–2025, situándose consistentemente por encima del resto (a excepción del 2024) con notas que oscilan entre 5.8 y 6.4. El resto de los grupos muestra trayectorias más entrelazadas y volátiles, con un alza generalizada en 2020–2021 que podría estar relacionada al efecto pandemia y una posterior convergencia hacia valores similares (~5.8–6.0) desde 2022 en adelante. Se destaca que los grupos de composición mixta (41–60% y 21–40%) no solo parten más bajos sino que exhiben mayor inestabilidad en sus trayectorias, mientras que el grupo 61–80% se comporta de forma más estable pero sin alcanzar las calificaciones promedio del grupo de mayor feminización. En síntesis, la composición de género predominantemente femenina se asocia con calificaciones superiores y más estables en el tiempo, mientras que los cursos con una mayor heterogeneidad de género presentan notas más bajas y trayectorias más cambiantes. 
+
+#### Nivel carrera
+
+:::panel-tabset
+
+#### Sociología
+```{r}
+#| echo: false
+#| label: fig-gen-socio
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ba <- ggplot((base_genero) %>% filter(carrera == "Sociología"),
+       aes(x = tramo_mujeres,
+           y = nota_promedio,
+           fill = tramo_mujeres)) +
+
+  geom_boxplot(alpha = 0.8) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  scale_fill_manual(
+    values = c(
+      "0-20%" = "#f7ae8c",
+      "21-40%" = "#df8d09",
+      "41-60%" = "#e75838",
+      "61-80%" = "#952626",
+      "81-100%" = "#784c03"
+    )
+  ) +
+
+  labs(
+    x = "Porcentaje de mujeres",
+    y = "Nota promedio",
+    fill = "% mujeres",
+    title = "Sociología"
+  ) +
+
+  theme_minimal()
+
+ba
+```
+
+#### Psicología
+```{r}
+#| echo: false
+#| label: fig-gen-psico
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+bb <- ggplot((base_genero) %>% filter(carrera == "Psicología"),
+       aes(x = tramo_mujeres,
+           y = nota_promedio,
+           fill = tramo_mujeres)) +
+
+  geom_boxplot(alpha = 0.8) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  scale_fill_manual(
+    values = c(
+      "0-20%" = "#f7ae8c",
+      "21-40%" = "#df8d09",
+      "41-60%" = "#e75838",
+      "61-80%" = "#952626",
+      "81-100%" = "#784c03"
+    )
+  ) +
+
+  labs(
+    x = "Porcentaje de mujeres",
+    y = "Nota promedio",
+    fill = "% mujeres",
+    title = "Psicología"
+  ) +
+
+  theme_minimal()
+
+bb
+```
+
+#### Antropología
+```{r}
+#| echo: false
+#| label: fig-gen-ant
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+bc <- ggplot((base_genero) %>% filter(carrera == "Antropología"),
+       aes(x = tramo_mujeres,
+           y = nota_promedio,
+           fill = tramo_mujeres)) +
+
+  geom_boxplot(alpha = 0.8) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  scale_fill_manual(
+    values = c(
+      "0-20%" = "#f7ae8c",
+      "21-40%" = "#df8d09",
+      "41-60%" = "#e75838",
+      "61-80%" = "#952626",
+      "81-100%" = "#784c03"
+    )
+  ) +
+
+  labs(
+    x = "Porcentaje de mujeres",
+    y = "Nota promedio",
+    fill = "% mujeres",
+    title = "Antropología"
+  ) +
+
+  theme_minimal()
+
+bc
+```
+
+#### Trabajo Social
+```{r}
+#| echo: false
+#| label: fig-gen-ts
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+bd <- ggplot((base_genero) %>% filter(carrera == "Trabajo Social"),
+       aes(x = tramo_mujeres,
+           y = nota_promedio,
+           fill = tramo_mujeres)) +
+
+  geom_boxplot(alpha = 0.8) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  scale_fill_manual(
+    values = c(
+      "0-20%" = "#f7ae8c",
+      "21-40%" = "#df8d09",
+      "41-60%" = "#e75838",
+      "61-80%" = "#952626",
+      "81-100%" = "#784c03"
+    )
+  ) +
+
+  labs(
+    x = "Porcentaje de mujeres",
+    y = "Nota promedio",
+    fill = "% mujeres",
+    title = "Trabajo Social"
+  ) +
+
+  theme_minimal()
+
+bd
+```
+
+#### Educación Parvularia
+```{r}
+#| echo: false
+#| label: fig-gen-ed
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+be <- ggplot((base_genero) %>% filter(carrera == "Educación Parvularia"),
+       aes(x = tramo_mujeres,
+           y = nota_promedio,
+           fill = tramo_mujeres)) +
+
+  geom_boxplot(alpha = 0.8) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  scale_fill_manual(
+    values = c(
+      "0-20%" = "#f7ae8c",
+      "21-40%" = "#df8d09",
+      "41-60%" = "#e75838",
+      "61-80%" = "#952626",
+      "81-100%" = "#784c03"
+    )
+  ) +
+
+  labs(
+    x = "Porcentaje de mujeres",
+    y = "Nota promedio",
+    fill = "% mujeres",
+    title = "Educación Parvularia"
+  ) +
+
+  theme_minimal()
+
+be
+```
+:::
+
+
+Los gráficos de este panel desagregan la relación entre composición de género de los cursos y notas por carrera. Al observar una por una las figuras, se puede notar la falta de categorías para algunas carreras como Trabajo Social y Educación Parvularia, lo cual se debe a la alta matrícula femenina en detrimento de la masculina en estos programas, limitando la comparación con las demás carreras. En Sociología se aprecia una leve ventaja del grupo 81–100% (~6.4) respecto a los demás, aunque con dispersión considerable y calificaciones inferiores en los grupos intermedios. En Psicología las distribuciones son prácticamente idénticas entre todos los grupos pero difieren en la mediana; se aprecia que el grupo de menor presencia femenina es apenas visible, lo que puede deberse a la poca cantidad de cursos dentro de esta categoría. En Antropología todas las categorías disponibles muestran dispersiones similares, pero es llamativo que la categoría más femenizada es la que tiene la mediana más baja. Por su lado, Trabajo Social, que solo cuenta con tres grupos, presenta un patrón escalonado ascendente, donde los cursos con mayor presencia femenina tienen mejores calificaciones. Educación Parvularia presenta únicamente el grupo 81–100%, lo que impide cualquier comparación interna. Si bien se pueden observar diferencias en los patrones entre carreras, el principal hallazgo es la inexistencia de cursos con proporciones bajas de mujeres en carreras como Trabajo Social y Educación Parvularia sugiriendo una predominación femenina de estudiantes que deciden cursar estos programas.
+
+#### Carrera en el tiempo
+
+```{r}
+#| echo: false
+
+trayectoria_genero <- base_genero %>%
+  group_by(ano, tramo_mujeres, carrera) %>%
+  summarise(
+    nota_promedio = mean(nota_promedio, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+```
+
+:::panel-tabset
+
+#### Sociología
+```{r}
+#| echo: false 
+#| label: fig-gen-socio-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+bf <- ggplot((trayectoria_genero %>% filter(carrera == "Sociología")),
+       aes(x     = ano,
+           y     = nota_promedio,
+           color = tramo_mujeres,
+           group = tramo_mujeres)) +
+
+  geom_line(linewidth = 1.2) +
+
+  geom_point(size = 2.5) +
+
+  coord_cartesian(ylim = c(4, 7)) +
+
+  scale_color_manual(
+    values = c(
+      "0-20%" = "#f7ae8c",
+      "21-40%" = "#df8d09",
+      "41-60%" = "#e75838",
+      "61-80%" = "#952626",
+      "81-100%" = "#784c03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Nota promedio",
+    color = "% mujeres",
+    title = "Sociología"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+bf
+```
+
+#### Psicología
+```{r}
+#| echo: false 
+#| label: fig-gen-psico-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+bg <- ggplot((trayectoria_genero %>% filter(carrera == "Psicología")),
+       aes(x     = ano,
+           y     = nota_promedio,
+           color = tramo_mujeres,
+           group = tramo_mujeres)) +
+
+  geom_line(linewidth = 1.2) +
+
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "0-20%" = "#f7ae8c",
+      "21-40%" = "#df8d09",
+      "41-60%" = "#e75838",
+      "61-80%" = "#952626",
+      "81-100%" = "#784c03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Nota promedio",
+    color = "% mujeres",
+    title = "Psicología"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+bg
+```
+
+#### Antropología
+```{r}
+#| echo: false 
+#| label: fig-gen-ant-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+bh <- ggplot((trayectoria_genero %>% filter(carrera == "Antropología")),
+       aes(x     = ano,
+           y     = nota_promedio,
+           color = tramo_mujeres,
+           group = tramo_mujeres)) +
+
+  geom_line(linewidth = 1.2) +
+
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "0-20%" = "#f7ae8c",
+      "21-40%" = "#df8d09",
+      "41-60%" = "#e75838",
+      "61-80%" = "#952626",
+      "81-100%" = "#784c03"
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Nota promedio",
+    color = "% mujeres",
+    title = "Antropología"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+bh
+```
+
+
+#### Trabajo Social
+```{r}
+#| echo: false 
+#| label: fig-gen-ts-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+bi <- ggplot((trayectoria_genero %>% filter(carrera == "Trabajo Social")),
+       aes(x     = ano,
+           y     = nota_promedio,
+           color = tramo_mujeres,
+           group = tramo_mujeres)) +
+
+  geom_line(linewidth = 1.2) +
+
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "0-20%" = "#f7ae8c",
+      "21-40%" = "#df8d09",
+      "41-60%" = "#e75838",
+      "61-80%" = "#952626",
+      "81-100%" = "#784c03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Nota promedio",
+    color = "% mujeres",
+    title = "Trabajo Social"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+bi
+```
+
+#### Educación Parvularia
+```{r}
+#| echo: false 
+#| label: fig-gen-ed-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+bj <- ggplot((trayectoria_genero %>% filter(carrera == "Educación Parvularia")),
+       aes(x     = ano,
+           y     = nota_promedio,
+           color = tramo_mujeres,
+           group = tramo_mujeres)) +
+
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "0-20%"   = "#f7ae8c",
+      "21-40%"  = "#df8d09",
+      "41-60%"  = "#e75838",
+      "61-80%"  = "#952626",
+      "81-100%" = "#784c03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Nota promedio",
+    color = "% mujeres",
+    title = "Educación Parvularia"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+bj
+```
+:::
+
+
+El anterior grupo de gráficos muestra la trayectoria de notas según composición de género al interior de cada carrera, y el hallazgo transversal más relevante es que no existe un patrón consistente ni uniforme entre carreras. En Sociología, el grupo 81–100% mujeres destaca con notas más altas y estables (~6.4–6.6), mientras el resto de los grupos presenta un alza notable en 2020 para luego variar con mayor volatilidad en torno al 6.0. En Psicología, las líneas se entrelazan de forma irregular y el grupo 21–40% muestra una caída abrupta en 2023 (~5.0) que distorsiona cualquier tendencia, sin que ningún grupo muestre una ventaja sostenida clara. Por su parte, en Antropología las categorías intermedias oscilan en un rango estrecho (~5.8–6.1) sin diferencias sistemáticas, pero se observa un resultado llamativo: desde 2024 se invierte el patrón y los cursos con menor presencia femenina son aquellos con mejores calificaciones. En Trabajo Social, el grupo 81–100% muestra una ventaja más visible y creciente hacia 2025 (~6.3), mientras el grupo 41–60% cae notoriamente en los últimos años. Educación Parvularia, con un único grupo disponible, se mantiene estable en torno a 6.1–6.3. En síntesis, si bien hay una tendencia en que la composición femenina obtiene mejores calificaciones, esto no se explica de forma sistemática, ya que las variaciones observadas responden más a dinámicas propias de cada carrera que a un efecto atribuible al género.
+
+### Cantidad de estudiantes
+
+```{r}
+#| echo: false
+
+cc_n <- cc_facso %>%
+  mutate(
+    tramo_estudiantes = case_when(
+      n_estudiantes <= 20 ~ "<= 20",
+      n_estudiantes <= 40 ~ "21-40",
+      n_estudiantes <= 60 ~ "41-60",
+      n_estudiantes <= 80 ~ "61-80",
+      TRUE ~ ">= 81"
+    ),
+    tramo_estudiantes = factor(
+      tramo_estudiantes,
+      levels = c("<= 20", "21-40", "41-60", "61-80", ">= 81")
+    )
+  )
+
+tiempo_n <- cc_facso %>%
+  mutate(
+    tramo_estudiantes = case_when(
+      n_estudiantes <= 20 ~ "<= 20",
+      n_estudiantes <= 40 ~ "21-40",
+      n_estudiantes <= 60 ~ "41-60",
+      n_estudiantes <= 80 ~ "61-80",
+      TRUE ~ ">= 81"
+    ),
+    tramo_estudiantes = factor(
+      tramo_estudiantes,
+      levels = c("<= 20", "21-40", "41-60", "61-80", ">= 81")
+    )
+  ) %>%
+  group_by(ano, tramo_estudiantes) %>%
+  summarise(
+    nota_promedio = mean(nota_promedio, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+```
+
+#### Nivel facultad 
+
+```{r}
+#| label: fig-est-facso
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(cc_n,
+       aes(x = tramo_estudiantes,
+           y = nota_promedio,
+           fill = tramo_estudiantes)) +
+
+  geom_boxplot(alpha = 0.8) +
+
+  scale_fill_manual(
+    values = c(
+      "<= 20" = "#f7ae8c",
+      "21-40"  = "#df8d09",
+      "41-60"  = "#e75838",
+      "61-80"  = "#952626",
+      ">= 81"  = "#784c03"
+    )
+  ) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  labs(
+    x = "Cantidad de estudiantes",
+    y = "Nota promedio",
+    fill = "Tamaño del curso",
+    title = "Distribución de notas según tamaño del curso FACSO (2018-2025)"
+  ) +
+
+  theme_minimal()
+```
+
+En la @fig-est-facso se observa una relación inversa leve entre el tamaño del curso y el rendimiento: los cursos más pequeños (≤20 y 21–40 estudiantes) presentan medianas ligeramente más altas (~6.1–6.2) y cajas más compactas en el rango superior, mientras que los cursos medianos y grandes (41–60, 61–80 y ≥81) muestran medianas algo menores (~5.9–6.0) y mayor dispersión, con cajas que se extienden hacia valores más bajos. Sin embargo, las diferencias absolutas entre grupos son pequeñas y todos los grupos comparten outliers hacia la baja, siendo los cursos de tamaño medio (41–60) los que presentan los valores atípicos más extremos (~3.9). En síntesis, aunque existe una tendencia a que los cursos más pequeños obtengan notas ligeramente superiores y más homogéneas, las diferencias no llegan a ser concluyentes.
+
+#### Facultad por año
+
+```{r}
+#| label: fig-est-facso-tiempo
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ggplot(tiempo_n,
+       aes(x = ano,
+           y = nota_promedio,
+           color = tramo_estudiantes,
+           group = tramo_estudiantes)) +
+
+  geom_line(linewidth = 1.2) +
+
+  coord_cartesian(ylim = c(4, 7)) +
+
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "<= 20" = "#f7ae8c",
+      "21-40"  = "#df8d09",
+      "41-60"  = "#e75838",
+      "61-80"  = "#952626",
+      ">= 81"  = "#784c03"
+    )
+  ) +
+scale_y_continuous(
+    limits = c(0, 7),
+    breaks = c(0, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Nota promedio",
+    color = "Tamaño del curso",
+    title = "Trayectoria de notas FACSO"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),  # elimina eje Y derecho duplicado
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+```
+
+La @fig-est-facso-tiempo muestra la trayectoria de notas según tamaño del curso entre 2018 y 2025, y el hallazgo más relevante es que las diferencias inicialmente observadas entre grupos se diluyen con el tiempo. En 2018 existe una diferenciación clara, con los cursos más pequeños (≤20) partiendo considerablemente más alto (~6.3) mientras los cursos grandes (61–80) tienen notas más bajas (~5.5), pero desde 2020 todas las líneas convergen en un rango estrecho de 5.9–6.2, sugiriendo que el efecto pandemia homogeneizó el rendimiento independientemente del tamaño. Desde el 2023  la dinámica se estabiliza, donde todos los grupos muestran una tendencia levemente decreciente (a excepción de los cursos entre 61-80 estudiantes) que los sitúa en torno a 5.8–6.2 hacia 2025, pero los cursos pequeños (≤20 y 21–40) se mantienen ligeramente con mejores calificaciones. En síntesis, el tamaño del curso muestra una asociación débil y decreciente con las notas: la ventaja de los cursos pequeños, notoria en 2018, se ha ido erosionando progresivamente, y la trayectoria post-pandemia apunta hacia una convergencia general con leve desventaja de los cursos más grandes.
+
+#### Nivel carrera
+
+:::panel-tabset
+#### Sociología
+```{r}
+#| echo: false
+#| label: fig-n-carrera-socio
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ca <- ggplot((cc_n) %>% filter(carrera == "Sociología"),
+       aes(x = tramo_estudiantes,
+           y = nota_promedio,
+           fill = tramo_estudiantes)) +
+
+  geom_boxplot(alpha = 0.8) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  scale_fill_manual(
+    values = c(
+      "<= 20" = "#f7ae8c",
+      "21-40"  = "#df8d09",
+      "41-60"  = "#e75838",
+      "61-80"  = "#952626",
+      ">= 81"  = "#784c03"
+    )
+  ) +
+
+  labs(
+    x = "Cantidad de estudiantes",
+    y = "Nota promedio",
+    fill = "Tamaño del curso",
+    title = "Sociología"
+  ) +
+
+  theme_minimal()
+
+ca
+```
+
+#### Psicología
+```{r}
+#| echo: false
+#| label: fig-n-carrera-psico
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+cb <- ggplot((cc_n) %>% filter(carrera == "Psicología"),
+       aes(x = tramo_estudiantes,
+           y = nota_promedio,
+           fill = tramo_estudiantes)) +
+
+  geom_boxplot(alpha = 0.8) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  scale_fill_manual(
+    values = c(
+      "<= 20" = "#f7ae8c",
+      "21-40"  = "#df8d09",
+      "41-60"  = "#e75838",
+      "61-80"  = "#952626",
+      ">= 81"  = "#784c03"
+    )
+  ) +
+
+  labs(
+    x = "Cantidad de estudiantes",
+    y = "Nota promedio",
+    fill = "Tamaño del curso",
+    title = "Psicología"
+  ) +
+
+  theme_minimal()
+
+cb
+```
+
+#### Antropología
+```{r}
+#| echo: false
+#| label: fig-n-ant
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+cc <- ggplot((cc_n) %>% filter(carrera == "Antropología"),
+       aes(x = tramo_estudiantes,
+           y = nota_promedio,
+           fill = tramo_estudiantes)) +
+
+  geom_boxplot(alpha = 0.8) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  scale_fill_manual(
+    values = c(
+      "<= 20" = "#f7ae8c",
+      "21-40"  = "#df8d09",
+      "41-60"  = "#e75838",
+      "61-80"  = "#952626",
+      ">= 81"  = "#784c03"
+    )
+  ) +
+
+  labs(
+    x = "Cantidad de estudiantes",
+    y = "Nota promedio",
+    fill = "Tamaño del curso",
+    title = "Antropología"
+  ) +
+
+  theme_minimal()
+
+cc
+```
+
+#### Trabajo Social
+```{r}
+#| echo: false
+#| label: fig-n-ts
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+cd <- ggplot((cc_n) %>% filter(carrera == "Trabajo Social"),
+       aes(x = tramo_estudiantes,
+           y = nota_promedio,
+           fill = tramo_estudiantes)) +
+
+  geom_boxplot(alpha = 0.8) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  scale_fill_manual(
+    values = c(
+      "<= 20" = "#f7ae8c",
+      "21-40"  = "#df8d09",
+      "41-60"  = "#e75838",
+      "61-80"  = "#952626",
+      ">= 81"  = "#784c03"
+    )
+  ) +
+
+  labs(
+    x = "Cantidad de estudiantes",
+    y = "Nota promedio",
+    fill = "Tamaño del curso",
+    title = "Trabajo Social"
+  ) +
+
+  theme_minimal()
+
+cd
+```
+
+#### Educación Parvularia
+```{r}
+#| echo: false
+#| label: fig-n-ed
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ce <- ggplot((cc_n) %>% filter(carrera == "Educación Parvularia"),
+       aes(x = tramo_estudiantes,
+           y = nota_promedio,
+           fill = tramo_estudiantes)) +
+
+  geom_boxplot(alpha = 0.8) +
+
+  coord_cartesian(ylim = c(1, 7)) +
+
+  scale_fill_manual(
+    values = c(
+      "<= 20" = "#f7ae8c",
+      "21-40"  = "#df8d09",
+      "41-60"  = "#e75838",
+      "61-80"  = "#952626",
+      ">= 81"  = "#784c03"
+    )
+  ) +
+
+  labs(
+    x = "Cantidad de estudiantes",
+    y = "Nota promedio",
+    fill = "Tamaño del curso",
+    title = "Educación Parvularia"
+  ) +
+
+  theme_minimal()
+
+ce
+```
+:::
+
+
+Este grupo de gráficos desagrega la relación entre tamaño del curso y las notas por carrera. Se observa un patrón general donde las diferencias son pequeñas y poco sistemáticas en todas las unidades. En Sociología se aprecia una leve tendencia decreciente: los cursos más pequeños (≤20) tienen medianas ligeramente superiores (~6.1) y los más grandes (≥81) muestran menores calificaciones y, en algunos casos, mayor dispersión. En Psicología el patrón es similar pero atenuado, con medianas más altas para los cursos de tamaño reducido y menores calificaciones acompañadas de mayor dispersión para cursos más numerosos . En Antropología no existe ninguna tendencia clara: todos los tamaños muestran medianas similares (~6.0) y dispersión homogénea con outliers distribuidos en varios grupos. Por el lado de Trabajo Social los cursos más grandes (61–80) presentan medianas más bajas (~5.8) respecto a los más pequeños, pero cuenta sólo con cuatro categorías. Educación Parvularia muestra un comportamiento uniforme, con medianas estables en torno a 6.0–6.1 independientemente del tamaño. En conjunto, el tamaño del curso presenta ciertas diferencias al analizar por carrera, pero en general no se encuentran diferencias sustantivas. 
+
+#### Carreras en el tiempo
+
+```{r}
+#| echo: false
+
+trayectoria_n <- cc_n %>%
+  group_by(ano, tramo_estudiantes, carrera) %>%
+  summarise(
+    nota_promedio = mean(nota_promedio, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+:::panel-tabset
+
+#### Sociología
+```{r}
+#| echo: false
+#| label: fig-n-socio-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+cf <- ggplot((trayectoria_n %>% filter(carrera == "Sociología")),
+       aes(x     = ano,
+           y     = nota_promedio,
+           color = tramo_estudiantes,
+           group = tramo_estudiantes)) +
+
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "<= 20" = "#f7ae8c",
+      "21-40"  = "#df8d09",
+      "41-60"  = "#e75838",
+      "61-80"  = "#952626",
+      ">= 81"  = "#784c03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Nota promedio",
+    color = "Tamaño del curso",
+    title = "Sociología"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),  # elimina eje Y derecho duplicado
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+cf
+```
+
+#### Psicología
+```{r}
+#| echo: false
+#| label: fig-n-psico-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+cg <- ggplot((trayectoria_n %>% filter(carrera == "Psicología")),
+       aes(x     = ano,
+           y     = nota_promedio,
+           color = tramo_estudiantes,
+           group = tramo_estudiantes)) +
+
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "<= 20" = "#f7ae8c",
+      "21-40"  = "#df8d09",
+      "41-60"  = "#e75838",
+      "61-80"  = "#952626",
+      ">= 81"  = "#784c03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Nota promedio",
+    color = "Tamaño del curso",
+    title = "Psicología"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),  # elimina eje Y derecho duplicado
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+cg
+```
+
+#### Antropología
+```{r}
+#| echo: false
+#| label: fig-n-ant-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ch <- ggplot((trayectoria_n %>% filter(carrera == "Antropología")),
+       aes(x     = ano,
+           y     = nota_promedio,
+           color = tramo_estudiantes,
+           group = tramo_estudiantes)) +
+
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "<= 20" = "#f7ae8c",
+      "21-40"  = "#df8d09",
+      "41-60"  = "#e75838",
+      "61-80"  = "#952626",
+      ">= 81"  = "#784c03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Nota promedio",
+    color = "Tamaño del curso",
+    title = "Antropología"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),  # elimina eje Y derecho duplicado
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+ch
+```
+
+#### Trabajo Social
+```{r}
+#| echo: false
+#| label: fig-n-ts-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+ci <- ggplot((trayectoria_n %>% filter(carrera == "Trabajo Social")),
+       aes(x     = ano,
+           y     = nota_promedio,
+           color = tramo_estudiantes,
+           group = tramo_estudiantes)) +
+
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "<= 20" = "#f7ae8c",
+      "21-40"  = "#df8d09",
+      "41-60"  = "#e75838",
+      "61-80"  = "#952626",
+      ">= 81"  = "#784c03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Nota promedio",
+    color = "Tamaño del curso",
+    title = "Trabajo Social"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),  # elimina eje Y derecho duplicado
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+ci
+```
+
+#### Educación Parvularia
+```{r}
+#| echo: false
+#| label: fig-n-ed-t
+#| fig-cap: Elaboración propia (2026)
+#| fig-cap-location: bottom
+
+cj <- ggplot(
+  (trayectoria_n %>% filter(carrera == "Educación Parvularia")),
+  aes(
+    x     = ano,
+    y     = nota_promedio,
+    color = tramo_estudiantes,
+    group = tramo_estudiantes
+  )
+) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2.5) +
+
+  scale_color_manual(
+    values = c(
+      "<= 20" = "#f7ae8c",
+      "21-40"  = "#df8d09",
+      "41-60"  = "#e75838",
+      "61-80"  = "#952626",
+      ">= 81"  = "#784c03"
+    )
+  ) +
+
+  scale_y_continuous(
+    limits = c(4, 7),
+    breaks = c(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+
+  labs(
+    x     = "Año",
+    y     = "Nota promedio",
+    color = "Tamaño del curso",
+    title = "Educación Parvularia"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y.right  = element_blank(),  # elimina eje Y derecho duplicado
+    axis.ticks.y.right = element_blank(),
+    axis.line.y.right  = element_blank()
+  )
+
+cj
+```
+:::
+
+Este grupo de gráficos presenta la trayectoria de notas según tamaño del curso por carrera, y el hallazgo central es que no existe un patrón sistemático que pueda generalizarse entre carreras. En Sociología, los cursos más pequeños (≤20) muestran una ventaja leve y creciente hacia 2025, mientras los más grandes (≥81) exhiben la trayectoria más baja e inestable, aunque todas las líneas se entrelazan frecuentemente. En Psicología, las líneas son altamente volátiles y se cruzan de forma irregular, sin que ningún tamaño mantenga una ventaja sostenida, destacando solo una caída pronunciada del grupo 61–80 en 2024. En Antropología, todas las categorías oscilan en un rango estrecho (~5.8–6.1) con trayectorias entrelazadas y sin diferencias apreciables. Por su parte, en Trabajo Social, el grupo 21–40 muestra una caída abrupta hacia 2024–2025 que lo distingue negativamente del resto, mientras que los cursos más grandes (61-80) experimentan un alza notoria el 2025. Educación Parvularia presenta el comportamiento más estable, con la mayoría de los grupos convergiendo en torno a 6.0–6.4 desde 2020 en adelante. Es llamativo que Trabajo Social y Educación Parvularia no tengan la categoría más alta de tamaños de curso, pero esto se debe a que las carreras no admiten tales cantidades de estudiantes por año, resultando en un límite de la planificación de matrículas En síntesis, desagregando por carrera, el tamaño del curso no explica de forma sistemática las diferencias en rendimiento, confirmando la conclusión del análisis transversal previo.
+
+ 

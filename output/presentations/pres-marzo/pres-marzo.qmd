@@ -1,0 +1,943 @@
+---
+format:
+  revealjs:
+    theme: workshop.scss
+    transition: slide
+    transition-speed: slow
+    slide-number: true
+    show-slide-number: print
+editor: source
+bibliography: estudio-notas.bib
+lang: es
+---
+
+```{r}
+#| echo: false
+
+pacman::p_load(knitr, digest, stargazer, sjPlot, codebook, summarytools, dplyr, tidyr,
+ tidyLPA, lme4, ggplot2, ggeffects, skimr, table1, patchwork, here, kableExtra, ggthemes, tidyverse,
+ ggbreak, texreg, coefplot, plotly, modelsummary)
+options(scipen = 999)
+```
+
+```{r}
+#| echo: false
+
+base_madre <- readRDS("../../input/data/proc_data/base_madre.rds")
+socio <- readRDS("../../input/data/proc_data/df_socio.rds")
+psico <- readRDS("../../input/data/proc_data/df_psico.rds")
+trabajo <- readRDS("../../input/data/proc_data/df_trabajo.rds")
+educa <- readRDS("../../input/data/proc_data/df_parvularia.rds")
+antropo <- readRDS("../../input/data/proc_data/df_antropo.rds")
+```
+
+```{r}
+#| echo: false
+
+base_madre <- base_madre %>%
+  filter(cohorte %in% c(2021, 2022, 2023, 2024))
+```
+
+# {background-color="#a81014"}
+
+<span style="font-size:60px; color:white; font-weight:bold;">Estudio de notas de la Facultad de Ciencias Sociales</span> 
+
+Presentación de resultados
+
+<hr>
+
+::: {.columns .v-center-container}
+::: {.column width="40%"}
+
+![](datasoc_red1.png){width="70%"}
+
+
+:::
+
+::: {.column width="60%"}
+
+**Tomás Urzúa**
+
+**Universidad de Chile <br> 15 de Marzo 2026**
+
+[Documento del Estudio de Notas](https://tomasurzuam.github.io/estudio-notas/docs/)
+
+:::
+:::
+
+# Introducción y contexto {background-color="#212525"}
+
+## Antecedentes
+
+:::{.incremental .highlight-last style="font-size: 28px;"}
+
+- En la educación superior, la asignación de notas es un elemento constitutivo de este sistema, siendo el principal indicador para el logro de aprendizajes [@lynch_learning_2017].
+
+- Durante los últimos años, se ha observado un alza sostenida de las calificaciones en las instituciones universitarias a nivel internacional [@achen_what_2009; @jewell_whose_2011], lo que se ha problematizado como la *inflación de notas*.
+
+- No existe un consenso claro respecto a la causa de este fenómeno
+  -  Se ha propuesto que algunas disciplinas han rebajado la exigencia de sus evaluaciones, lo que contribuye a obtener mejores notas [@hernandez-julian_measuring_2016].
+  - También se ha sugerido que los estudiantes han mejorado su calidad académica, lo que se refleja en un aumento de las calificaciones [@hernandez-julian_measuring_2016; @lipnevich_what_2020].
+:::
+
+## Antecedentes
+
+:::{.incremental .highlight-last style="font-size: 32px;"}
+
+- La elevación sistemática de las calificaciones tiene consecuencias a nivel institucional y educativo:
+
+  - Dificultad para identificar estudiantes con mayores necesidades de apoyo
+
+  - Las notas pierden confiabilidad en su rol de indicador de competencias
+  
+  - Obtener buenas notas independientemente de las exigencias del curso puede desincentivar la asistencia a clases
+:::
+
+## Contexto de la universidad
+
+:::{.incremental .highlight-last style="font-size: 32px;"}
+- En el segundo semestre del 2025 se realizó un análisis de las notas dirigido por la Dirección de Pregrado, el cual consideró las 7 carreras que imparte FACSO (N = 2578).
+
+- El principal hallazgo fue que el promedio de notas de la Facultad sería un 6.4, el cual presenta diferencias entre carreras.
+
+- El alto promedio de la facultad no permite identificar grupos de estudiantes que requieran algún tipo de acompañamiento. Además, este **podría** ser un caso de inflación de notas.
+:::
+
+## Objetivo del estudio
+
+::: {.box-inv-4 .sp-after .fragment style="font-size: 100%;"}
+
+Describir y analizar el rendimiento académico en las y los estudiantes de pregrado de la Facultad de Ciencias Sociales entre 2021 y 2024, sus cambios en el tiempo y sus factores asociados
+
+:::
+
+# Métodos {background-color="#212525"}
+
+## Datos
+
+- 2 bases de datos iniciales: una incluía la nota final y la otra las notas de **cada curso inscrito por cada estudiante**.
+
+- Ambas bases son datos secundarios construidos a partir de información disponible en UCampus
+
+- Se generó una base madre que considera estudiantes ingresados desde 2021 hasta 2024 (N = 1983)
+
+## Decisiones metodológicas
+
+:::{.incremental .highlight-last style="font-size: 40px;"}
+
+- Se creó una nueva variable de la nota final del estudiante, distinta a la que venía construida por defecto
+
+- Para calcular el promedio final de cada estudiante:
+   - se incluyen solamente los cursos obligatorios
+   - se contabilizaron tanto los cursos aprobados como los reprobados
+
+- El tiempo se considera utilizando las cohortes
+:::
+
+# Resultados {background-color="#212525"}
+
+##
+
+```{r}
+#| echo: false 
+#| label: fig-histo-facso
+#| fig-cap: Distribución de notas FACSO 2021-2024
+#| fig-cap-location: top
+
+ggplot(base_madre, aes(x = promedio_calculado)) + 
+  geom_histogram(
+    aes(y = after_stat(count / sum(count) * 100)),
+    position = "identity",
+    bins = 20,
+    alpha = 0.8,
+    color = "black",
+    fill = "#b90000"
+  ) +
+  geom_vline(
+    xintercept = mean(base_madre$promedio_calculado, na.rm = TRUE),
+    linewidth = 1.2,
+    linetype = "dashed",
+    color = "black"
+  ) +
+  labs(
+    x = "Notas",
+    y = "Frecuencia (%)"
+  )
+```
+
+##
+
+```{r}
+#| echo: false 
+#| label: fig-box-facso
+#| fig-cap: Distribución de notas por carrera 2021-2024
+#| fig-cap-location: top
+
+ggplot(base_madre, aes(x = carrera, y = promedio_calculado)) +
+  geom_boxplot(
+    fill = "#b90000",
+    alpha = 0.8,
+    color = "black"
+  ) +
+  scale_y_continuous(
+    limits = c(1, 7),
+    breaks = seq(1, 7, 1)
+  ) +
+  labs(
+    x = "Carrera",
+    y = "Promedio de notas"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+##
+
+```{r}
+#| echo: false
+#| label: fig-tiempo
+#| fig-cap: Variación del promedio de notas por carrera en el tiempo
+#| fig-cap-location: bottom
+
+
+ggplot(base_madre, aes(x = cohorte, 
+               y = promedio_calculado, 
+               color = carrera, 
+               group = carrera)) +
+  stat_summary(fun = mean, geom = "line", size = 1) +
+  stat_summary(fun = mean, geom = "point", size = 2) +
+  scale_color_manual(values = c(
+    "Educación Parvularia" = "#808000",
+    "Psicología" = "#000080",
+    "Trabajo Social" = "#800080",
+    "Sociología" = "#F5B027",
+    "Antropología" = "#B90000")) +
+  labs(
+    x = "Cohorte",
+    y = "Promedio de notas",
+    color = "Carrera"
+  ) +
+  theme_minimal()
+```
+
+
+##
+#### Género
+
+```{r}
+#| echo: false
+
+tabla_promedios <- base_madre %>%
+  mutate(
+    sexo = factor(
+      sexo,
+      levels = c(0, 1),
+      labels = c("Hombre", "Mujer")
+    )
+  ) %>%
+  group_by(carrera, sexo) %>%
+  summarise(
+    promedio = mean(promedio_calculado, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = sexo,
+    values_from = promedio
+  ) %>%
+  mutate(
+    diferencia_mujer_hombre = round(Mujer - Hombre, 2)
+  ) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+```
+
+```{r}
+#| echo: false
+#| label: tbl-gen
+#| tbl-cap: Promedios por carrera según género 2021 - 2024
+#| tbl-cap-location: top
+
+tabla_promedios %>%
+  arrange(carrera) %>%
+  kable(
+    format    = "html",
+    align     = c("l", "c", "c", "c"),
+    col.names = c(
+      "Carrera",
+      "Hombre",
+      "Mujer",
+      "Diferencia (Mujer - Hombre)"
+    ),
+    digits = 2
+  ) %>%
+  kable_styling(
+    bootstrap_options = c(
+      "striped",
+      "hover",
+      "responsive"
+    ),
+    full_width = TRUE,
+    position   = "center",
+    font_size  = 22
+  ) %>%
+  row_spec(0, bold = TRUE, font_size = 24)
+```
+
+##
+
+#### Género
+
+```{r}
+#| echo: false 
+#| label: fig-hist-gen
+#| fig-cap: Distribución de notas FACSO según género 2021 - 2024
+
+ggplot(base_madre, aes(x = promedio_calculado, fill = sexo)) +
+    geom_histogram(
+      aes(y = after_stat(count / tapply(count, group, sum)[group] * 100)),
+      position = "identity",
+      bins = 20,
+      alpha = 0.7,
+      color = "black"
+    ) +
+    scale_y_continuous(labels = scales::percent_format(scale = 1),
+                       limits = c(0, 40)) +
+    scale_fill_manual(
+    values = c("0" = "#0082fc", "1" = "#fa7a03"),
+    labels = c("0" = "Hombre", "1" = "Mujer"),
+    name = "Sexo"
+  ) +
+  labs(title = "Facultad", x = NULL, y = NULL) +
+  theme_minimal() 
+```
+
+
+##
+
+#### Género
+
+```{r}
+#| echo: false
+
+promedios_ic <- base_madre %>%
+  group_by(cohorte, sexo) %>%
+  summarise(
+    media = mean(promedio_calculado, na.rm = TRUE),
+    se = sd(promedio_calculado, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+```
+
+```{r}
+
+fig <- plot_ly(data = promedios_ic) %>%
+  
+  # Líneas y bandas para Hombres (sexo = 0)
+  add_ribbons(
+    data = filter(promedios_ic, sexo == "0"),
+    x = ~cohorte,
+    ymin = ~media - 1.96 * se,
+    ymax = ~media + 1.96 * se,
+    fillcolor = 'rgba(31, 119, 180, 0.25)',
+    line = list(color = 'transparent'),
+    name = "IC Hombre",
+    legendgroup = "Hombre",
+    showlegend = TRUE,
+    hoverinfo = 'skip'
+  ) %>%
+  add_lines(
+    data = filter(promedios_ic, sexo == "0"),
+    x = ~cohorte,
+    y = ~media,
+    line = list(color = 'rgb(31, 119, 180)', width = 2),
+    name = "Hombre",
+    legendgroup = "Hombre",
+    showlegend = TRUE,
+    hovertemplate = paste(
+      '<b>Hombre</b><br>',
+      'Cohorte: %{x}<br>',
+      'Promedio: %{y:.2f}<br>',
+      '<extra></extra>'
+    )
+  ) %>%
+  
+  # Líneas y bandas para Mujeres (sexo = 1)
+  add_ribbons(
+    data = filter(promedios_ic, sexo == "1"),
+    x = ~cohorte,
+    ymin = ~media - 1.96 * se,
+    ymax = ~media + 1.96 * se,
+    fillcolor = 'rgba(255, 127, 14, 0.25)',
+    line = list(color = 'transparent'),
+    name = "IC Mujer",
+    legendgroup = "Mujer",
+    showlegend = TRUE,
+    hoverinfo = 'skip'
+  ) %>%
+  add_lines(
+    data = filter(promedios_ic, sexo == "1"),
+    x = ~cohorte,
+    y = ~media,
+    line = list(color = 'rgb(255, 127, 14)', width = 2),
+    name = "Mujer",
+    legendgroup = "Mujer",
+    showlegend = TRUE,
+    hovertemplate = paste(
+      '<b>Mujer</b><br>',
+      'Cohorte: %{x}<br>',
+      'Promedio: %{y:.2f}<br>',
+      '<extra></extra>'
+    )
+  ) %>%
+  
+  # Configuración del layout
+  layout(
+    xaxis = list(
+      title = "Cohorte",
+      showgrid = TRUE,
+      gridcolor = 'rgb(230, 230, 230)'
+    ),
+    yaxis = list(
+      title = "Promedio de notas",
+      range = c(1, 7),
+      dtick = 1,
+      showgrid = TRUE,
+      gridcolor = 'rgb(230, 230, 230)'
+    ),
+    legend = list(
+      title = list(text = '<b>Sexo</b>'),
+      x = 1.02,
+      y = 1,
+      xanchor = 'left'
+    ),
+    hovermode = 'x unified',
+    plot_bgcolor = 'white',
+    paper_bgcolor = 'white'
+  ) %>%
+  
+  # Habilitar herramientas de zoom y pan
+  config(
+    displayModeBar = TRUE,
+    modeBarButtonsToAdd = list('drawopenpath', 'eraseshape'),
+    modeBarButtonsToRemove = list('lasso2d', 'select2d')
+  )
+```
+
+```{r}
+#| echo: false
+#| label: fig-plotly-gen
+#| fig-cap: Promedios FACSO por cohorte según género
+#| fig-cap-location: top
+#| fig-width: 11
+#| fig-height: 5
+
+fig
+```
+
+##
+
+#### Tipo de colegio
+
+```{r}
+#| echo: false
+
+tabla_promedios_col <- base_madre %>%
+  filter(!is.na(colegio)) %>%
+  group_by(carrera, colegio) %>%
+  summarise(
+    promedio = mean(promedio_calculado, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = colegio,
+    values_from = promedio
+  ) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+```
+
+```{r}
+#| echo: false
+#| label: tbl-notas-col
+#| tbl-cap: Promedios por carrera según colegio
+#| tbl-cap-location: top 
+
+tabla_promedios_col %>%
+  arrange(carrera) %>%
+  kable(
+    format  = "html",
+    align   = c("l", rep("c", ncol(tabla_promedios_col) - 1))
+  ) %>%
+  kable_styling(
+    bootstrap_options = c(
+      "striped",
+      "hover",
+      "condensed",
+      "responsive"
+    ),
+    full_width = TRUE,
+    position   = "center",
+    font_size  = 22
+  ) %>%
+  row_spec(0, bold = TRUE, font_size = 24)
+```
+
+##
+
+#### Tipo de colegio
+
+```{r}
+#| echo: false
+#| label: fig-colegio-dens
+#| fig-cap: Distribución de notas FACSO según colegio 2021 - 2024
+#| fig-cap-location: bottom
+
+ggplot(base_madre %>% filter(!is.na(colegio)), 
+       aes(x = promedio_calculado, fill = colegio, color = colegio)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +  
+  labs(
+       x = NULL, y = "Densidad",
+       fill = "Colegio", color = "Colegio") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+
+##
+
+#### Tipo de colegio
+
+```{r}
+
+promedios_ic_col <- base_madre %>%
+  filter(!is.na(colegio)) %>% 
+  group_by(cohorte, colegio) %>%
+  summarise(
+    media = mean(promedio_calculado, na.rm = TRUE),
+    se = sd(promedio_calculado, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+```
+
+```{r}
+
+# Preparar los datos con las etiquetas
+plotly_colegio <- plot_ly(data = promedios_ic_col) %>%
+  # Agregar las bandas de confianza (ribbons) primero para que queden detrás
+  add_ribbons(
+    x = ~cohorte,
+    ymin = ~media - 1.96 * se,
+    ymax = ~media + 1.96 * se,
+    color = ~factor(colegio),
+    colors = NULL,  # usa colores por defecto
+    opacity = 0.25,
+    line = list(width = 0),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  ) %>%
+  # Agregar las líneas
+  add_lines(
+    x = ~cohorte,
+    y = ~media,
+    color = ~factor(colegio),
+    colors = NULL,
+    line = list(width = 2),
+    name = ~factor(colegio, labels = c("1" = "Municipal", "2" = "Particular Subvencionado", "3" = "Particular Pagado"))
+  ) %>%
+  # Configurar el layout
+  layout(
+    xaxis = list(title = "Cohorte"),
+    yaxis = list(
+      title = "Promedio de notas",
+      range = c(1, 7),
+      tickmode = "linear",
+      tick0 = 1,
+      dtick = 1
+    ),
+    legend = list(title = list(text = "Colegio")),
+    hovermode = "x unified"
+  )
+```
+
+```{r}
+#| echo: false
+#| label: fig-time-col
+#| fig-cap: Promedios por año según tipo de colegio
+#| fig-cap-location: top
+#| fig-width: 11
+#| fig-height: 5
+
+plotly_colegio
+```
+
+##
+
+#### Nivel socioeconómico
+
+```{r}
+tabla_promedios_nse <- base_madre %>%
+  filter(!is.na(nse)) %>%
+  group_by(carrera, nse) %>%
+  summarise(
+    promedio = mean(promedio_calculado, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = nse,
+    values_from = promedio
+  ) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+```
+
+```{r}
+#| echo: false
+#| label: tbl-notas-nse
+#| tbl-cap: Promedios por carrera según nivel socioeconómico 2021 - 2024
+#| tbl-cap-location: top 
+
+tabla_promedios_nse %>%
+  arrange(carrera) %>%
+  kable(
+    format  = "html",
+    align   = c("l", rep("c", ncol(tabla_promedios_nse) - 1))
+  ) %>%
+  kable_styling(
+    bootstrap_options = c(
+      "striped",
+      "hover",
+      "condensed",
+      "responsive"
+    ),
+    full_width = TRUE,
+    position   = "center",
+    font_size  = 22
+  ) %>%
+  row_spec(0, bold = TRUE, font_size = 24)
+```
+
+##
+
+#### Nivel socioeconómico
+
+```{r}
+#| echo: false
+#| label: fig-nse-dens
+#| fig-cap: Distribución de notas FACSO según NSE 2021 - 2024
+#| fig-cap-location: bottom
+
+ggplot(base_madre %>% filter(!is.na(nse)), 
+       aes(x = promedio_calculado, fill = nse, color = nse)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +
+  labs(
+       x = NULL, y = "Densidad",
+       fill = "NSE", color = "NSE") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+##
+
+#### Nivel socioeconómico
+
+```{r}
+#| echo: false
+#| label: fig-nse-socio
+#| fig-cap: Distribución de notas Sociología según NSE 2021 - 2024
+#| fig-cap-location: bottom
+
+ggplot(socio %>% filter(!is.na(nse)), 
+       aes(x = promedio_calculado, fill = nse, color = nse)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +
+  labs(
+       x = NULL, y = "Densidad",
+       fill = "NSE", color = "NSE") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+
+##
+
+#### Nivel socioeconómico
+
+```{r}
+#| echo: false
+
+promedios_ic_nse <- base_madre %>%
+  group_by(cohorte, nse) %>%
+  summarise(
+    media = mean(promedio_calculado, na.rm = TRUE),
+    se = sd(promedio_calculado, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+```
+
+```{r}
+#| echo: false 
+
+nse_break <- plot_ly(data = promedios_ic_nse) %>%
+  add_ribbons(
+    x = ~cohorte,
+    ymin = ~media - 1.96 * se,
+    ymax = ~media + 1.96 * se,
+    color = ~factor(nse),
+    colors = NULL, 
+    opacity = 0.25,
+    line = list(width = 0),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  ) %>%
+  # Agregar las líneas
+  add_lines(
+    x = ~cohorte,
+    y = ~media,
+    color = ~factor(nse),
+    colors = NULL,
+    line = list(width = 2),
+    name = ~factor(nse, labels = c("1" = "Bajo", "2" = "Medio", "3" = "Alto"))
+  ) %>%
+  # Configurar el layout
+  layout(
+    xaxis = list(title = "Cohorte"),
+    yaxis = list(
+      title = "Promedio de notas",
+      range = c(1, 7),
+      tickmode = "linear",
+      tick0 = 1,
+      dtick = 1
+    ),
+    legend = list(title = list(text = "NSE")),
+    hovermode = "x unified"
+  ) %>%
+  config(
+    displayModeBar = TRUE,
+    modeBarButtonsToAdd = list('drawopenpath', 'eraseshape'),
+    modeBarButtonsToRemove = list('lasso2d', 'select2d')
+  )
+```
+
+```{r}
+#| echo: false
+#| label: fig-plotly-nse
+#| fig-cap: Promedios FACSO por cohorte según nivel socioeconómico
+#| fig-cap-location: top
+#| fig-width: 10
+#| fig-height: 4
+
+nse_break
+```
+
+##
+
+#### Prueba de admisión
+
+```{r}
+#| echo: false
+#| label: fig-admision
+#| fig-cap: Relación Notas universidad y Puntaje Prueba de Admisión en FACSO 2021 - 2024
+#| fig-cap-location: bottom
+
+base_madre %>% 
+  filter(!is.na(pct_paes_psu)) %>%
+  ggplot(aes(
+    x = pct_paes_psu, 
+    y = promedio_calculado,
+    color = carrera
+  )) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(
+    method = "lm",
+    se = TRUE,
+    color = "black",
+    linewidth = 2
+  ) +
+  labs(
+    x = "Percentil Prueba Admisión",
+    y = "Nota universidad",
+    color = "Carrera"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+##
+
+#### Modelamiento
+
+```{r}
+#| echo: false 
+
+base_madre_coef <- base_madre %>%
+  mutate(
+    carrera = forcats::fct_relevel(
+      carrera,
+      "Educación Parvularia",
+      "Psicología",
+      "Antropología",
+      "Sociología",      
+      "Trabajo Social"))
+
+base_madre_coef$colegio <- relevel(base_madre_coef$colegio, ref = "Particular Pagado")
+base_madre_coef$nse <- relevel(base_madre_coef$nse, ref = "Alto")
+```
+
+```{r}
+#| echo: false
+
+model = lm(promedio_calculado ~ nse, data = base_madre_coef)
+model1 = lm(promedio_calculado ~ carrera + cohorte + sexo + colegio + nse, data = base_madre_coef)
+model2 = lm(promedio_calculado ~ carrera + cohorte + sexo + colegio + nse + pct_paes_psu, data = base_madre_coef)
+```
+
+```{r}
+#| include: false
+
+modelsummary(
+  list(model, model1, model2),
+  estimate = "{estimate}{stars}",
+  statistic = "({std.error})",
+  fmt = 3,
+  stars = c('*' = 0.05, '**' = 0.01, '***' = 0.001),
+  coef_omit = "Intercept",
+  output = "kableExtra",
+  coef_rename = NULL
+) %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  add_header_above(c(" " = 1, "Modelo 1" = 1, "Modelo 2" = 1, "Modelo 3" = 1))
+```
+
+```{r}
+# Extraer coeficientes y p-valores
+coef_summary <- summary(model2)$coefficients
+coef_df <- data.frame(
+  variable = rownames(coef_summary),
+  estimate = coef_summary[, "Estimate"],
+  pvalue = coef_summary[, "Pr(>|t|)"]
+)
+
+# Crear etiquetas de significancia
+coef_df$sig <- ifelse(coef_df$pvalue < 0.001, "***",
+                      ifelse(coef_df$pvalue < 0.01, "**",
+                             ifelse(coef_df$pvalue < 0.05, "*",
+                                    ifelse(coef_df$pvalue < 0.1, ".", ""))))
+
+# Crear etiquetas combinadas (valor + significancia)
+coef_df$label <- paste0(round(coef_df$estimate, 3), coef_df$sig)
+
+# Remover intercepto si existe
+coef_df <- coef_df[coef_df$variable != "(Intercept)", ]
+```
+
+
+```{r}
+#| echo: false
+#| label: fig-coefplot
+#| fig-cap: Coeficientes del modelo de regresión (FACSO 2021 - 2024)
+#| fig-cap-location: top
+
+p <- coefplot(model2,
+              xlab = "Coeficiente",
+              ylab = "Variables",
+              color = "#990000",
+              innerCI = 1,
+              outerCI = 1.96,
+              intercept = FALSE)
+
+# Agregar las etiquetas con valores y significancia
+p + labs(title = NULL) +
+  scale_y_discrete(labels = c(
+    "sexo1"     = "Mujer (ref. Hombre)",
+    "nseBajo"       = "Nivel socioeconómico bajo",
+    "nseMedio"      = "Nivel socioeconómico medio (ref. alto)",
+    "colegioMunicipal" = "Municipal",
+    "colegioParticular Subvencionado" = "Subvencionado (ref. Particular Pagado)",
+    "cohorte2024" = "Cohorte 2024 (ref. Cohorte 2021)",
+    "cohorte2023" = "Cohorte 2023",
+    "cohorte2022" = "Cohorte 2022",
+    "carreraTrabajo Social" = "Trabajo Social (ref. Educación Parvularia)",
+    "carreraSociología" = "Sociología",
+    "carreraPsicología" = "Psicología",
+    "carreraAntropología" = "Antropología"
+  )) +
+  geom_text(
+    data = coef_df,
+    aes(
+      x = estimate,
+      y = variable,
+      label = label
+    ),
+    hjust = -0.2,
+    vjust = 1.8,
+    size = 2.8,
+    color = "#990000",
+    fontface = "bold"
+  )
+```
+
+# Conclusiones {background-color="#212525"}
+
+## Discusión de resultados
+
+:::{.incremental .highlight-last style="font-size: 35px;"}
+
+- El promedio de notas a nivel Facultad difiere notoriamente del que se encontró en el estudio de la Dirección de Pregado
+
+- Las notas entre las carreras presentan variaciones, donde Educación Parvularia es la que tiene mejor rendimiento
+
+- Las mujeres obtienen mejores calificaciones que los hombres de manera consistente
+
+- Aquellos estudiantes que provienen de colegios particulares subvencionados tienen mejores notas que los de municipales y particulares pagados
+:::
+
+## Discusión de resultados
+
+:::{.incremental .highlight-last style="font-size: 35px;"}
+- El nivel socioeconómico se relaciona positivamente con las calificaciones, aunque esto varía entre carreras
+
+- El puntaje de la prueba de admisión mantiene una asociación positiva pero débil con las notas en la universidad
+
+- Se observa un deterioro sistemático de las notas con el paso del tiempo, donde el rendimiento empeora a medida que entran nuevos estudiantes a la Facultad
+:::
+
+## Próximos pasos
+
+:::{.incremental .highlight-last style="font-size: 38px;"}
+- Complementar el estudio con información nueva desde las bases de datos de UCampus
+
+- Aplicar un análisis centrado en los cursos que permita observar cómo se comporta la asignación de notas dependiendo de las características de los cursos
+:::
+
+# {background-color="#a81014"}
+
+<span style="font-size:60px; color:white; font-weight:bold;">Estudio de notas de la Facultad de Ciencias Sociales</span> 
+
+Presentación de resultados
+
+<hr>
+
+::: {.columns .v-center-container}
+::: {.column width="40%"}
+
+![](datasoc_red1.png){width="70%"}
+
+
+:::
+
+::: {.column width="60%"}
+
+**Tomás Urzúa**
+
+**Universidad de Chile <br> 15 de Marzo 2026**
+
+[Documento del Estudio de Notas](https://tomasurzuam.github.io/estudio-notas/docs/)
+
+:::
+:::
+
+## Referencias

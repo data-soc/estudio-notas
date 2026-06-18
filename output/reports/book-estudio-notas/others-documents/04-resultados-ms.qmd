@@ -1,0 +1,730 @@
+﻿---
+title: "Resultados"
+---
+
+```{r}
+#| echo: false
+
+pacman::p_load(rio, digest, stargazer, sjPlot, codebook, summarytools, dplyr, tidyr,
+ tidyLPA, lme4, ggplot2, ggeffects, skimr, table1, patchwork, here, kableExtra, ggthemes, tidyverse)
+
+options(scipen = 999)
+``` 
+
+```{r}
+#| echo: false
+
+base_madre <- readRDS("../../../input/data/proc_data/base_madre.rds")
+socio <- readRDS("../../../input/data/proc_data/df_socio.rds")
+psico <- readRDS("../../../input/data/proc_data/df_psico.rds")
+trabajo <- readRDS("../../../input/data/proc_data/df_trabajo.rds")
+educa <- readRDS("../../../input/data/proc_data/df_parvularia.rds")
+antropo <- readRDS("../../../input/data/proc_data/df_antropo.rds")
+```
+
+```{r}
+#| echo: false
+
+base_madre <- base_madre %>%
+  filter(cohorte %in% c(2021, 2022, 2023, 2024))
+
+socio$colegio <- na_if(socio$colegio, "S/INF")
+psico$colegio <- na_if(psico$colegio, "S/INF")
+trabajo$colegio <- na_if(trabajo$colegio, "S/INF")
+educa$colegio <- na_if(educa$colegio, "S/INF")
+antropo$colegio <- na_if(antropo$colegio, "S/INF")
+
+socio$ORIGEN_ETNICO <- na_if(socio$ORIGEN_ETNICO, "SIN INFORMACIÓN")
+psico$ORIGEN_ETNICO <- na_if(psico$ORIGEN_ETNICO, "SIN INFORMACIÓN")
+trabajo$ORIGEN_ETNICO <- na_if(trabajo$ORIGEN_ETNICO, "SIN INFORMACIÓN")
+educa$ORIGEN_ETNICO <- na_if(educa$ORIGEN_ETNICO, "SIN INFORMACIÓN")
+antropo$ORIGEN_ETNICO <- na_if(antropo$ORIGEN_ETNICO, "SIN INFORMACIÓN")
+
+socio$REGION_ORIGEN <- na_if(socio$REGION_ORIGEN, "SIN INFORMACIÓN")
+psico$REGION_ORIGEN <- na_if(psico$REGION_ORIGEN, "SIN INFORMACIÓN")
+trabajo$REGION_ORIGEN <- na_if(trabajo$REGION_ORIGEN, "SIN INFORMACIÓN")
+educa$REGION_ORIGEN <- na_if(educa$REGION_ORIGEN, "SIN INFORMACIÓN")
+antropo$REGION_ORIGEN <- na_if(antropo$REGION_ORIGEN, "SIN INFORMACIÓN")
+```
+
+```{r}
+#| echo: false
+
+socio <- socio %>%
+  mutate(
+    origen_dic = case_when(
+      is.na(ORIGEN_ETNICO) ~ NA_integer_,
+      ORIGEN_ETNICO == "NINGUNA" ~ 0L,
+      TRUE ~ 1L
+    )
+  )
+
+psico <- psico %>%
+  mutate(
+    origen_dic = case_when(
+      is.na(ORIGEN_ETNICO) ~ NA_integer_,
+      ORIGEN_ETNICO == "NINGUNA" ~ 0L,
+      TRUE ~ 1L
+    )
+  )
+
+trabajo <- trabajo %>%
+  mutate(
+    origen_dic = case_when(
+      is.na(ORIGEN_ETNICO) ~ NA_integer_,
+      ORIGEN_ETNICO == "NINGUNA" ~ 0L,
+      TRUE ~ 1L
+    )
+  )
+
+educa <- educa %>%
+  mutate(
+    origen_dic = case_when(
+      is.na(ORIGEN_ETNICO) ~ NA_integer_,
+      ORIGEN_ETNICO == "NINGUNA" ~ 0L,
+      TRUE ~ 1L
+    )
+  )
+
+antropo <- antropo %>%
+  mutate(
+    origen_dic = case_when(
+      is.na(ORIGEN_ETNICO) ~ NA_integer_,
+      ORIGEN_ETNICO == "NINGUNA" ~ 0L,
+      TRUE ~ 1L
+    )
+  )
+
+socio <- socio %>%
+  mutate(
+    region_dic = case_when(
+      is.na(REGION_ORIGEN) ~ NA_integer_,
+      REGION_ORIGEN == "REGIÓN METROPOLITANA" ~ 0L,
+      TRUE ~ 1L
+    )
+  )
+
+psico <- psico %>%
+  mutate(
+    region_dic = case_when(
+      is.na(REGION_ORIGEN) ~ NA_integer_,
+      REGION_ORIGEN == "REGIÓN METROPOLITANA" ~ 0L,
+      TRUE ~ 1L
+    )
+  )
+
+trabajo <- trabajo %>%
+  mutate(
+    region_dic = case_when(
+      is.na(REGION_ORIGEN) ~ NA_integer_,
+      REGION_ORIGEN == "REGIÓN METROPOLITANA" ~ 0L,
+      TRUE ~ 1L
+    )
+  )
+
+educa <- educa %>%
+  mutate(
+    region_dic = case_when(
+      is.na(REGION_ORIGEN) ~ NA_integer_,
+      REGION_ORIGEN == "REGIÓN METROPOLITANA" ~ 0L,
+      TRUE ~ 1L
+    )
+  )
+
+antropo <- antropo %>%
+  mutate(
+    region_dic = case_when(
+      is.na(REGION_ORIGEN) ~ NA_integer_,
+      REGION_ORIGEN == "REGIÓN METROPOLITANA" ~ 0L,
+      TRUE ~ 1L
+    )
+  )
+```
+
+## Sexo x Tipo de colegio
+
+::: panel-tabset
+
+### Sociología
+
+```{r}
+#| echo: false
+#| label: fig-cose-soc
+#| fig-cap: Proporción de estudiantes por tipo de establecimiento y sexo - Sociología
+#| fig-cap-location: top
+
+ggplot(socio %>% filter(!is.na(colegio)), aes(x = colegio, fill = sexo)) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(
+    values = c("0" = "#C45B54", "1" = "#619CFF"),
+    labels = c("0" = "Hombre", "1" = "Mujer")
+  ) +
+  labs(
+    x = "Tipo de establecimiento",
+    y = "Proporción",
+    fill = "Sexo"
+  ) +
+  theme_minimal()
+```
+
+### Psicología
+
+```{r}
+#| echo: false
+#| label: fig-cose-psi
+#| fig-cap: Proporción de estudiantes por tipo de establecimiento y sexo - Psicología
+#| fig-cap-location: top
+
+ggplot(psico %>% filter(!is.na(colegio)), aes(x = colegio, fill = sexo)) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(
+    values = c("0" = "#C45B54", "1" = "#619CFF"),
+    labels = c("0" = "Hombre", "1" = "Mujer")
+  ) +
+  labs(
+    x = "Tipo de establecimiento",
+    y = "Proporción",
+    fill = "Sexo"
+  ) +
+  theme_minimal()
+```
+
+### Trabajo Social
+
+```{r}
+#| echo: false
+#| label: fig-cose-ts
+#| fig-cap: Proporción de estudiantes por tipo de establecimiento y sexo - Trabajo Social
+#| fig-cap-location: top
+
+ggplot(trabajo %>% filter(!is.na(colegio)), aes(x = colegio, fill = sexo)) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(
+    values = c("0" = "#C45B54", "1" = "#619CFF"),
+    labels = c("0" = "Hombre", "1" = "Mujer")
+  ) +
+  labs(
+    x = "Tipo de establecimiento",
+    y = "Proporción",
+    fill = "Sexo"
+  ) +
+  theme_minimal()
+```
+
+### Educación Parvularia
+
+```{r}
+#| echo: false
+#| label: fig-cose-ed
+#| fig-cap: Proporción de estudiantes por tipo de establecimiento y sexo - Educación Parvularia
+#| fig-cap-location: top
+
+ggplot(educa %>% filter(!is.na(colegio)), aes(x = colegio, fill = sexo)) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(
+    values = c("0" = "#C45B54", "1" = "#619CFF"),
+    labels = c("0" = "Hombre", "1" = "Mujer")
+  ) +
+  labs(
+    x = "Tipo de establecimiento",
+    y = "Proporción",
+    fill = "Sexo"
+  ) +
+  theme_minimal()
+```
+
+### Antropología
+
+```{r}
+#| echo: false
+#| label: fig-cose-ant
+#| fig-cap: Proporción de estudiantes por tipo de establecimiento y sexo - Antropología
+#| fig-cap-location: top
+
+ggplot(antropo %>% filter(!is.na(colegio)), aes(x = colegio, fill = sexo)) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(
+    values = c("0" = "#C45B54", "1" = "#619CFF"),
+    labels = c("0" = "Hombre", "1" = "Mujer")
+  ) +
+  labs(
+    x = "Tipo de establecimiento",
+    y = "Proporción",
+    fill = "Sexo"
+  ) +
+  theme_minimal()
+```
+:::
+
+Este panel presenta la distribución de los estudiantes en los distintos tipos de establecimiento de origen según el sexo. En @fig-cose-soc se puede observar que no hay mayores diferencias en la precedencia de estudiantes de colegios municipales y particulares pagados, en cambio en el caso de los particulares subvencionados, las mujeres provienen en una mayor proporción en comparación de los hombres. En @fig-cose-psi y @fig-cose-ant se observa un patrón en los tres tipos de establecimientos, donde las mujeres tienen una mayor proporción que los hombres, el cual se acentúa en el caso de los colegios municipales para la carrera de Psicología. Por su parte, en @fig-cose-ts también se evidencia una preponderancia de las mujeres en la carrera según los tres tipos de establecimiento de precedencia, pero en este caso es interesante notar que, para colegios particulares, más de un 75% es mujer. Finalmente, @fig-cose-ed es el caso más llamativo, pues independientemente del tipo de establecimiento, las mujeres dominan en la presencia en la carrera, donde solamente se nota que un mínimo porcentaje de hombres proviene de colegio particular. Esto indica que Educación Parvularia es una carrera estudiada casi en su completitud por mujeres.
+
+## Notas x Sexo
+
+::: panel-tabset
+
+### Sociología
+
+```{r}
+#| echo: false
+#| label: fig-nose-soc
+#| fig-cap: Concentración de notas por sexo - Sociología
+#| fig-cap-location: top
+
+ggplot(socio, aes(x = sexo, y = promedio_calculado, fill = sexo)) +
+  geom_boxplot() +
+  labs(
+       x = "Sexo", y = "Promedio de Notas") +
+  theme_excel_new() +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Hombre", "1" = "Mujer")) +
+  theme_minimal()
+```
+
+### Psicología
+
+```{r}
+#| echo: false
+#| label: fig-nose-psi
+#| fig-cap: Concentración de notas por sexo - Psicología
+#| fig-cap-location: top
+
+ggplot(psico, aes(x = sexo, y = promedio_calculado, fill = sexo)) +
+  geom_boxplot() +
+  labs(
+       x = "Sexo", y = "Promedio de Notas") +
+  theme_excel_new() +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Hombre", "1" = "Mujer")) +
+  theme_minimal()
+```
+
+### Trabajo Social
+
+```{r}
+#| echo: false
+#| label: fig-nose-ts
+#| fig-cap: Concentración de notas por sexo - Trabajo Social
+#| fig-cap-location: top
+
+ggplot(trabajo, aes(x = sexo, y = promedio_calculado, fill = sexo)) +
+  geom_boxplot() +
+  labs(
+       x = "Sexo", y = "Promedio de Notas") +
+  theme_excel_new() +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Hombre", "1" = "Mujer")) +
+  theme_minimal()
+```
+
+### Educación Parvularia
+
+```{r}
+#| echo: false
+#| label: fig-nose-ed
+#| fig-cap: Concentración de notas por sexo - Educación Parvularia
+#| fig-cap-location: top
+
+ggplot(educa, aes(x = sexo, y = promedio_calculado, fill = sexo)) +
+  geom_boxplot() +
+  labs(
+       x = "Sexo", y = "Promedio de Notas") +
+  theme_excel_new() +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Hombre", "1" = "Mujer")) +
+  theme_minimal()
+```
+
+### Antropología
+
+```{r}
+#| echo: false
+#| label: fig-nose-ant
+#| fig-cap: Concentración de notas por sexo - Antropología
+#| fig-cap-location: top
+
+ggplot(antropo, aes(x = sexo, y = promedio_calculado, fill = sexo)) +
+  geom_boxplot() +
+  labs(
+       x = "Sexo", y = "Promedio de Notas") +
+  theme_excel_new() +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Hombre", "1" = "Mujer")) +
+  theme_minimal()
+```
+:::
+
+En este panel se presentan las concentraciones de notas de cada carrera diferenciando por género. Se observa de manera clara un patrón en cuatro de las cinco carreras: en promedio, las mujeres obtienen notas más altas que su contraparte. Aunque las diferencias son reducidas en los casos como Sociología, Psicología y Antropología, en Trabajo Social se remarca un poco más esta brecha a favor de las mujeres. Para el caso de Educación Parvularia no es posible realizar una comparación entre grupos debido a la cantidad ínfima de datos respecto a hombres dentro de la carrera. 
+
+
+## Notas x Nivel socioeconómico
+
+::: panel-tabset
+
+### Sociología
+
+```{r}
+#| echo: false
+#| label: fig-nonse-soc
+#| fig-cap: Distribución de notas por NSE - Sociología
+#| fig-cap-location: top
+
+ggplot(socio, aes(x = promedio_calculado, y = nse)) +
+  geom_point(alpha = 0.6, size = 2.5, color = "#8d1d1d") +
+  labs(
+    x = "Nota",
+    y = "Nivel Socioeconómico"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text.y = element_text(size = 11),
+    axis.text.x = element_text(size = 10),
+    axis.title = element_text(size = 12),
+    panel.grid.major.y = element_line(color = "gray90"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+### Psicología
+
+```{r}
+#| echo: false
+#| label: fig-nonse-psi
+#| fig-cap: Distribución de notas por NSE - Psicología
+#| fig-cap-location: top
+
+ggplot(psico, aes(x = promedio_calculado, y = nse)) +
+  geom_point(alpha = 0.6, size = 2.5, color = "#8d1d1d") +
+  labs(
+    x = "Nota",
+    y = "Nivel Socioeconómico"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text.y = element_text(size = 11),
+    axis.text.x = element_text(size = 10),
+    axis.title = element_text(size = 12),
+    panel.grid.major.y = element_line(color = "gray90"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+### Trabajo Social
+
+```{r}
+#| echo: false
+#| label: fig-nonse-ts
+#| fig-cap: Distribución de notas por NSE - Trabajo Social
+#| fig-cap-location: top
+
+ggplot(trabajo, aes(x = promedio_calculado, y = nse)) +
+  geom_point(alpha = 0.6, size = 2.5, color = "#8d1d1d") +
+  labs(
+    x = "Nota",
+    y = "Nivel Socioeconómico"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text.y = element_text(size = 11),
+    axis.text.x = element_text(size = 10),
+    axis.title = element_text(size = 12),
+    panel.grid.major.y = element_line(color = "gray90"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+### Educación Parvularia
+
+```{r}
+#| echo: false
+#| label: fig-nonse-ed
+#| fig-cap: Distribución de notas por NSE - Educación Parvularia
+#| fig-cap-location: top
+
+ggplot(educa, aes(x = promedio_calculado, y = nse)) +
+  geom_point(alpha = 0.6, size = 2.5, color = "#8d1d1d") +
+  labs(
+    x = "Nota",
+    y = "Nivel Socioeconómico"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text.y = element_text(size = 11),
+    axis.text.x = element_text(size = 10),
+    axis.title = element_text(size = 12),
+    panel.grid.major.y = element_line(color = "gray90"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+### Antropología
+
+```{r}
+#| echo: false
+#| label: fig-nonse-ant
+#| fig-cap: Distribución de notas por NSE - Antropología
+#| fig-cap-location: top
+
+ggplot(antropo, aes(x = promedio_calculado, y = nse)) +
+  geom_point(alpha = 0.6, size = 2.5, color = "#8d1d1d") +
+  labs(
+    x = "Nota",
+    y = "Nivel Socioeconómico"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text.y = element_text(size = 11),
+    axis.text.x = element_text(size = 10),
+    axis.title = element_text(size = 12),
+    panel.grid.major.y = element_line(color = "gray90"),
+    panel.grid.minor = element_blank()
+  )
+```
+:::
+
+En este panel se encuentran la distribución de notas según nivel socioeconómico de los estudiantes. Como similitudes generales, al ver la alta concentración de puntos en el nivel 5, en las cinco carreras este es el nivel que contiene la mayor cantidad de casos, dominando numéricamente en las distintas muestras. Además, no se evidencia un gradiente socioeconómico fuerte en el rendimiento, es decir, estudiantes de distintos NSE alcanzan resultados académicos parecidos, al menos en términos de la nota observada. No obstante, es interesante notar que en casos como Psicología y Antropología los niveles socioeconómicos más bajos (0-3) presentan una mayor dispersión en las notas que en los niveles medios y altos. 
+
+## Notas x Origen étnico
+
+::: panel-tabset
+### Sociología
+```{r}
+#| echo: false
+#| label: fig-noet-soc
+#| fig-cap: Concentración de notas por Origen étnico - Sociología
+#| fig-cap-location: top
+
+socio_clean <- socio %>%
+  filter(!is.na(promedio_calculado), !is.na(origen_dic)) %>%
+  mutate(origen_dic = factor(origen_dic))
+
+ggplot(socio_clean, aes(x = origen_dic, y = promedio_calculado, fill = origen_dic)) +
+  geom_boxplot() +
+  labs(
+       x = "Origen étnico", y = "Promedio de Notas", fill = "Origen étnico") +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Sin origen", "1" = "Con origen")) +
+  theme_minimal()
+```
+
+### Psicología
+
+
+```{r}
+#| echo: false
+#| label: fig-noet-psi
+#| fig-cap: Concentración de notas por Origen étnico - Psicología
+#| fig-cap-location: top
+
+psico_clean <- psico %>%
+  filter(!is.na(promedio_calculado), !is.na(origen_dic)) %>%
+  mutate(origen_dic = factor(origen_dic))
+
+ggplot(psico_clean, aes(x = origen_dic, y = promedio_calculado, fill = origen_dic)) +
+  geom_boxplot() +
+  labs(
+       x = "Origen étnico", y = "Promedio de Notas", fill = "Origen étnico") +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Sin origen", "1" = "Con origen")) +
+  theme_minimal()
+```
+
+### Trabajo Social
+```{r}
+#| echo: false
+#| label: fig-noet-ts
+#| fig-cap: Concentración de notas por Origen étnico - Trabajo Social
+#| fig-cap-location: top
+
+trabajo_clean <- trabajo %>%
+  filter(!is.na(promedio_calculado), !is.na(origen_dic)) %>%
+  mutate(origen_dic = factor(origen_dic))
+
+ggplot(trabajo_clean, aes(x = origen_dic, y = promedio_calculado, fill = origen_dic)) +
+  geom_boxplot() +
+  labs(
+       x = "Origen étnico", y = "Promedio de Notas", fill = "Origen étnico") +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Sin origen", "1" = "Con origen")) +
+  theme_minimal()
+```
+
+### Educación Parvularia
+
+```{r}
+#| echo: false
+#| label: fig-noet-ed
+#| fig-cap: Concentración de notas por Origen étnico - Educación Parvularia
+#| fig-cap-location: top
+
+educa_clean <- educa %>%
+  filter(!is.na(promedio_calculado), !is.na(origen_dic)) %>%
+  mutate(origen_dic = factor(origen_dic))
+
+ggplot(educa_clean, aes(x = origen_dic, y = promedio_calculado, fill = origen_dic)) +
+  geom_boxplot() +
+  labs(
+       x = "Origen étnico", y = "Promedio de Notas", fill = "Origen étnico") +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Sin origen", "1" = "Con origen")) +
+  theme_minimal()
+```
+
+### Antropología
+
+```{r}
+#| echo: false
+#| label: fig-noet-ant
+#| fig-cap: Concentración de notas por Origen étnico - Antropología
+#| fig-cap-location: top
+
+antropo_clean <- antropo %>%
+  filter(!is.na(promedio_calculado), !is.na(origen_dic)) %>%
+  mutate(origen_dic = factor(origen_dic))
+
+ggplot(antropo_clean, aes(x = origen_dic, y = promedio_calculado, fill = origen_dic)) +
+  geom_boxplot() +
+  labs(
+       x = "Origen étnico", y = "Promedio de Notas", fill = "Origen étnico") +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Sin origen", "1" = "Con origen")) +
+  theme_minimal()
+```
+:::
+
+En este panel se presentan la concentración de notas distinguiendo por origen étnico en cada carrera[^nota-1]. Se puede observar que en todas las carreras, exceptuando Trabajo Social, el grupo sin origen étnico alcanza mejores calificaciones que aquellos que poseen alguna etnia de origen. Aun así, las diferencias son reducidas, notándose en todas las carreras que ambos grupos poseen notas cercanas al 6. En relación con esto, si bien en @fig-noet-ts Trabajo Social es la única carrera donde aquellos con origen étnico promedian una nota más alta que quienes no tienen raíces étnicas, la diferencia es imperceptible a primera vista. 
+
+## Notas x Región de origen
+
+::: panel-tabset
+
+### Sociología
+
+```{r}
+#| echo: false
+#| label: fig-nore-soc
+#| fig-cap: Concentración de notas por Región de origen - Sociología
+#| fig-cap-location: top
+
+socio_clean <- socio_clean %>%
+  filter(!is.na(region_dic)) %>%
+  mutate(region_dic = factor(region_dic))
+
+ggplot(socio_clean, aes(x = region_dic, y = promedio_calculado, fill = region_dic)) +
+  geom_boxplot() +
+  labs(
+       x = "Región de origen", y = "Promedio de Notas", fill = "Región \n de origen") +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Metropolitana", "1" = "Otra región")) +
+  theme_minimal()
+```
+
+### Psicología
+
+```{r}
+#| echo: false
+#| label: fig-nore-psi
+#| fig-cap: Concentración de notas por Región de origen - Psicología
+#| fig-cap-location: top
+
+psico_clean <- psico_clean %>%
+  filter(!is.na(region_dic)) %>%
+  mutate(region_dic = factor(region_dic))
+
+ggplot(psico_clean, aes(x = region_dic, y = promedio_calculado, fill = region_dic)) +
+  geom_boxplot() +
+  labs(
+       x = "Región de origen", y = "Promedio de Notas", fill = "Región \n de origen") +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Metropolitana", "1" = "Otra región")) +
+  theme_minimal()
+```
+
+### Trabajo Social
+
+```{r}
+#| echo: false
+#| label: fig-nore-ts
+#| fig-cap: Concentración de notas por Región de origen - Trabajo Social
+#| fig-cap-location: top
+
+trabajo_clean <- trabajo_clean %>%
+  filter(!is.na(region_dic)) %>%
+  mutate(region_dic = factor(region_dic))
+
+ggplot(trabajo_clean, aes(x = region_dic, y = promedio_calculado, fill = region_dic)) +
+  geom_boxplot() +
+  labs(
+       x = "Región de origen", y = "Promedio de Notas", fill = "Región \n de origen") +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Metropolitana", "1" = "Otra región")) +
+  theme_minimal()
+```
+
+### Educación Parvularia
+
+```{r}
+#| echo: false
+#| label: fig-nore-ed
+#| fig-cap: Concentración de notas por Región de origen - Educación Parvularia
+#| fig-cap-location: top
+
+educa_clean <- educa_clean %>%
+  filter(!is.na(region_dic)) %>%
+  mutate(region_dic = factor(region_dic))
+
+ggplot(socio_clean, aes(x = region_dic, y = promedio_calculado, fill = region_dic)) +
+  geom_boxplot() +
+  labs(
+       x = "Región de origen", y = "Promedio de Notas", fill = "Región \n de origen") +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Metropolitana", "1" = "Otra región")) +
+  theme_minimal()
+```
+
+### Antropología
+
+```{r}
+#| echo: false
+#| label: fig-nore-ant
+#| fig-cap: Concentración de notas por Región de origen - Antropología
+#| fig-cap-location: top
+
+antropo_clean <- antropo_clean %>%
+  filter(!is.na(region_dic)) %>%
+  mutate(region_dic = factor(region_dic))
+
+ggplot(antropo_clean, aes(x = region_dic, y = promedio_calculado, fill = region_dic)) +
+  geom_boxplot() +
+  labs(
+       x = "Región de origen", y = "Promedio de Notas", fill = "Región \n de origen") +
+  scale_fill_manual(values = c("0" = "#619CFF",
+                               "1" = "#C45B54"),
+                    labels = c("0" = "Metropolitana", "1" = "Otra región")) +
+  theme_minimal()
+```
+:::
+
+Aquí se muestran las concentraciones de notas de los estudiantes según su región de origen [^nota-2]. En el caso de las cinco carreras, se evidencia que no hay un patrón claro de diferencia de notas respecto a la región de origen. Si bien, se pueden notar diferencias menores respecto a la variabilidad de los datos, por ejemplo en el caso de @fig-nore-psi, donde quienes provienen de una región que no sea la Metropolitana poseen mayor heterogeneidad en sus notas, aun así las calificaciones tienden a ser cercanas a 6 en los dos grupos, tanto en Psicología como en las demás carreras. 
+
+[^nota-1]: Para esto, se construyó una variable de origen étnico dicotomizada, en donde se agrupó a quienes no tienen origen étnico en una categoría, y a todo quien posee origen étnico en otra.
+
+[^nota-2]: Para esto, se construyó una variable de región de origen dicotomizada, en donde se agrupó a quienes provienen de la Región Metropolitana en una categoría, y a todo aquel que viene de otra región en la categoría restante.

@@ -1,0 +1,611 @@
+---
+editor_options: 
+  chunk_output_type: console
+---
+
+# Generación de las bases de datos por carrera
+
+```{r}
+#| include: false
+
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error=FALSE, message = FALSE)
+rm(list=ls())
+
+pacman::p_load(rio, digest, stargazer, sjPlot, codebook, summarytools, dplyr, tidyr, stringr,
+ tidyLPA, lme4, ggplot2, ggeffects, skimr, rlang, table1, patchwork, here, kableExtra, ggthemes)
+#install.packages("remotes")       
+#remotes::install_github("rubenarslan/codebook")   # para instalar codebook desde github
+
+options(scipen = 999)
+```
+
+```{r}
+#| include: false 
+
+nota_final = rio::import("https://www.dropbox.com/scl/fi/q3hz07yyintu32iv0emul/df_BBDD_depurado_v5.xlsx?rlkey=ed8f1lov808nwd5r2x0vx2ka0&dl=1")
+
+notas_cursos <- read.csv("input/data/raw_data/bbdd_notas_cursos.csv",
+  skip = 2,
+  header = TRUE)
+```
+
+## Enmascarado de RUTs
+
+El RUT es información sensible y no debe quedar expuesto en las bases que se publican. Cada RUT real se reemplaza por un identificador aleatorio único: un mismo estudiante conserva el mismo identificador enmascarado en todas las bases derivadas (`original_general`, `notas_cursos`, `notas_cursos_proc`, `base_madre` y las bases por carrera), pero no es posible reconstruir el RUT original a partir de él. El enmascarado se aplica antes de guardar cualquier base, de modo que ningún RUT real quede expuesto en las bases que se utilizarán para el análisis.
+
+```{r}
+#| label: enmascarado rut
+
+notas_cursos <- notas_cursos %>%
+  mutate(
+    RUT = as.numeric(str_sub(RUT, 2, -2)) # para que tenga la misma estructura que la otra base -> se generan 36 NA post procesamiento de RUT
+  )
+
+ruts_unicos <- unique(na.omit(c(nota_final$RUT, notas_cursos$RUT)))
+id_enmascarado <- sample(seq_len(1e6), length(ruts_unicos)) # ids aleatorios y únicos, sin relación con el RUT real
+tabla_equivalencia <- setNames(id_enmascarado, ruts_unicos)
+
+nota_final$RUT <- unname(tabla_equivalencia[as.character(nota_final$RUT)])
+notas_cursos$RUT <- unname(tabla_equivalencia[as.character(notas_cursos$RUT)])
+```
+
+## Procesamiento de la base con promedio por defecto
+
+```{r}
+#| label: funcion haze
+
+calc_percentile_hazen <- function(x) {
+  n <- sum(!is.na(x))
+  r <- rank(x, ties.method = "average", na.last = "keep")
+  (r - 0.5) / n * 100
+}
+
+```
+
+
+```{r}
+#| label: estandarización ptje psu/paes
+
+
+nota_final = nota_final %>%
+  mutate(puntaje=ifelse(PUNTAJE_POND==0 , NA ,PUNTAJE_POND))
+
+nota_final <- nota_final %>%
+  group_by(AGNO_PSU) %>%
+  mutate(
+    pct_paes_psu = calc_percentile_hazen(puntaje),          # 0–100
+    decil_paes_psu = ntile(puntaje, 10)                     # 1–10
+  ) %>%
+  ungroup()
+
+
+nota_final = nota_final %>%
+  mutate(decil=ifelse(is.na(decil_paes_psu), 0 , decil_paes_psu))
+
+nota_final$decil_psu=as.factor(nota_final$decil)
+
+t <- nota_final %>% group_by(decil_psu) %>% summarise(n = n())
+
+```
+
+```{r}
+#| label: nombre variables
+
+nota_final <- nota_final %>%
+  mutate(cohorte=ifelse(FECHA_INGRESO==2016,NA, FECHA_INGRESO))%>%
+  mutate(sexo=SEXO)%>%
+  mutate(nse=PUNTAJE_SOCIOECONOMICO)%>%
+  mutate(colegio=PROCED_EDUC)%>%
+  mutate(carrera=CARRERA)%>%
+  mutate(ingreso=VIA_INGRESO)
+
+nota_final$cohorte=as.factor(nota_final$cohorte)
+
+nota_final$nse=as.factor(nota_final$nse)
+```
+
+```{r}
+nota_final <- nota_final %>%
+  select(RUT, PROMEDIO, ingreso, sexo, NACIONALIDAD, ORIGEN_ETNICO, COMUNA_ORIGEN, SIT_ACADEMICA_CARRERA, carrera, cohorte, REGION_ORIGEN, colegio, EGRESO_EMEDIA, PROMEDIO_EM, nse, pct_paes_psu, decil_paes_psu)
+
+ saveRDS(
+  nota_final,
+  here("input", "data", "proc_data", "original_general.rds"), # guardar base original general
+  compress = FALSE
+ )
+```
+
+## Procesamiento de la base con notas por curso
+
+```{r}
+notas_cursos <- notas_cursos %>%
+  select(
+    RUT,
+    ESTADOS.CARRERAS,
+    CARRERA,
+    NOTA.FINAL.CURSO,
+    ANO,
+    TIPOS.PERIODOS,
+    NOMBRE2,
+    SITUACION.ACADEMICA
+  )
+
+saveRDS(
+  notas_cursos,
+  here("input", "data", "proc_data", "notas_cursos.rds"),
+  compress = FALSE
+ )
+```
+
+```{r}
+notas_cursos <- notas_cursos %>% # se conservan las notas que son mayores que 1
+  group_by(RUT, CARRERA) %>%
+  arrange(NOTA.FINAL.CURSO) %>%   
+  filter(NOTA.FINAL.CURSO > 1) %>% 
+  slice(1) %>%
+  ungroup()
+```
+
+
+```{r}
+cursos_wide <- notas_cursos %>%
+  # Crear una columna que combine curso y año
+  mutate(curso_año = paste0(CARRERA, "_", ANO)) %>%
+  # Pivotar a formato wide
+  pivot_wider(
+    id_cols = RUT,
+    names_from = curso_año,
+    values_from = NOTA.FINAL.CURSO,
+        names_prefix = "curso_",
+    values_fill = NA  # Llenar con NA donde no hay datos
+  )
+
+cursos_wide <- cursos_wide %>%
+  select(RUT, sort(names(.)[-1]))
+
+columnas_cursos <- grep("^curso_", names(cursos_wide), value = TRUE)      # creación de variable promedio de notas por estudiante
+cursos_wide[, columnas_cursos] <- lapply(cursos_wide[, columnas_cursos], as.numeric)
+cursos_wide$promedio_calculado <- rowMeans(cursos_wide[, columnas_cursos], na.rm = TRUE)
+
+saveRDS(
+  cursos_wide,
+  here("input", "data", "proc_data", "notas_cursos_proc.rds"),
+  compress = FALSE
+ )
+```
+
+# Base madre
+
+```{r}
+base_madre <- nota_final %>%
+  inner_join(cursos_wide, by = "RUT") # creación de la base madre
+```
+
+```{r}
+base_madre <- base_madre %>%
+  rename(promedio_ucampus = PROMEDIO)
+```
+
+```{r}
+# generación de la variable de nota promedio por estudiante
+
+columnas_cursos <- grep("^curso_", names(base_madre), value = TRUE)      
+base_madre[, columnas_cursos] <- lapply(base_madre[, columnas_cursos], as.numeric)
+base_madre$promedio_calculado <- rowMeans(base_madre[, columnas_cursos], na.rm = TRUE)
+
+base_madre$mean_dif <- base_madre$promedio_ucampus - base_madre$promedio_calculado
+```
+
+```{r}
+base_madre <- base_madre %>%
+  mutate(
+    sexo = factor(
+      sexo,
+      levels = c("MASCULINO", "FEMENINO"),
+      labels = c(0, 1)
+    )
+  )
+```
+
+```{r}
+base_madre <- base_madre %>%
+  mutate(
+    carrera = recode(carrera,
+                      "ANTROPOLOGÍA ARQUEOLOGÍA" = "Antropología")
+  ) %>%
+  mutate(
+    carrera = recode(carrera,
+                      "PEDAGOGÍA EN EDUCACIÓN PARVULARIA" = "Educación Parvularia")
+  ) %>%
+  mutate(
+    carrera = recode(carrera,
+                      "SOCIOLOGÍA" = "Sociología")
+  ) %>%
+  mutate(
+    carrera = recode(carrera,
+                      "PSICOLOGÍA" = "Psicología")
+  ) %>%
+  mutate(
+    carrera = recode(carrera,
+                      "TRABAJO SOCIAL" = "Trabajo Social")
+  )
+```
+
+```{r}
+base_madre$colegio <- na_if(base_madre$colegio, "S/INF")
+
+base_madre <- base_madre %>%
+  mutate(
+    colegio = recode(colegio,
+                      "MUNICIPAL" = "Municipal")
+  ) %>%
+  mutate(
+    colegio = recode(colegio,
+                      "PARTICULAR SUBVENCIONADO" = "Particular Subvencionado")
+  ) %>%
+  mutate(
+    colegio = recode(colegio,
+                      "PARTICULAR PAGADO" = "Particular Pagado")
+  )
+
+base_madre <- base_madre %>%
+  mutate(
+    colegio = forcats::fct_relevel(
+      colegio,
+      "Municipal",
+      "Particular Subvencionado",
+      "Particular Pagado"))
+```
+
+```{r}
+base_madre$nse <- car::recode(base_madre$nse, "c(0,1,2)=1; c(3,4,5)=2; c(6,7,8)=3")
+
+base_madre <- base_madre %>%
+  mutate(
+    nse = factor(
+      nse,
+      levels = c(1 , 2 , 3),
+      labels = c("Bajo", "Medio", "Alto")
+    )
+  )
+```
+
+```{r}
+base_madre <- base_madre %>%
+  filter(cohorte != 2025) # año no válido en el estudio -> contiene 2 casos probablemente mal codificados
+```
+
+El RUT de `base_madre` ya llega enmascarado, pues se construye a partir de `nota_final` y `cursos_wide`, ambas con el RUT enmascarado desde la sección [Enmascarado de RUTs](#enmascarado-de-ruts).
+
+```{r}
+saveRDS(
+  base_madre,
+  here("input", "data", "proc_data", "base_madre.rds"),
+  compress = FALSE
+)
+```
+
+## Base Sociología
+
+```{r}
+sociologia <- base_madre %>%
+  filter(carrera == "Sociología") %>%
+  filter(cohorte %in% c(2020, 2021, 2022, 2023, 2024))
+
+saveRDS(
+  sociologia,
+  here("input", "data", "proc_data", "df_socio.rds"),
+  compress = FALSE
+)
+```
+
+## Base Psicología
+
+```{r}
+psicologia <- base_madre %>%
+  filter(carrera == "Psicología") %>%
+  filter(cohorte %in% c(2020, 2021, 2022, 2023, 2024))
+
+saveRDS(
+  psicologia,
+  here("input", "data", "proc_data", "df_psico.rds"),
+  compress = FALSE
+)
+```
+
+## Base Antropología
+
+```{r}
+antropologia <- base_madre %>%
+  filter(carrera == "Antropología") %>%
+  filter(cohorte %in% c(2020, 2021, 2022, 2023, 2024))
+
+saveRDS(
+  antropologia,
+  here("input", "data", "proc_data", "df_antropo.rds"),
+  compress = FALSE
+)
+```
+
+## Base Trabajo Social
+
+```{r}
+trabajo_soc <- base_madre %>%
+  filter(carrera == "Trabajo Social") %>%
+  filter(cohorte %in% c(2020, 2021, 2022, 2023, 2024))
+
+saveRDS(
+  trabajo_soc,
+  here("input", "data", "proc_data", "df_trabajo.rds"),
+  compress = FALSE
+)
+```
+
+## Base Educación Parvularia
+
+```{r}
+ed_parvularia <- base_madre %>%
+  filter(carrera == "Educación Parvularia") %>%
+  filter(cohorte %in% c(2020, 2021, 2022, 2023, 2024))
+
+saveRDS(
+  ed_parvularia,
+  here("input", "data", "proc_data", "df_parvularia.rds"),
+  compress = FALSE
+)
+```
+
+# Base centrada en cursos con caracterización
+
+```{r}
+nota_final_cc <- nota_final %>%
+  select(RUT, sexo, carrera, nse, cohorte)
+
+base_cc <- notas_cursos %>%
+  inner_join(nota_final_cc, by = "RUT")
+
+base_cc_socio <- base_cc %>%
+  filter(carrera == "SOCIOLOGÍA")
+
+base_cc_socio <- base_cc_socio %>%
+  arrange(CARRERA) %>%
+  arrange(ANO)
+
+base_cc_socio <- base_cc_socio %>%
+  select(CARRERA, ANO, NOTA.FINAL.CURSO, RUT, everything())
+
+cursos_socio <- c("Filosofía Social", "Historia de la Sociedad Moderna", "Introducción a la Sociología", "Antropología", "Psicología Social", "Teoría Sociológica Clásica", "Historia Social de América Latina", "Epistemología", "Diseños de Investigación", "Población y Sociedad", "Teorías Sociológicas de la Sociedad Moderna", "Historia Social de Chile", "Estrategias de Investigación Cualitativa", "Estadística Descriptiva", "Economía", "Teorías Sociológicas Contemporáneas", "Sociología Política", "Análisis de Información Cualitativa", "Estadística Correlacional", "Estrategias de Investigación Cuantitativa", "Desigualdades y Estratificación Social", "Sociología de la Cultura", "Sociología del Género", "Estadística Multivariada", "Teoría y Sociedad Latinoamericana", "Sociología Económica", "Sociología de las Políticas Públicas", "Transformaciones Sociales del Chile Contemporáneo", "Investigación Evaluativa")
+
+base_cc_socio <- base_cc_socio %>%
+  filter(CARRERA %in% cursos_socio)
+
+base_cc_socio <- base_cc_socio %>%
+  mutate(
+    sexo = factor(
+      sexo,
+      levels = c("MASCULINO", "FEMENINO"),
+      labels = c(0, 1)
+    )
+  )
+
+base_cc_socio <- base_cc_socio %>%
+  mutate(NOTA.FINAL.CURSO = as.numeric(NOTA.FINAL.CURSO))
+
+base_cc_socio <- base_cc_socio %>%
+  group_by(CARRERA, ANO) %>%
+  mutate(desv_std = sd(NOTA.FINAL.CURSO, na.rm = TRUE)) %>%
+  ungroup()  
+
+base_cc_socio <- base_cc_socio %>%
+  mutate(tipo_curso = case_when(
+    CARRERA %in% c("Filosofía Social", "Historia de la Sociedad Moderna", "Introducción a la Sociología", "Antropología", "Psicología Social", "Teoría Sociológica Clásica", "Historia Social de América Latina", "Epistemología", "Población y Sociedad", "Teorías Sociológicas de la Sociedad Moderna", "Historia Social de Chile", "Economía", "Teorías Sociológicas Contemporáneas", "Sociología Política", "Desigualdades y Estratificación Social", "Sociología de la Cultura", "Sociología del Género", "Teoría y Sociedad Latinoamericana", "Sociología Económica", "Sociología de las Políticas Públicas", "Transformaciones Sociales del Chile Contemporáneo", "Investigación Evaluativa") ~ 0,
+    CARRERA %in% c("Diseños de Investigación", "Estrategias de Investigación Cualitativa", "Estadística Descriptiva", "Análisis de Información Cualitativa", "Estadística Correlacional", "Estrategias de Investigación Cuantitativa", "Estadística Multivariada") ~ 1,
+    TRUE ~ NA_real_
+  ))
+
+base_cc_socio_colapse <- base_cc_socio %>%
+  group_by(CARRERA, ANO, tipo_curso) %>%
+  summarise(
+    nota_promedio = mean(NOTA.FINAL.CURSO, na.rm = TRUE),
+    n_estudiantes = n(),
+    desv_std = sd(NOTA.FINAL.CURSO),
+    n_aprobados = sum(NOTA.FINAL.CURSO >= 4, na.rm = TRUE),
+    n_reprobados = sum(NOTA.FINAL.CURSO < 4, na.rm = TRUE),
+    porcentaje_aprobacion = (sum(NOTA.FINAL.CURSO >= 4, na.rm = TRUE) / n()) * 100,
+    n_hombres = sum(sexo == 0, na.rm = TRUE),
+    n_mujeres = sum(sexo == 1, na.rm = TRUE),
+    nota_min = min(NOTA.FINAL.CURSO, na.rm = TRUE),
+    nota_max = max(NOTA.FINAL.CURSO, na.rm = TRUE),
+    .groups = 'drop'
+  ) %>%
+  arrange(CARRERA, ANO)
+
+base_cc_socio_colapse <- base_cc_socio_colapse %>%
+  rename(curso = CARRERA, ano = ANO)
+```
+
+```{r}
+saveRDS(
+  base_cc_socio_colapse,
+  here("input", "data", "proc_data", "cc_socio.rds"),
+  compress = FALSE
+)
+```
+
+La base centrada en cursos de Sociología presenta dos problemas: primero, 3 cursos no tienen ningún caso para su impartición del 2021 (Sociología del Género, Sociología de las Políticas Públicas y Teoría y Sociedad Latinoamericana). El segundo es que hay algunos cursos que no tienen la cantidad de alumnos que realmente debería tener. Por ejemplo, Estadística Multivariada 2021 tiene solamente un caso. Esto claramente no corresponde con la información oficial ni con la cantidad promedio de estudiantes de los demás cursos. 
+
+Vamos a crear un vector que permita comparar cuántos casos existen en la base `notas_cursos` que no están en la base centrada en cursos de sociología
+
+```{r}
+nota_cursos_check <- notas_cursos %>%
+  select(RUT, CARRERA, ANO, NOTA.FINAL.CURSO)
+
+nota_cursos_check_a <- nota_cursos_check %>%
+  filter(CARRERA %in% "Estadística Multivariada") %>%
+  filter(ANO %in% 2021)
+
+missings <- anti_join(nota_cursos_check_a, base_cc_socio, by = "RUT")
+
+nrow(missings)
+
+rut_missings <- missings %>%
+  select(RUT)
+
+check_missings <- nota_final %>%
+  filter(RUT %in% rut_missings)
+```
+
+Con `nrow(missings)` se observa que se están perdiendo 70 casos. El problema reside en que estos 70 casos no se encuentran en la base que contiene las variables de caracterización (comprobado con `check_missings`). Este síntoma se presenta, en su mayoría, en cursos impartidos el 2021, tales como Desigualdades y Estratificación Social, Investigación Evaluativa, entre otros. Una alternativa sería incorporar los casos para obtener una mejor medición de las notas de cada curso, pero seguiría faltando información que permitiera profundizar en los análisis posteriores (por ejemplo, cruces con género/NSE).
+
+
+
+# Distinción de efectos cohorte - tiempo con primeros años
+
+```{r}
+socio_primero <- c("Filosofía Social", "Historia de la Sociedad Moderna", "Introducción a la Sociología", "Antropología", "Psicología Social", "Teoría Sociológica Clásica", "Historia Social de América Latina", "Epistemología", "Diseños de Investigación", "Población y Sociedad")
+
+psico_primero <- c("Filosofía", "Psicología", "Métodos de la Investigación Social", "Historia Social de Chile", "Psicobiología", "Epistemología de las Ciencias Sociales", "Psicología de la Personalidad", "Procesos Psicológicos Básicos", "Estadística 1", "Procesos Básicos de Aprendizaje")
+
+antropo_primero <- c("Evolución Humana", "Formación de la Sociedad Moderna", "Problemas Fundamentales de la Antropología I", "Filosofía de las Ciencias Sociales", "Cazadores Recolectores", "Formación de la Sociedad Chilena", "Problemas Fundamentales de la Antropología II", "Teoría Social", "Taller I: El Quehacer del Antropólogo", "Taller II: Materialidad y Bioantropología")
+
+trabajo_primero <- c("Fundamentos Históricos y Políticos del Trabajo Social", "Filosofía", "Historia Social Contemporánea", "Teoría Sociológica I", "Metodología de la Investigación Social I", "Enfoques Críticos en Trabajo Social", "Estado y Sociedad Contemporánea", "Historia Social de Chile", "Teoría Sociológica II", "Estadística I")
+
+educa_primero <- c("Bases del Desarrollo y Aprendizaje", "Construcciones Sociales sobre la Infancia", "Historia y Fundamentos de la Educación", "Salud y Cuidado del Niño", "Filosofía y Epistemología de las Ciencias Sociales", "Práctica 1: Aproximaciones al Campo Profesional", "Teorías desarrollo y aprendizaje", "Metodología de la investigación", "Pedagogía de la Diversidad e Inclusión Social", "Currículo y Didáctica en la Educación Parvularia", "Familia, Comunidad y Territorio", "Práctica 2: Aproximaciones al Escenario Pedagógico")
+```
+
+```{r}
+notas_cursos_ct <- notas_cursos %>%
+  rename(cursos = CARRERA) %>%
+  arrange(cursos) %>%
+  arrange(ANO)
+
+notas_cursos_socio <- notas_cursos_ct %>%
+  filter(NOMBRE2 == "Licenciatura en Sociología") %>%
+  mutate(NOTA.FINAL.CURSO = as.numeric(NOTA.FINAL.CURSO))
+
+notas_cursos_socio <- notas_cursos_socio %>%
+  filter(cursos %in% socio_primero) %>%
+  group_by(cursos, ANO) %>%
+  summarise(
+    nota_promedio = mean(NOTA.FINAL.CURSO, na.rm = TRUE),
+    n_estudiantes = n(),
+    n_aprobados = sum(NOTA.FINAL.CURSO >= 4, na.rm = TRUE),
+    n_reprobados = sum(NOTA.FINAL.CURSO < 4, na.rm = TRUE),
+    porcentaje_aprobacion = (sum(NOTA.FINAL.CURSO >= 4, na.rm = TRUE) / n()) * 100,
+    carrera = "Sociología",
+    .groups = "drop"
+  )
+```
+
+```{r}
+notas_cursos_psico <- notas_cursos_ct %>%
+  filter(NOMBRE2 == "Licenciatura en Psicología") %>%
+  mutate(NOTA.FINAL.CURSO = as.numeric(NOTA.FINAL.CURSO))
+
+notas_cursos_psico <- notas_cursos_psico %>%
+  filter(cursos %in% psico_primero) %>%
+  group_by(cursos, ANO) %>%
+  summarise(
+    nota_promedio = mean(NOTA.FINAL.CURSO, na.rm = TRUE),
+    n_estudiantes = n(),
+    n_aprobados = sum(NOTA.FINAL.CURSO >= 4, na.rm = TRUE),
+    n_reprobados = sum(NOTA.FINAL.CURSO < 4, na.rm = TRUE),
+    porcentaje_aprobacion = (sum(NOTA.FINAL.CURSO >= 4, na.rm = TRUE) / n()) * 100,
+    carrera = "Psicología",
+    .groups = "drop"
+  )
+```
+
+
+```{r}
+notas_cursos_trabajo <- notas_cursos_ct %>%
+  filter(NOMBRE2 == "Licenciatura en Trabajo Social") %>%
+  mutate(NOTA.FINAL.CURSO = as.numeric(NOTA.FINAL.CURSO))
+
+notas_cursos_trabajo <- notas_cursos_trabajo %>%
+  filter(cursos %in% trabajo_primero) %>%
+  group_by(cursos, ANO) %>%
+  summarise(
+    nota_promedio = mean(NOTA.FINAL.CURSO, na.rm = TRUE),
+    n_estudiantes = n(),
+    n_aprobados = sum(NOTA.FINAL.CURSO >= 4, na.rm = TRUE),
+    n_reprobados = sum(NOTA.FINAL.CURSO < 4, na.rm = TRUE),
+    porcentaje_aprobacion = (sum(NOTA.FINAL.CURSO >= 4, na.rm = TRUE) / n()) * 100,
+    carrera = "Trabajo Social",
+    .groups = "drop"
+  )
+```
+
+
+```{r}
+notas_cursos_educa <- notas_cursos_ct %>%
+  filter(NOMBRE2 == "Licenciatura en Educación [Pedagogía en Educación Parvularia]") %>%
+  mutate(NOTA.FINAL.CURSO = as.numeric(NOTA.FINAL.CURSO))
+
+notas_cursos_educa <- notas_cursos_educa %>%
+  filter(cursos %in% educa_primero) %>%
+  group_by(cursos, ANO) %>%
+  summarise(
+    nota_promedio = mean(NOTA.FINAL.CURSO, na.rm = TRUE),
+    n_estudiantes = n(),
+    n_aprobados = sum(NOTA.FINAL.CURSO >= 4, na.rm = TRUE),
+    n_reprobados = sum(NOTA.FINAL.CURSO < 4, na.rm = TRUE),
+    porcentaje_aprobacion = (sum(NOTA.FINAL.CURSO >= 4, na.rm = TRUE) / n()) * 100,
+    carrera = "Educación Parvularia",
+    .groups = "drop"
+  )
+```
+
+
+```{r}
+notas_cursos_antropo <- notas_cursos_ct %>%
+  filter(NOMBRE2 == "Ciclo Básico de Antropología") %>%
+  mutate(NOTA.FINAL.CURSO = as.numeric(NOTA.FINAL.CURSO)) %>%
+  filter(ANO != 2025)
+
+notas_cursos_antropo <- notas_cursos_antropo %>%
+  filter(cursos %in% antropo_primero) %>%
+  group_by(cursos, ANO) %>%
+  summarise(
+    nota_promedio = mean(NOTA.FINAL.CURSO, na.rm = TRUE),
+    n_estudiantes = n(),
+    n_aprobados = sum(NOTA.FINAL.CURSO >= 4, na.rm = TRUE),
+    n_reprobados = sum(NOTA.FINAL.CURSO < 4, na.rm = TRUE),
+    porcentaje_aprobacion = (sum(NOTA.FINAL.CURSO >= 4, na.rm = TRUE) / n()) * 100,
+    carrera = "Antropología",
+    .groups = "drop"
+  )
+```
+
+
+```{r}
+saveRDS(
+  notas_cursos_socio,
+  here("input", "data", "proc_data", "primeros_socio.rds"),
+  compress = FALSE
+)
+
+saveRDS(
+  notas_cursos_psico,
+  here("input", "data", "proc_data", "primeros_psico.rds"),
+  compress = FALSE
+)
+
+saveRDS(
+  notas_cursos_trabajo,
+  here("input", "data", "proc_data", "primeros_trabajo.rds"),
+  compress = FALSE
+)
+
+saveRDS(
+  notas_cursos_educa,
+  here("input", "data", "proc_data", "primeros_educa.rds"),
+  compress = FALSE
+)
+
+saveRDS(
+  notas_cursos_antropo,
+  here("input", "data", "proc_data", "primeros_antropo.rds"),
+  compress = FALSE
+)
+```

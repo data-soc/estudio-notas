@@ -1,0 +1,55 @@
+Variable,Codigo,Tipo de variable,Categorias de respuesta,Valores de respuesta,Variable creada
+RUT,id,Numerica,-,-,No
+Tipo de ingreso a la universidad,ingreso,Categorica,"  ""ESTUDIANTES CIEGOS"" ""LICENCIADOS Y TITULADOS""        
+  ""TRANSFERENCIAS EXTERNAS"" ""EQUIDAD DE GENERO""              
+  ""DEPORTISTA DESTACADO"" ""EST. MEDIOS EXTRANJERO""         
+  ""BEA (BECA EXCELENCIA ACADEMICA)"" ""SIPEE""                          
+  ""PACE"" ""PSU"" ""PUEBLOS INDIGENAS"" ""DISCAPACIDAD"" ",-,No
+Sexo,sexo,Dicotomica,"""Hombre"" ""Mujer""",0 | 1,No
+Nacionalidad,nacionalidad,Categorica," ""Chilena""                      ""Otra nacionalidad;Chilena""   
+ ""Alemana;Venezolana""           ""Venezolana""                  
+ ""Chilena;Argentina""            ""Ecuatoriana;Chilena""         
+ ""Peruana;Chilena""              ""Otra nacionalidad;Argentina"" 
+ ""Otra nacionalidad;Colombiana"" ""Peruana""                     
+ ""Ecuatoriana""                  ""Francesa;Chilena""            
+ ""Boliviana""                    ""Brasileña""                   
+ ""Colombiana""                   ""Suiza;Chilena""               
+ ""Costarricense;Chilena""        ""Italiana;Chilena""            
+ ""Argentina""                    ""Uruguaya""                    
+ ""Chilena;Uruguaya""",-,No
+Origen etnico,origen_etnico,Categorica,"  ""NINGUNA""                  ""MAPUCHE""                 
+  ""AYMARA""                   NA                        
+  ""DIAGUITA""                 ""QUECHUA""                 
+  ""SIN INFORMACION""          ""AFRODESCENDIENTE CHILENO""
+  ""ATACAMEÑO o LICKANANTAI""  ""RAPA NUI""                
+ ""COLLA"" ",-,No
+Situacion academica,sit_academica,Categorica," ""MATRICULADO""                ""POSTERGACION   1º SEMESTRE""
+ ""POSTERGACION ANUAL""         ""TRANSFERENCIA INTERNA""     
+ ""RENUNCIA  A LA CARRERA"" ",-,No
+Carrera,carrera,Categorica," ""PSICOLOGIA""                        ""ANTROPOLOGIA ARQUEOLOGIA""         
+ ""SOCIOLOGIA""                        ""TRABAJO SOCIAL""                   
+ ""PEDAGOGIA EN EDUCACION PARVULARIA""",-,No
+Cohorte,cohorte,Categorica,2020 2021 2022 2023 2024 2025,-,No
+Tipo de colegio de procedencia,colegio,Categorica," ""S/INF""                    ""MUNICIPAL""               
+ ""PARTICULAR SUBVENCIONADO"" ""PARTICULAR PAGADO""",-,No
+Año de egreso de enseñanza media,egreso_emedia,Categorica,"2003 2006 2007 2013 2015 2016 2017 2019 2018 2009 2014 2020 2011 2008
+ 2012 2021 2002 2022 2001 2010 2023 1986 2005",-,No
+Promedio de enseñanza media,promedio_emedia,Categorica,-,-,No
+Nivel socioeconómico,nse,Ordinal,0 5 4 7 3 8 2 6 1,0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,No
+Percentil en PAES o PSU,pct_paes_psu,Numerica,-,-,Sí
+Decil en PAES o PSU,decil_paes_psu,Numerica,-,-,Sí
+Region de origen,region_origen,Categorica," ""REGION METROPOLITANA""          
+ ""REGION DEL BIOBÍO""              ""REGIÓN DE ÑUBLE""               
+ ""REGION DE LOS LAGOS""            ""REGION DE LA ARAUCANIA""        
+ ""REGION DE VALPARAÍSO""           ""REGION DEL LIB. B. OHIGGINS""   
+ ""SIN INFORMACIÓN""                ""REGION DE TARAPACA""            
+ ""REGION DE COQUIMBO""             ""REGHON DE COQUIMBO""            
+ ""REGION DEL MAULE""               ""REGION DE MAGALLANES""          
+ ""REGION DE AYSÉN""                ""REGION DE ARICA Y PARINACOTA""  
+ ""REGION DE METROPOLITANA""        ""REGION DE LOS RIOS""            
+ ""REGION DE ANTOFAGASTA""          ""REGION DE IQUIQUE Y PARINACOTA""
+ ""REGION DE ATACAMA""              ""REGION DE O'HIGGINS""           
+ ""REGION DEL ÑUBLE""",-,No
+Cursos ,"prefijo ""curso_"" seguido del nombre del curso",Numerica,-,-,No
+Promedio de notas por defecto,promedio_ucampus,Numerica,-,-,No
+Promedio de notas calculado,promedio_calculado,Numerica,-,-,Sí

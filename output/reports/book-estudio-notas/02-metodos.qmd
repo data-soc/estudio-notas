@@ -1,0 +1,403 @@
+---
+title: "Metodología"
+toc: true
+toc-depth: 2
+toc-expand: 3
+prefer-html: true
+---
+
+Este apartado se divide en dos secciones principales: Métodos para la dimensión de estudiantes (1) y para la dimensión de cursos (2). Cada una de ellas se compone de tres subsecciones. Primero, se presentan los datos con los cuales se realiza el informe, detallando las bases de datos disponibles desde un inicio, las tomas de decisiones para el procesamiento de las mismas y la nueva generación de información. En segundo lugar, se presentan las variables disponibles del estudio, junto con su descripción y algunos estadísticos de las variables de interés. Por último, se define la estrategia analítica a utilizar para elaborar los resultados. Cabe mencionar que todos los códigos asociados al procesamiento y análisis de los datos se encuentran disponibles en el [repositorio GitHub asociado al estudio](https://github.com/tomasurzuam/estudio-notas)
+
+## Sección estudiantes
+
+### Datos
+
+```{r}
+library(readr)
+library(knitr)
+library(kableExtra)
+library(summarytools)
+library(dplyr)
+library(skimr)
+library(ggplot2)
+library(tidyr)
+library(here)
+```
+
+Al comienzo de este estudio, se entregaron dos bases de datos previamente construidas a partir de información de UCampus: la base `Original general` y `Notas por curso`. La primera base contiene información sobre estudiantes de todas las carreras de FACSO entre los años 2020 y 2025. Cada estudiante tiene una nota que representa el promedio de las notas de todos sus cursos. Además, presenta variables de caracterización sociodemográficas y académicas, las cuales serán detalladas más adelante. La segunda base tiene las notas desagregadas por curso entre 2020 y 2024, es decir, posee las calificaciones de todos los ramos que cursaron durante ese período. No obstante, no cuenta con variables de caracterización ni un promedio agregado como la base `Original general`. 
+
+Todas las variables de caracterización son propias de UCampus a excepción de nivel socioeconómico, ya que esta variable fue obtenida mediante una encuesta institucional de caracterización aplicada de manera externa a la plataforma UCampus, y posteriormente fue integrada a sus bases de datos. Esta variable refleja el nivel de vulnerabilidad de la comuna de origen del estudiante, con valores que oscilan entre 0 y 8, donde los valores más bajos indican mayor vulnerabilidad socioeconómica. Con el propósito de facilitar su interpretación y análisis, la variable fue recategorizada en tres niveles: bajo (0, 1 y 2), medio (3, 4 y 5) y alto (6, 7 y 8). Las demás variables de caracterización tuvieron procesamientos menores, tales como etiquetado y transformación a factor.
+
+A partir de las dos bases que fueron dispuestas para trabajar, se generó una `Base madre`, que es un dataframe creado a partir del merge de las bases `Original general` y `Notas por curso`, uniéndose mediante el RUT del estudiante. Se decidió esto para tener una base que contuviera la mayor cantidad de información posible para el análisis, obteniendo las notas por curso y variables de caracterización en una sola base de datos. Debido a la incompatibilidad de los años presentes en ambas bases, se logró mantener información entre 2020 y 2024, perdiéndose el año 2025.
+
+La base `Original general` contiene 2578 casos válidos. Por su parte, `Notas por curso` tiene 3638 casos. Posterior al merge, `Base madre` queda con un N total de 1981 individuos. La disminución de casos en la base final se debe a la falta de información disponible en ambas bases, es decir, hay estudiantes que están presentes en la base `Original general` pero no en `Notas por curso`, y viceversa. 
+ 
+Posterior a la generación de la `Base madre`, se crearon múltiples bases filtrando por carrera, por lo que la estructura de los datos es idéntica, lo cual aporta a la eficiencia de los análisis y reproducibilidad del código. En este marco, todas las bases que parten con `Notas` seguido del nombre de la carrera, fueron construidas de esta forma. Todas las bases mencionadas tienen como unidad de análisis a los estudiantes.
+
+Para llevar a cabo los análisis, se utilizan las notas de la base `Notas por curso`, construyéndose una nueva variable de promedio de notas por estudiante, la cual se considera más fiable al haber sido procesada por el mismo equipo de investigación. Para la construcción de esta nueva variable de notas, se tomaron las siguientes decisiones: (1) se recodificaron como NA los valores iguales a 0 y 1 debido a que este era su significado real. (2) Para calcular el promedio, se consideraron la totalidad los ramos que cursó un estudiante. En este contexto, si un estudiante cursó tres veces un ramo, en el cual las primeras dos veces lo reprobó y la última lo aprobó, esas tres notas se contemplan para el promedio, al igual que el resto de los cursos finalizados por la persona. Por último, para determinar factores que afectan las notas de los estudiantes, se recurre a variables de caracterización de origen en la base `Original general`.
+
+A partir de todas las decisiones de procesamiento tomadas, la muestra analítica se constituyó en un total de 1981 cursos. 
+
+Todas las bases de datos se pueden encontrar en [este repositorio](https://github.com/tomasurzuam/estudio-notas/tree/main/input/data).
+
+```{r}
+#| echo: false
+#| label: tbl-bbdd
+#| tbl-cap: Bases de datos disponibles
+#| tbl-cap-location: top
+
+here::i_am("output/reports/book-estudio-notas/02-metodos.qmd")
+
+base_madre <- readRDS(here::here("input/data/proc_data/base_madre.rds"))
+bbdd <- read_csv(here::here("input/documents/bbdd-est.csv"))
+base_final <- readRDS(here::here("input/data/proc_data/cc_sec.rds"))
+
+base_final <- base_final %>%
+  filter(n_estudiantes >= 10) %>%
+  filter(ano != 2026)
+
+# Visualizar como tabla con el mismo estilo que el codebook
+kable(
+  bbdd,
+  format = if (knitr::is_latex_output()) "latex" else "html",
+  align = "l"
+) %>%
+  kable_styling(
+    bootstrap_options = if (knitr::is_html_output()) c("striped", "hover", "condensed") else NULL,
+    latex_options = if (knitr::is_latex_output()) c("hold_position", "scale_down") else NULL,
+    full_width = FALSE,
+    position = "center"
+  )
+```
+
+### Variables
+
+```{r}
+#| echo: false
+#| label: tbl-var
+#| tbl-cap: Variables disponibles
+#| tbl-cap-location: top
+
+codebook <- read_csv("../../../input/documents/codebook.csv")
+
+# Visualizar como tabla con kable - escalada para caber en página
+kable(
+  codebook,
+  format = if (knitr::is_latex_output()) "latex" else "html",
+  align = "l"
+) %>%
+  kable_styling(
+    bootstrap_options = if (knitr::is_html_output()) c("striped", "hover", "condensed") else NULL,
+    latex_options = if (knitr::is_latex_output()) c("striped", "hold_position") else NULL,
+    full_width = FALSE,
+    position = "center",
+    font_size = if (knitr::is_latex_output()) 6 else NULL
+  ) %>%
+  {if (knitr::is_latex_output()) column_spec(., 1, width = "2.2cm") else .} %>%
+  {if (knitr::is_latex_output()) column_spec(., 2, width = "1.7cm") else .} %>%
+  {if (knitr::is_latex_output()) column_spec(., 3, width = "1.6cm") else .} %>%
+  {if (knitr::is_latex_output()) column_spec(., 4, width = "6cm") else .} %>%
+  {if (knitr::is_latex_output()) column_spec(., 5, width = "1.9cm") else .} %>%
+  {if (knitr::is_latex_output()) column_spec(., 6, width = "1.2cm") else .} %>%
+  {if (knitr::is_latex_output()) landscape(.) else .}
+```
+
+En la @tbl-var se pueden observar todas las variables disponibles del estudio esquemáticamente, presentándose su naturaleza, codificación y categorías de respuesta. Para efectos del análisis, se realizaron procesamientos a algunas variables, como es el caso de nivel socioeconómico (NSE). En principio, esta variable poseía 9 categorías, que iban del 0 al 8, pero se recategorizó de tal forma que quedaron tres categorías: 0, 1 y 2 = Bajo; 3, 4, 5 = Medio; 6, 7 y 8 = Alto. Por otro lado, para las bases centradas en estudiantes, se consideraron los años de cohorte desde el 2021 al 2024, pues son los años en común que estaban disponibles para la `Base madre`, permitiendo observar las notas de cursos junto con caracterización sociodemográfica. 
+
+```{r}
+#| echo: false
+#| label: tbl-desc-num
+#| tbl-cap: Descriptivos variables numéricas
+#| tbl-cap-location: top
+
+t_num <- base_madre %>%
+  select(promedio_calculado, pct_paes_psu) %>%
+  skim() %>%
+  yank("numeric") %>%
+  as_tibble() %>%
+  mutate(pct_perdidos = paste0(round((1 - complete_rate) * 100, 2), "%"),
+         pct_validos = paste0(round(complete_rate * 100, 2), "%"),
+         range = paste0("(", p0, "-", p100, ")")) %>%
+  mutate_if(is.numeric, ~ round(., 2)) %>%
+  mutate(skim_variable = recode(skim_variable,        # <-- etiquetas aquí
+           "promedio_calculado" = "Promedio calculado",
+           "pct_paes_psu"       = "Percentil prueba admisión")) %>%
+  select("Variable" = skim_variable,
+         "% Casos Válidos" = pct_validos,
+         "% Casos Perdidos" = pct_perdidos,
+         "Media" = mean,
+         "Desviación Estándar" = sd,
+         "Rango" = range,
+         "Histograma" = hist)
+
+t_num %>%
+  kable(format = if (knitr::is_latex_output()) "latex" else "html",
+        align = c("l", "c", "c", "c", "c", "c", "c")) %>%
+  kable_styling(bootstrap_options = if (knitr::is_html_output()) c("striped", "hover", "condensed") else NULL,
+                latex_options = if (knitr::is_latex_output()) c("hold_position", "scale_down") else NULL,
+                full_width = FALSE,
+                position = "center",
+                font_size = 13) %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#952626") %>%
+  column_spec(1, bold = TRUE, width = "10em") %>%
+  add_header_above(c(" " = 1, "Datos" = 2, "Estadísticos Descriptivos" = 3, "Distribución" = 1),
+                   bold = TRUE, background = "#952626", color = "white")
+
+```
+
+```{r}
+#| echo: false
+#| label: tbl-desc-cat
+#| tbl-cap: Descriptivos variables categóricas
+#| tbl-cap-location: top
+
+t_cat <- base_madre %>%
+  select(sexo, carrera, nse, colegio) %>%
+  skim() %>%
+  yank("factor") %>%
+  as_tibble() %>%
+  mutate(n_total = nrow(base_madre),
+         pct_validos = paste0(round(complete_rate * 100, 2), "%"),
+         pct_perdidos = paste0(round((1 - complete_rate) * 100, 2), "%")) %>%
+  mutate_if(is.numeric, ~ round(., 0)) %>%
+    mutate(skim_variable = recode(skim_variable,        # <-- etiquetas aquí
+           "sexo" = "Sexo",
+           "nse"       = "Nivel socioeconómico",
+           "colegio" = "Tipo de colegio")) %>%
+  select("Variable" = skim_variable,
+         "% Casos válidos" = pct_validos,
+         "% Perdidos" = pct_perdidos,
+         "N Categorías" = n_unique,
+         "Categoría Más Frecuente" = top_counts)
+
+t_cat %>%
+  kable(format = if (knitr::is_latex_output()) "latex" else "html",
+        caption = "Estadísticas Descriptivas de Variables Categóricas",
+        align = c("l", "c", "c", "c", "l")) %>%
+  kable_styling(bootstrap_options = if (knitr::is_html_output()) c("striped", "hover", "condensed") else NULL,
+                latex_options = if (knitr::is_latex_output()) c("hold_position", "scale_down") else NULL,
+                full_width = FALSE,
+                position = "center",
+                font_size = 13) %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#952626") %>%
+  column_spec(1, bold = TRUE, width = "10em") %>%
+  add_header_above(c(" " = 1, "Muestra" = 2, "Categorías" = 2),
+                   bold = TRUE, background = "#952626", color = "white")
+```
+
+
+### Distinción del tiempo: cohorte y año
+
+En los datos se encuentran dos variables para medir el tiempo, a saber, la cohorte y el año, los cuales se distinguen en sus dimensiones conceptual y analítica, por lo que es fundamental comprender su diferencia para la interpretación de los análisis.
+
+ Las cohortes apuntan al año de ingreso, donde los estudiantes de cohortes más antiguas tienen mayor información disponible debido a que han cursado más semestres y, por tanto, más ramos. 
+
+El año es una variable que está asociada a cuándo se realizó el curso, en ese sentido, los cursos cuentan con información que puede someterse a comparación entregando una interpretación más intuitiva que las cohortes. Al comparar las notas promedios de los cursos por año, esto enfoca los cambios que se dan en el tiempo, es decir, entre año y año, pero tomando en cuenta que los cambios están enfocados en los cursos. En este caso, las cohortes tienen un rol secundario, ya que personas de distintas cohortes pueden compartir cursos entre sí, por lo que no afectarían los resultados. 
+
+Los análisis centrados en estudiantes se realizaron utilizando la variable cohorte para modelar cambios en el tiempo, mientras que los cambios por año se visualizan con los datos centrados en cursos. Para descomponer el efecto de la cohorte y el tiempo en las notas, en función de robustecer el análisis, se generó una sección de [análisis por año](https://tomasurzuam.github.io/estudio-notas/docs/apendices/A-analisis-tiempo.html), la cual se encuentra en anexos.
+
+### Métodos
+
+En una primera etapa se realizan análisis descriptivos de las calificaciones, considerando medidas de tendencia central y dispersión (promedio, mediana, desviación estándar y rangos). Estos análisis se efectúan, en primer lugar, a nivel de Facultad, con el objetivo de identificar patrones generales. Posteriormente, los datos se desagregan por carrera y cohorte, permitiendo una comparación más detallada entre programas académicos y una mejor comprensión de la variabilidad interna del desempeño estudiantil.
+
+En una segunda etapa se examinan las asociaciones entre las calificaciones y un conjunto de variables sociodemográficas relevantes. Las asociaciones se presentan principalmente a partir de gráficos, siguiendo este orden: nivel facultad (1), nivel carrera (2) y nivel facultad por cohorte (3). Esta fase busca identificar relaciones que diluciden la composición de las calificaciones a partir de distintas variables de interés.
+
+En la tercera etapa se estiman modelos de regresión multivariada con el fin de evaluar el efecto independiente de cada variable explicativa sobre las calificaciones, controlando por el resto de los factores incluidos en el modelo. La especificación de los modelos se ajusta a la naturaleza continua de la variable dependiente y a los supuestos estadísticos correspondientes. Se reportan los coeficientes estimados y niveles de significación, junto con indicadores de ajuste global del modelo. Como aspecto adicional, se incorporan interacciones entre variables con un fin exploratorio, con tal de evidenciar si los efectos de alguna variable por sobre otra son matizados o potenciados.
+
+## Sección cursos
+
+### Datos
+
+Los datos para la sección de cursos se construyeron a partir de bases de datos definidas por la cohorte de ingreso de los estudiantes, realizándose así un proceso de transformación para obtener una base centrada en cursos. Para esto, se procesaron bases que contienen información de cursos **entre el 2018 y el 2025**, tales como el nombre del curso, su código respectivo y la nota de los y las estudiantes que estuvieron en tal curso. Al aplicar procesamientos iniciales, se dio cuenta que la base de 2018 tiene cursos perdidos, es decir, carece de información en comparación a las bases de los demás años. Esto junto con información adicional se puede encontrar en los [anexos](https://tomasurzuam.github.io/estudio-notas/docs/apendices/C-anexos-cursos.html).
+
+A partir de la información de cursos se logró profundizar en la operacionalización de la inflación de notas, ya que además de contar con la calificación promedio de los cursos, se pudieron integrar el porcentaje de aprobación de los cursos y la dispersión de notas de cada uno de ellos, logrando la consrtucción de un instrumento de medición capaz de aportar mayores recursos de información a la comprensión del concepto y el análisis de los resultados.
+
+Para identificar la carrera de los cursos se realizó un proceso de clasificación, el cual se basó en **la identificación del prefijo del código del curso**. Por ejemplo, si el código del curso empezaba con "SOC", se clasificaba como un curso de Sociología. Este proceso se realizó para cada una de las carreras, utilizando palabras clave específicas para cada una, lo que nos permitió reconocer la carrera de origen a la que pertenecen los cursos. En este contexto, el estudio considera solamente cursos que pertenecen a alguna de las cinco carreras contempladas (Antropología, Educación Parvularia, Psicología, Sociología, Trabajo Social), dejando fuera aquellos cursos a nivel campus tales como artísticos y/o deportivos. Esto marca una distinción con los cursos disponibles en la sección anterior, donde se consideraron todos los ramos cursados por estudiante con el objetivo de abarcar la mayor cantidad de información posible. En cambio, para esta sección, la decisión se fundamenta en la prioridad que tiene este informe hacia la Facultad de Ciencias Sociales, enfocándose solamente en las notas que son asignadas dentro de FACSO. 
+
+Para enriquecer el análisis se creó una variable de identificación del semestre curricular, la cual se calculó restando el año en que los estudiantes cursaron el ramo con el año de ingreso a la carrera. Considerando la moda de cada curso, se pudo identificar en qué semestre curricular se encontraba cada uno de ellos. Con ello, se pudo encontrar que habían casos disonantes: personas que figuraban con un curso algún año anterior a su ingreso. Estos casos fueron eliminados debido a su baja presencia (el año con mayor presencia de casos disonantes fue 2020 con un 3.6% de los casos totales) y a la falta de información para hallar su origen.Además, se realizó un proceso de **clasificación de los cursos según su carácter**, es decir, una variable que diferenciaba cursos obligatorios y electivos. Para esto, se utilizó información de la malla curricular de cada carrera, lo que nos permitió aplicar una identificación inicial de los cursos obligatorios y clasificarlos según su área temática. Después de esto, algunos cursos quedaron sin clasificación, por lo que tuvo que realizarse un proceso manual para asegurar su correcta categorización.
+
+Terminado la creación de variables, se generó una base madre que contenía toda la información disponible, y a partir de esta se desprendieron dos bases agregadas a nivel curso: la primera considerando las secciones de cada curso, y una segunda que unificaba los cursos que tuvieran más de una sección.
+
+Finalizado este proceso, se llevó a cabo una depuración final de los datos, pues habían cursos duplicados y otros que eran inconsistentes. Los duplicados fueron aquellos que repetían la misma información (nombre y código del curso, semestre y año), por lo que se optó por mantener solamente un caso de ellos. Por su parte, los casos inconsistentes eran cursos que tenían el mismo nombre, año y código pero distinto semestre curricular. Este problema se generó principalmente en los cursos electivos debido a que no son cursos con un semestre fijo, pues se ofrecen a estudiantes entre tercer y quinto año en algunos casos. Para solucionar esto, se unificaron los cursos en orden de perder la menor cantidad de información, ponderando sus medidas para minimizar el margen de error al calcular los valores asociados a las calificaciones. 
+
+Las últimas decisiones de análisis se cristalizan en dos principalmente: el uso de todos los cursos disponibles con sus respectivas secciones en el análisis (1) y la consideración de cursos con, al menos, 10 estudiantes (2). La primera decisión se justifica en que cada sección de un mismo curso se puede comprender como un curso en sí mismo, lo que constituye un aporte valioso para la variabilidad de información, así como para observar de manera más clara el panorama. La segunda decisión se fundamenta en la alta influencia que tenían los cursos con pocos estudiantes en los análisis de resultados. En este marco, la mayoría de los cursos de tamaño reducido tenían solamente un estudiante, los cuales correspondían a cursos de seminario y/o práctica. Al estar registrados como cursos, la evaluación a una persona tenía el mismo peso que una evaluación a 100 estudiantes, lo que no es acertado en términos estadísticos ni sustantivos. Para justificar esto empíricamente, el promedio general de la facultad con todos los datos es de un 6.4, y al dejar fuera los cursos con menos de 10 personas disminuye a un 6.0 (ver [anexos](https://tomasurzuam.github.io/estudio-notas/docs/apendices/C-anexos-cursos.html)), demostrando la distorsión de los resultados sin el filtrado. Por ello, se tomó la decisión de conservar para el análisis aquellos cursos con un mínimo de 10 personas.
+
+A partir de todas las decisiones de procesamiento tomadas, la muestra analítica se constituyó en un total de 2291 cursos. 
+
+### Variables
+
+En la @tbl-codebook-cursos se pueden visualizar todas las variables disponibles para el análisis de cursos junto con su naturaleza y una breve descripción de cada una. Posteriormente, se presentan los descriptivos de las variables, distinguiendo por variables categóricas (@tbl-categoricas-cursos) y variables numéricas (@tbl-numericas-cursos). 
+
+```{r}
+#| label: tbl-codebook-cursos
+#| tbl-cap: "Libro de códigos"
+
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+codebook <- tribble(
+  ~Grupo,                  ~Variable,               ~Tipo,              ~Descripcion,
+  "Identificación",        "codigo",                "Categórica",        "Código único del curso (ej. ANT00001). Primeros 3 caracteres = sigla carrera; 5 siguientes = correlativo.",
+  "Identificación",        "curso",                 "Categórica",        "Nombre oficial del curso según catálogo académico.",
+  "Identificación",        "carrera",               "Categórica",        "Nombre del programa académico al que pertenece el curso.",
+  "Identificación",        "caracter",              "Categórica",        "Carácter del curso en el plan de estudios: 'Obligatorio' o 'Electivo'.",
+  "Temporal",              "ano",                   "Categórica",        "Año académico en que se dictó la sección. Convertir con as.integer(ano) para cálculos.",
+  "Temporal",              "semestre_moda",         "Numérica",          "Semestre modal del curso según la malla curricular. Rango: 1–10.",
+  "Temporal",              "semestre_cv",           "factor ordenado",  "Semestre del plan de estudios como etiqueta textual. 10 niveles: Primer semestre … Décimo semestre.",
+  "Temporal",              "seccion",               "integer",          "Número de sección del curso en el año. Un mismo curso puede tener varias secciones por año.",
+  "Matrícula",             "n_estudiantes",         "integer",          "Total de estudiantes matriculados al cierre del período (excluye bajas oficiales).",
+  "Matrícula",             "n_aprobados",           "integer",          "Estudiantes que aprobaron el curso (nota ≥ 4.0). Verificar: n_aprobados + n_reprobados = n_estudiantes.",
+  "Matrícula",             "n_reprobados",          "integer",          "Estudiantes que reprobaron el curso (nota < 4.0).",
+  "Matrícula",             "n_hombres",             "integer",          "Estudiantes hombres matriculados según registro oficial. Verificar: n_hombres + n_mujeres = n_estudiantes.",
+  "Matrícula",             "n_mujeres",             "integer",          "Estudiantes mujeres matriculadas según registro oficial.",
+  "Rendimiento",           "nota_promedio",         "Numérica",          "Nota promedio de los estudiantes de la sección. Escala 1.0–7.0; aprobación mínima: 4.0.",
+  "Rendimiento",           "desv_std",              "Numérica",          "Desviación estándar de las notas de la sección. Indica dispersión del rendimiento.",
+  "Rendimiento",           "nota_min",              "Numérica",          "Nota mínima obtenida en la sección. Escala 1.0–7.0.",
+  "Rendimiento",           "nota_max",              "Numérica",          "Nota máxima obtenida en la sección. Escala 1.0–7.0.",
+  "Rendimiento",           "porcentaje_aprobacion", "Numérica",          "Porcentaje de aprobación: (n_aprobados / n_estudiantes) × 100. Rango: 0–100."
+)
+
+codebook %>%
+  kable(
+    format    = if (knitr::is_latex_output()) "latex" else "html",
+    col.names = c("Grupo", "Variable", "Tipo", "Descripción"),
+    align     = c("l", "l", "c", "l")
+  ) %>%
+  kable_styling(
+    bootstrap_options = if (knitr::is_html_output()) c("striped", "hover", "condensed") else NULL,
+    latex_options = if (knitr::is_latex_output()) c("hold_position", "scale_down", "repeat_header") else NULL,
+    full_width        = TRUE,
+    font_size         = if (knitr::is_latex_output()) 9 else 13
+  ) %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#952626") %>%
+  column_spec(1, bold = TRUE, width = if (knitr::is_latex_output()) "2.2cm" else "9em") %>%
+  column_spec(2, bold = TRUE, monospace = TRUE, width = if (knitr::is_latex_output()) "3.2cm" else "13em") %>%
+  column_spec(3, width = if (knitr::is_latex_output()) "2.4cm" else "9em") %>%
+  column_spec(4, width = if (knitr::is_latex_output()) "7.8cm" else "35em") %>%
+  collapse_rows(columns = 1, valign = "top")
+```
+
+
+```{r}
+#| label: tbl-categoricas-cursos
+#| tbl-cap: "Estadísticas descriptivas de variables categóricas"
+
+# Las variables character deben convertirse a factor para que
+# skim() las capture bajo el tipo "factor" y permita usar yank()
+
+t_cat <- base_final %>%
+  select(semestre_cv, caracter, carrera) %>%
+  mutate(across(where(is.character), as.factor)) %>%
+  skim() %>%
+  yank("factor") %>%
+  as_tibble() %>%
+  mutate(
+    n_total      = nrow(base_final),
+    pct_validos  = paste0(round(complete_rate * 100, 2), "%"),
+    pct_perdidos = paste0(round((1 - complete_rate) * 100, 2), "%"),
+    top_cat = sapply(skim_variable, function(v) {   # <-- sigue usando nombre original
+      x   <- base_final[[v]]
+      tbl <- sort(table(x), decreasing = TRUE)
+      paste(paste0(names(tbl), " (n = ", tbl, ")"), collapse = "; ")
+    })
+  ) %>%
+  mutate_if(is.numeric, ~ round(., 0)) %>%
+  mutate(skim_variable = recode(skim_variable,       # <-- etiquetas aquí, después del sapply
+    "semestre_cv" = "Semestre curricular",
+    "caracter"    = "Tipo de curso",
+    "carrera"     = "Carrera")) %>%
+  select(
+    "Variable"        = skim_variable,
+    "% Casos válidos" = pct_validos,
+    "% Perdidos"      = pct_perdidos,
+    "N Categorías"    = n_unique,
+    "Distribución"    = top_cat
+  )
+
+t_cat %>%
+  kable(
+    format  = if (knitr::is_latex_output()) "latex" else "html",
+    align   = c("l", "c", "c", "c", "l")
+  ) %>%
+  kable_styling(
+    bootstrap_options = if (knitr::is_html_output()) c("striped", "hover", "condensed") else NULL,
+    latex_options = if (knitr::is_latex_output()) c("hold_position") else NULL,
+    full_width        = FALSE,
+    position          = "center",
+    font_size         = if (knitr::is_latex_output()) 8 else 13
+  ) %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#952626") %>%
+  column_spec(1, bold = TRUE, width = if (knitr::is_latex_output()) "2.2cm" else "10em") %>%
+  column_spec(2, width = if (knitr::is_latex_output()) "1.8cm" else "8em") %>%
+  column_spec(3, width = if (knitr::is_latex_output()) "1.7cm" else "8em") %>%
+  column_spec(4, width = if (knitr::is_latex_output()) "1.7cm" else "8em") %>%
+  column_spec(5, width = if (knitr::is_latex_output()) "5cm" else "34em") %>%
+  add_header_above(
+    c(" " = 1, "Muestra" = 2, "Categorías" = 2),
+    bold = TRUE, background = "#952626", color = "white"
+  ) %>%
+  {if (knitr::is_latex_output()) landscape(.) else .}
+```
+
+```{r}
+#| label: tbl-numericas-cursos
+#| tbl-cap: "Estadísticas descriptivas de variables numéricas"
+
+
+t_num <- base_final %>%
+  select(nota_promedio, desv_std, n_estudiantes,
+         porcentaje_aprobacion, n_hombres, n_mujeres) %>%
+  skim() %>%
+  yank("numeric") %>%
+  as_tibble() %>%
+  mutate(
+    pct_validos  = paste0(round(complete_rate * 100, 2), "%"),
+    pct_perdidos = paste0(round((1 - complete_rate) * 100, 2), "%")
+  ) %>%
+  mutate_if(is.numeric, ~ round(., 2)) %>%
+    mutate(skim_variable = recode(skim_variable,       # <-- etiquetas aquí, después del sapply
+    "nota_promedio" = "Nota promedio",
+    "desv_std"    = "Desviación estándar",
+    "n_estudiantes"     = "Cantidad de estudiantes",
+    "porcentaje_aprobacion" = "Tasa de aprobación",
+    "n_hombres" = "Cantidad de hombres",
+    "n_mujeres" = "Cantidad de mujeres")) %>%
+  select(
+    "Variable"        = skim_variable,
+    "% Casos válidos" = pct_validos,
+    "% Perdidos"      = pct_perdidos,
+    "Media"           = mean,
+    "DE"              = sd,
+    "Mín"             = p0,
+    "Q1"              = p25,
+    "Mediana"         = p50,
+    "Q3"              = p75,
+    "Máx"             = p100
+  )
+
+t_num %>%
+  kable(
+    format = if (knitr::is_latex_output()) "latex" else "html",
+    align  = c("l", "c", "c", "c", "c", "c", "c", "c", "c", "c")
+  ) %>%
+  kable_styling(
+    bootstrap_options = if (knitr::is_html_output()) c("striped", "hover", "condensed") else NULL,
+    latex_options = if (knitr::is_latex_output()) c("hold_position", "scale_down") else NULL,
+    full_width        = FALSE,
+    position          = "center",
+    font_size         = 13
+  ) %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#952626") %>%
+  column_spec(1, bold = TRUE, width = "12em") %>%
+  add_header_above(
+    c(" " = 1, "Muestra" = 2, "Estadísticos descriptivos" = 7),
+    bold = TRUE, background = "#952626", color = "white"
+  )
+```
+
+### Métodos
+
+La primera parte del análisis centrado en cursos considera la presentación general de estadísticos descriptivos con el objetivo de entregar una comprensión profunda y clara de la composición de los datos. Se comienza con descriptivos relacionados a la cantidad de cursos existentes en FACSO, para luego dar paso a los descriptivos que dan cuenta de distintas maneras la composición de las calificaciones en la facultad: la nota, el porcentaje de aprobación y la dispersión de las notas. En esta sección se presentan gráficos a nivel facultad y desagregados por carrera, primero desde una perspectiva general y posteriormente presentando las trayectorias en el tiempo de las variables.
+
+En la segunda parte se presentan los cruces entre las notas de los cursos y las variables de caracterización: tipo de curso, género y tamaño del curso. Las asociaciones se ordenan a partir de la siguiente estructura de gráficos: gráfico general de facultad (1), trayectoria temporal de la facultad (2), gráfico desagregado por carreras (3) y trayectoria temporal desagregada por carreras (4). En este punto se pretende identificar en qué medida las variables de caracterización determinan las calificaciones de los cursos, además de buscar distinguir patrones generalizables a nivel facultad tanto como hallazgos particulares de carreras.

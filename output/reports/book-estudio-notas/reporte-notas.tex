@@ -1,0 +1,4404 @@
+% Options for packages loaded elsewhere
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  spanish,
+  a4paper,
+  oneside]{scrbook}
+\usepackage{xcolor}
+\usepackage[top=25mm,bottom=25mm,left=30mm,right=20mm]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+
+
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+ 
+
+
+\AtBeginDocument{\hypersetup{linkcolor=black}}
+% ---------- Paquetes tipograficos y microajustes ----------
+\usepackage{microtype}        % mejor interletrado y justificado
+\usepackage{csquotes}         % comillas tipograficas
+\usepackage{iftex}
+\ifPDFTeX\else
+  % Seleccion de fuentes solo cuando XeTeX/LuaTeX esta disponible.
+  \IfFontExistsTF{TeX Gyre Termes}{
+    \setmainfont{TeX Gyre Termes}
+  }{
+    \IfFontExistsTF{Latin Modern Roman}{\setmainfont{Latin Modern Roman}}{}
+  }
+  \IfFontExistsTF{TeX Gyre Heros}{
+    \setsansfont{TeX Gyre Heros}
+  }{
+    \IfFontExistsTF{Latin Modern Sans}{\setsansfont{Latin Modern Sans}}{}
+  }
+  \IfFontExistsTF{TeX Gyre Cursor}{
+    \setmonofont{TeX Gyre Cursor}
+  }{
+    \IfFontExistsTF{Latin Modern Mono}{\setmonofont{Latin Modern Mono}}{}
+  }
+\fi
+\usepackage{enumitem}         % listas compactas
+\setlist{itemsep=.2em, topsep=.2em}
+
+% ---------- KOMA-Script: estilo de titulos y espaciado ----------
+\KOMAoptions{
+  headings=big,
+  parskip=half,
+  fontsize=12pt,
+  appendixprefix=true
+}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.6em}
+\usepackage{indentfirst}
+\usepackage{setspace}         % Control del interlineado del documento
+\setstretch{1.5}
+
+% ---------- Encabezados y pies (scrlayer-scrpage) ----------
+\usepackage[automark,headsepline]{scrlayer-scrpage}
+\clearpairofpagestyles
+\automark[chapter]{chapter}
+\ihead{\pagemark}
+\ohead{\itshape\headmark}
+\setheadsepline{0.4pt}
+\renewcommand*{\chaptermarkformat}{}
+\renewcommand*{\chapterpagestyle}{scrheadings}
+\pagestyle{scrheadings}
+\makeatletter
+\let\ps@plain\ps@scrheadings
+\makeatother
+\cfoot{}
+
+% ---------- Hipervinculos mas sobrios ----------
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=[rgb]{0.05,0.2,0.5},
+  urlcolor=[rgb]{0.05,0.2,0.5},
+  pdfauthor={\@author},
+  pdftitle={\@title}
+}
+
+% ---------- Leyendas de figuras/tablas ----------
+\usepackage[labelfont=bf,textfont=it]{caption}
+\captionsetup{
+  skip=8pt
+}
+
+% ---------- Tabla de contenidos ----------
+\KOMAoptions{toc=graduated}
+\RedeclareSectionCommand[tocnumwidth=3em]{chapter}
+\RedeclareSectionCommand[tocindent=3.25em,tocnumwidth=2.8em]{section}
+\RedeclareSectionCommand[tocindent=6.5em,tocnumwidth=2.5em]{subsection}
+\makeatletter
+\newcommand*{\tocdotfill}{\leavevmode\leaders\hbox to .6em{\hss.\hss}\hfill}
+\makeatother
+\RedeclareSectionCommand[toclinefill=\tocdotfill]{chapter}
+\RedeclareSectionCommand[toclinefill=\tocdotfill]{section}
+\RedeclareSectionCommand[toclinefill=\tocdotfill]{subsection}
+\renewcommand*{\contentsname}{Tabla de contenido}
+\setkomafont{chapterentry}{\normalfont}
+\setkomafont{chapterentrypagenumber}{\normalfont}
+
+% ---------- Viudas/Huerfanas y cortes de pagina ----------
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+
+% ---------- Entorno abstract para scrbook ----------
+\providecommand{\abstractname}{Resumen}
+\makeatletter
+\@ifundefined{abstract}{
+  \newenvironment{abstract}{
+    \cleardoublepage
+    \thispagestyle{plain}
+    \null\vfill
+    \begin{center}
+      {\bfseries\Large \abstractname\par}
+    \end{center}\vspace{1em}
+    \begingroup
+  }{
+    \par\endgroup
+    \vfill\null
+    \cleardoublepage
+  }
+}{}
+\makeatother
+
+% ---------- Soporte de subtitulo desde YAML ----------
+\makeatletter
+\providecommand{\subtitle}[1]{\gdef\@subtitle{#1}}
+\providecommand{\@subtitle}{}
+\makeatother
+
+\makeatletter
+\newcommand{\facso@iflist}[4]{%
+  \begingroup
+    \def\addvspace##1{}%
+    \def\numberline##1{##1}%
+    \def\facso@target{#2}%
+    \newcount\facso@entrycount
+    \facso@entrycount=0\relax
+    \long\def\contentsline##1##2##3{%
+      \def\facso@this{##1}%
+      \ifx\facso@this\facso@target
+        \advance\facso@entrycount\@ne
+      \fi
+    }%
+    \InputIfFileExists{\jobname.#1}{}{}%
+  \endgroup
+  \ifnum\facso@entrycount>0\relax
+    #3%
+  \else
+    #4%
+  \fi}
+\renewcommand{\listoffigures}{%
+  \facso@iflist{lof}{figure}{%
+    \cleardoublepage
+    \phantomsection
+    \addchap*{Listado de Figuras}%
+    \thispagestyle{scrheadings}%
+    \markboth{Listado de Figuras}{Listado de Figuras}%
+    \addcontentsline{toc}{chapter}{Listado de Figuras}%
+    \@starttoc{lof}%
+    \cleardoublepage
+    \automark[chapter]{chapter}%
+  }{}}
+\renewcommand{\listoftables}{%
+  \facso@iflist{lot}{table}{%
+    \cleardoublepage
+    \phantomsection
+    \addchap*{Listado de Tablas}%
+    \thispagestyle{scrheadings}%
+    \markboth{Listado de Tablas}{Listado de Tablas}%
+    \addcontentsline{toc}{chapter}{Listado de Tablas}%
+    \@starttoc{lot}%
+    \cleardoublepage
+    \automark[chapter]{chapter}%
+  }{}}
+\makeatother
+
+% --- Desactivar portada y abstract automaticos de Pandoc (PDF) ---
+\AtBeginDocument{\let\maketitle\relax}
+\renewenvironment{abstract}{}{}
+\providecommand{\appendixname}{}
+\providecommand{\appendixtocname}{}
+\providecommand{\appendixpagename}{}
+\renewcommand*{\appendixname}{Anexo}
+\renewcommand*{\appendixtocname}{Anexos}
+\renewcommand*{\appendixpagename}{Anexos}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\makeatletter
+\@ifpackageloaded{tcolorbox}{}{\usepackage[skins,breakable]{tcolorbox}}
+\@ifpackageloaded{fontawesome5}{}{\usepackage{fontawesome5}}
+\definecolor{quarto-callout-color}{HTML}{909090}
+\definecolor{quarto-callout-note-color}{HTML}{0758E5}
+\definecolor{quarto-callout-important-color}{HTML}{CC1914}
+\definecolor{quarto-callout-warning-color}{HTML}{EB9113}
+\definecolor{quarto-callout-tip-color}{HTML}{00A047}
+\definecolor{quarto-callout-caution-color}{HTML}{FC5300}
+\definecolor{quarto-callout-color-frame}{HTML}{acacac}
+\definecolor{quarto-callout-note-color-frame}{HTML}{4582ec}
+\definecolor{quarto-callout-important-color-frame}{HTML}{d9534f}
+\definecolor{quarto-callout-warning-color-frame}{HTML}{f0ad4e}
+\definecolor{quarto-callout-tip-color-frame}{HTML}{02b875}
+\definecolor{quarto-callout-caution-color-frame}{HTML}{fd7e14}
+\makeatother
+\makeatletter
+\@ifpackageloaded{bookmark}{}{\usepackage{bookmark}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Tabla de contenidos}
+\else
+  \newcommand\contentsname{Tabla de contenidos}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{Listado de Figuras}
+\else
+  \newcommand\listfigurename{Listado de Figuras}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{Listado de Tablas}
+\else
+  \newcommand\listtablename{Listado de Tablas}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figura}
+\else
+  \newcommand\figurename{Figura}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Tabla}
+\else
+  \newcommand\tablename{Tabla}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listado}
+\newcommand*\listoflistings{\listof{codelisting}{Listado de Listados}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Estudio de Notas de la Facultad de Ciencias Sociales},
+  pdfauthor={Tomás Urzúa Moreno; Juan Carlos Castillo; Daniel Miranda},
+  pdflang={es},
+  colorlinks=true,
+  linkcolor={Maroon},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{Estudio de Notas de la Facultad de Ciencias Sociales}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Diagnóstico y análisis de las notas de estudiantes de
+pregrado}
+\author{Tomás Urzúa Moreno \and Juan Carlos Castillo \and Daniel
+Miranda}
+\date{18 de junio de 2026}
+\begin{document}
+\frontmatter
+\maketitle
+
+% --- title-pdf.tex personalizado para portada formal ---
+\makeatletter
+\providecommand{\subtitle}[1]{\gdef\@subtitle{#1}}
+\providecommand{\@subtitle}{}
+\providecommand{\frontmattercontext}{}
+\providecommand{\advisorname}{}
+\providecommand{\advisorlabel}{FACSO - Universidad de Chile}
+\providecommand{\frontmatterlocation}{}
+\InputIfFileExists{includes/cover-config.tex}{}{}
+
+\newcommand{\PrintTitle}{%
+  {\sffamily\bfseries\fontsize{24pt}{28pt}\selectfont \@title\par}%
+}
+\newcommand{\PrintSubtitle}{%
+  \begingroup
+  \edef\temp{\detokenize{\@subtitle}}%
+  \ifx\temp\empty\relax
+    % sin subtitulo
+  \else
+    {\sffamily\bfseries\large \@subtitle\par}%
+  \fi
+  \endgroup
+}
+\newcommand{\PrintAuthor}{%
+  % Autores ocultos en la portada PDF
+}
+\newcommand{\PrintDate}{%
+  {\small \@date\par}%
+}
+\makeatother
+
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+\vspace*{10mm}
+
+% Logo o imagen institucional
+\includegraphics[width=0.35\textwidth]{assets/cover.jpg}\par
+\vspace{12mm}
+
+% Titulo y subtitulo
+\PrintTitle
+\vspace{6mm}
+\PrintSubtitle
+
+\vspace{15mm}
+\begingroup
+\edef\temp{\detokenize{\frontmattercontext}}%
+\ifx\temp\empty\relax
+  % sin contexto adicional
+\else
+  {\normalsize \frontmattercontext\par}
+\fi
+\endgroup
+
+\vspace{18mm}
+\PrintAuthor
+
+\vspace{16mm}
+\begingroup
+\edef\temp{\detokenize{\advisorname}}%
+\ifx\temp\empty\relax
+  % sin tutor
+\else
+  \rule{0.45\textwidth}{0.4pt}\par
+  {\small \advisorlabel\ \advisorname\par}
+\fi
+\endgroup
+
+\vfill
+\begingroup
+\edef\temp{\detokenize{\frontmatterlocation}}%
+\ifx\temp\empty\relax
+  % sin ubicacion
+\else
+  {\small \frontmatterlocation\par}
+\fi
+\endgroup
+\PrintDate
+
+\end{center}
+\end{titlepage}
+
+% Preliminares (numeros romanos) y estilo simple
+\frontmatter
+\pagestyle{scrheadings}
+
+\cleardoublepage
+\thispagestyle{empty}
+\begin{center}
+\setlength{\fboxsep}{10pt}
+\fcolorbox{gray!60}{gray!10}{%
+\begin{minipage}{0.92\textwidth}
+\textbf{Esta investigación fue desarrollada por Tomás Urzúa, sociólogo y estudiante del Magister en Ciencias Sociales del Departamento de Sociología de la Universidad de Chile.} Contó con la asesoría de los profesores Juan Carlos Castillo (Departamento de Sociología), y Daniel Miranda (Departamento de Psicología), de la Universidad de Chile.
+
+El informe se encuentra disponible en versión web en https://data-soc.github.io/estudio-notas/ y en formato PDF en https://data-soc.github.io/estudio-notas/estudio-notas.pdf.
+
+\textbf{Citar de la siguiente manera:}
+
+\begin{itemize}
+\tightlist
+\item \emph{Urzúa, T., Castillo, J-C \& Miranda, D. (2026). Estudio de Notas: Análisis de las calificaciones de los estudiantes de la Facultad de Ciencias Sociales. Informe técnico. Dirección de Investigación, Facultad de Ciencias Sociales, Universidad de Chile. Disponible en https://data-soc.github.io/estudio-notas/estudio-notas.pdf}
+\end{itemize}
+\end{minipage}}
+\end{center}
+\cleardoublepage
+
+\setcounter{tocdepth}{2} % (o 1/3 segun prefieras)
+\tableofcontents
+\listoffigures
+\listoftables
+
+
+\mainmatter
+\bookmarksetup{startatroot}
+
+\chapter*{Resumen ejecutivo}\label{resumen-ejecutivo}
+\addcontentsline{toc}{chapter}{Resumen ejecutivo}
+
+\markboth{Resumen ejecutivo}{Resumen ejecutivo}
+
+\small\textbf{Palabras clave:} Notas, Facultad de Ciencias Sociales,
+Factores asociados \normalsize
+
+A pesar de que una de las funciones principales de una institución
+educativa como es la Universidad de Chile es formar profesionales
+competentes, la forma en que se evalúan estas competencias y los
+aprendizajes rara vez ha sido analizada en profundidad. Sabemos poco
+sobre si las notas que se otorgan a los estudiantes reflejan realmente
+su rendimiento académico y si permiten distinguir entre estudiantes que
+sobresalen académicamente de aquellos que necesitan apoyo para cumplir
+con los aprendizajes esperados. En este contexto, el presente informe se
+propone analizar las notas de los estudiantes de la Facultad de Ciencias
+Sociales (FACSO) con el objetivo de describir la distribución de las
+calificaciones, identificar patrones y tendencias a lo largo del tiempo,
+y explorar los posibles factores asociados al rendimiento académico.
+Este análisis permitirá comprender mejor el sistema de evaluación actual
+y proponer recomendaciones para fortalecer la calidad educativa en la
+facultad.
+
+La literatura nacional e internacional sobre calificaciones en distintos
+sistemas educativos ha señalado un fenómeno conocido como
+\textbf{``inflación de notas''}, que se refiere a la tendencia de las
+calificaciones a aumentar con el tiempo sin un correspondiente aumento
+en el rendimiento académico real de los estudiantes. Este fenómeno ha
+sido documentado en diversos contextos educativos y se ha asociado a
+factores como cambios en los criterios de evaluación, presiones
+institucionales para mejorar los indicadores de rendimiento, y la
+influencia de factores socioeconómicos y demográficos en el desempeño
+académico. Frente a este escenario, el presente estudio se propone
+analizar si existe evidencia de inflación de notas en la Facultad de
+Ciencias Sociales, y en caso afirmativo, identificar los factores que
+podrían estar contribuyendo a este fenómeno. Para ello, se analizarán
+las calificaciones de los estudiantes a lo largo del tiempo, se
+compararán las tendencias entre diferentes carreras y se explorarán las
+posibles asociaciones con variables como el género, el origen escolar,
+el nivel socioeconómico, el tipo de curso y el tamaño del curso.
+
+La interrogante inicial es aparentemente sencilla: \textbf{¿cuál es el
+promedio de notas de la facultad?} Si bien todos estamos familiarizados
+con la idea del promedio de notas, esta pregunta no es tan simple de
+responder. Para calcular un promedio de notas representativo, es
+necesario considerar una serie de factores que pueden influir en la
+distribución de las calificaciones, como el número de estudiantes, el
+número de cursos, la variabilidad entre carreras, y los cambios a lo
+largo del tiempo. Además, es importante analizar no solo el promedio
+general, sino también cómo se distribuyen las calificaciones dentro de
+cada carrera y cómo estas han evolucionado en los últimos años. Por lo
+tanto, el presente estudio se propone abordar esta pregunta desde una
+perspectiva integral, analizando no solo el promedio de notas a nivel
+facultad, sino también explorando las tendencias y patrones que emergen
+al desagregar los datos por carrera y por año de ingreso.
+
+El análisis se estructura en dos secciones principales, según distintas
+unidades de análisis: \textbf{cursos} y \textbf{estudiantes}. Partiendo
+por la sección de estudiantes, se analizarán las calificaciones a nivel
+individual, explorando cómo estas se relacionan con variables
+sociodemográficas como el género, el origen escolar y el nivel
+socioeconómico. En la sección de notas por cursos, se analizarán las
+calificaciones a nivel de cada curso impartido en la facultad,
+identificando tendencias a lo largo del tiempo y comparando entre cursos
+obligatorios y electivos. A lo largo del informe, se presentarán los
+resultados más relevantes de cada sección, seguidos de una discusión que
+integrará los hallazgos y propondrá recomendaciones para mejorar el
+sistema de evaluación en la Facultad de Ciencias Sociales.
+
+Los datos analizados provienen de las bases de datos de UCampus, que
+incluyen información sobre las calificaciones de los estudiantes, así
+como variables sociodemográficas y académicas relevantes. El análisis se
+ha realizado utilizando técnicas estadísticas descriptivas y
+correlacionales, con el objetivo de identificar patrones y tendencias en
+la distribución de las calificaciones. Además, se han aplicado métodos
+de visualización de datos para facilitar la interpretación de los
+resultados y comunicar de manera efectiva los hallazgos a la comunidad
+académica. Junto con los gráficos provistos, se ha generado un
+\textbf{visualizador de notas por cursos}, que es una plataforma
+interactiva que permite explorar los datos de manera dinámica,
+facilitando la comprensión de las tendencias y patrones identificados en
+el análisis.
+
+\textbf{Principales resultados sección estudiantes (N = 1963,
+2020-2024)}
+
+\begin{itemize}
+\item
+  Los análisis iniciales en base a datos de UCampus (con el promedio
+  general de cada estudiante) indican que el promedio de notas general a
+  nivel facultad es \textbf{6.4} entre 2020 y 2024, con una desviación
+  estándar de 0.33. Esto quiere decir que la mayoría de los estudiantes
+  obtienen calificaciones cercanas a este promedio, con una variabilidad
+  relativamente baja.
+\item
+  Al considerar una segunda base de datos con información de todos los
+  cursos, incluyendo más estudiantes y los cursos reprobados, la nota
+  promedio baja a un \textbf{6.1}, con una desviación estándar de 0.6.
+  Esto sugiere que al incluir los cursos reprobados, la distribución de
+  las calificaciones se vuelve más amplia, reflejando una mayor
+  variabilidad en el rendimiento académico de los estudiantes. Para los
+  análisis se decide trabajar con esta segunda base de datos, ya que
+  permite una representación más completa y precisa del rendimiento
+  académico de los estudiantes, incluyendo tanto los éxitos como los
+  desafíos que enfrentan en su trayectoria académica.
+\item
+  En relación con el género, se observa una tendencia consistente en
+  todas las carreras: las mujeres obtienen, en promedio, mejores
+  calificaciones que los hombres. Esta diferencia se mantiene
+  independientemente del año de ingreso y alcanza su mayor magnitud en
+  Trabajo Social, con una brecha aproximada de 0.54 puntos a favor de
+  las estudiantes.
+\item
+  Respecto al origen escolar, se identifican patrones diferenciados
+  entre carreras. En Antropología, Educación Parvularia y Sociología se
+  observa una estructura escalonada según el tipo de establecimiento
+  escolar: los estudiantes provenientes de colegios municipales
+  presentan las notas más bajas, seguidos por quienes egresaron de
+  particulares subvencionados, mientras que los de particulares pagados
+  obtienen los promedios más altos. En contraste, en Psicología y
+  Trabajo Social los estudiantes de colegios particulares subvencionados
+  presentan el mejor rendimiento promedio, superando incluso a los
+  provenientes de colegios particulares pagados. Asimismo, en las
+  cohortes más recientes se observa una creciente brecha entre
+  estudiantes provenientes de colegios municipales y aquellos de
+  establecimientos particulares.
+\item
+  Al analizar el nivel socioeconómico, en Antropología, Psicología y
+  Sociología se aprecia una relación positiva entre estatus
+  socioeconómico y rendimiento académico. Sin embargo, esta tendencia no
+  se replica en Educación Parvularia ni en Trabajo Social, donde se
+  observan patrones distintos: en la primera, los estudiantes de nivel
+  medio obtienen las notas más altas, mientras que en la segunda los
+  estudiantes de nivel socioeconómico alto presentan los promedios más
+  bajos.
+\end{itemize}
+
+\textbf{Principales resultados sección cursos (N = 2291, 2018-2025)}
+
+\begin{itemize}
+\item
+  El análisis de las calificaciones a nivel de cursos revela que el
+  promedio de notas a nivel facultad ha experimentado un aumento
+  significativo durante el período analizado, pasando desde medianas
+  cercanas a 5,5--5,7 hacia valores sobre 6,1, lo que sugiere un
+  incremento generalizado en las calificaciones. Este hallazgo es
+  consistente con la hipótesis de inflación de notas, sugiriendo que los
+  estándares de evaluación podrían haberse flexibilizado durante este
+  período, especialmente durante la pandemia.
+\item
+  Una variable relevante a nivel de curso es la \textbf{tasa de
+  reprobación}, que en promedio es de un \textbf{3\%} a nivel facultad,
+  lo que indica que la mayoría de los estudiantes aprueban sus cursos.
+  En relación con esto, la dispersión de las calificaciones a nivel
+  facultad ha seguido una tendencia decreciente en el período analizado,
+  evidenciando una progresiva homogeneización de los resultados
+  evaluativos.
+\item
+  Psicología y Educación Parvularia son las carreras más estables y con
+  tasas sostenidamente altas, rozando el 99\% en varios años.
+  Antropología, en cambio, muestra la trayectoria más volátil y una
+  tendencia levemente decreciente, partiendo cerca del 100\% en 2018 y
+  situándose en torno al 96\% hacia 2024--2025. Por su parte, Sociología
+  es la carrera con mayor variabilidad entre años y registra los valores
+  más bajos del conjunto, con una caída en 2019 (\textasciitilde94\%) y
+  fluctuaciones persistentes que la ubican por debajo del resto de
+  carreras. Trabajo Social presenta un comportamiento intermedio, con
+  ciertas variaciones pero relativamente estable.
+\item
+  Los cursos electivos registran calificaciones consistentemente más
+  elevadas que los obligatorios, lo que sugiere que la motivación o
+  afinidad asociada a la elección voluntaria de estos cursos podría
+  operar como un factor que contribuye a elevar los promedios
+  individuales.
+\end{itemize}
+
+\textbf{Conclusiones}
+
+El informe presenta evidencia a favor de la hipótesis de inflación de
+notas al notar el alza de las calificaciones durante la pandemia, nivel
+que aún se mantiene por sobre los promedios de calificaciones
+prepandémicos. Esto da cuenta de un fenómeno global en la educación
+superior en el que los estándares de evaluación han disminuido su
+exigencia durante los últimos años.
+
+Consistente con la inflación de notas, las calificaciones otorgadas
+hacen difícil distinguir entre estudiantes que sobresalen académicamente
+de aquellos que necesitan apoyo para cumplir con los aprendizajes
+esperados debido a la baja variabilidad de las notas que obtienen los
+estudiantes. Es más, las calificaciones han tendido a homogeneizarse con
+el paso del tiempo, dificultando aún más la tarea de diferenciar grupos
+de estudiantes a partir de su rendimiento académico.
+
+A lo largo del tiempo, el promedio de aprobación de cursos a nivel
+facultad es de un 97\%, demostrando que reprobar en FACSO es una
+anomalía. Con ello, se da cuenta de la baja exigencia que implica
+adquirir las credenciales de aprendizajes esperados en los ramos que
+imparte la facultad. Factores socioeconómicos (nivel socioeconómico y
+tipo de colegio), sociodemográficos (género) e institucionales (tipo de
+curso y tamaño del curso) permiten en parte explicar la distribución de
+las notas a nivel facultad y a nivel de cada carrera.
+
+En el marco de la excelencia académica que identifica a la Universidad
+de Chile, se enfatiza abrir la discusión sobre los procedimientos
+evaluativos actuales que se llevan en cada carrera, con el objetivo de
+lograr discernir entre aquellos estudiantes que tienen rendimientos por
+sobre el promedio y los que necesitan políticas de acompañamiento para
+lograr una formación académico-profesional exitosa. Se proponen tres
+investigaciones para poder avanzar en este tema: complementar el Estudio
+de Notas con información de profesores, tales como el dictado de cursos
+y la evaluación docente (1), aplicar un estudio comparativo de los
+criterios de evaluación de los ramos impartidos en cada carrera (2) y
+replicar el Estudio de Notas en otras facultades de la Universidad de
+Chile (3).
+
+Este informe se ha elaborado siguiendo principios de ciencia abierta,
+aplicando prácticas que promueven la transparencia y la reproducibilidad
+de la investigación. Todos los datos, así como el procesamiento de los
+mismos y los códigos generados para los análisis, se encuentran
+disponibles en el
+\href{https://github.com/tomasurzuam/estudio-notas}{repositorio GitHub
+asociado al estudio}.
+
+\bookmarksetup{startatroot}
+
+\chapter{Introducción}\label{introducciuxf3n}
+
+La excelencia académica ha sido un principio constitutivo de la
+tradición intelectual y la identidad cultural de la Universidad de
+Chile, orientando su modelo educativo hacia la formación de
+profesionales con vocación de aporte público y desarrollo pleno de sus
+talentos. Este principio se expresa en la promoción de aprendizajes
+basados en competencias, entendidas como un conjunto articulado de
+saberes que permiten a los y las egresadas tomar decisiones
+fundamentadas en diversos ámbitos de desempeño
+(\citeproc{ref-universidaddechile_modelo_2024}{Universidad de Chile,
+2024}). En coherencia con su compromiso público, la Universidad reconoce
+la heterogeneidad de las trayectorias de origen de su estudiantado y
+promueve la igualdad de oportunidades mediante políticas de inclusión y
+acompañamiento académico, las cuales apuntan a favorecer la integración
+a la vida universitaria, la titulación oportuna y la inserción laboral.
+De este modo, la excelencia académica y la inclusión se configuran como
+una condición esencial del derecho a la educación y como un pilar para
+la construcción de una sociedad democrática
+(\citeproc{ref-universidaddechile_modelo_2024}{Universidad de Chile,
+2024}).
+
+En la agenda investigativa de la educación superior, una de las
+problemáticas que ha cobrado creciente relevancia es la asignación de
+notas, en tanto el rendimiento académico ha sido históricamente uno de
+los elementos constitutivos del sistema universitario y el principal
+indicador para evaluar el logro de los aprendizajes de los estudiantes
+(\citeproc{ref-lynch_learning_2017}{Lynch \& Hennessy, 2017}). En este
+sentido, las calificaciones operan como un mecanismo de
+credencialización, al evidenciar si los contenidos impartidos en una
+carrera universitaria han sido efectivamente aprehendidos. Durante los
+últimos años, sin embargo, se ha develado un alza sostenida de las
+calificaciones académicas, patrón que resulta consistente en
+instituciones universitarias a nivel internacional
+(\citeproc{ref-achen_what_2009}{Achen \& Courant, 2009};
+\citeproc{ref-jewell_whose_2011}{Jewell et~al., 2011}). Este fenómeno ha
+generado un debate en torno a las razones que explican dicho incremento,
+ilustrado en la disyuntiva sobre si los estudiantes se han vuelto más
+competentes o si, por el contrario, las notas han experimentado un
+proceso de inflación (\citeproc{ref-jephcote_grade_2021}{Jephcote
+et~al., 2021}). En tal contexto, una manera de operacionalizar la
+inflación de notas ha sido mediante la calificación de los estudiantes.
+Frente a estas problemáticas, la literatura no ha alcanzado un consenso
+claro respecto de sus causas: mientras algunas investigaciones sostienen
+que, con el paso del tiempo, ciertos departamentos ---particularmente en
+ciencias sociales y humanidades--- han reducido la exigencia de sus
+evaluaciones, contribuyendo así al aumento de los promedios de notas
+(\citeproc{ref-hernandez-julian_measuring_2016}{Hernández-Julián \&
+Looney, 2016}; \citeproc{ref-lipnevich_what_2020}{Lipnevich et~al.,
+2020}), otros hallazgos atribuyen este fenómeno a un incremento efectivo
+en la calidad académica de los estudiantes
+(\citeproc{ref-hernandez-julian_measuring_2016}{Hernández-Julián \&
+Looney, 2016}).
+
+La elevación sistemática de las calificaciones tiene consecuencias
+relevantes a nivel institucional y educativo. En el plano institucional,
+dificulta identificar a estudiantes con mayores necesidades de apoyo,
+obstaculizando la focalización de políticas de acompañamiento académico,
+y también deteriora la confiabilidad de las notas como indicador de
+competencias al proyectar una imagen sobrevalorada del desempeño
+(\citeproc{ref-schorr_addressing_2025}{Schorr, 2025}). En el ámbito
+educativo, obtener buenas calificaciones independientemente de las
+exigencias del curso desincentiva la asistencia a clases, genera
+percepciones de injusticia entre estudiantes con distintos niveles de
+compromiso y aumenta el estrés académico, ya que cualquier resultado
+bajo el estándar inflado es percibido como un fracaso
+(\citeproc{ref-schorr_addressing_2025}{Schorr, 2025}).
+
+Los factores asociados a las calificaciones universitarias pueden
+encontrar diversas razones. Jewell et~al.
+(\citeproc{ref-jewell_whose_2011}{2011}) evidenció que algunos
+profesores tienden a asignar mejores notas con tal de recibir
+evaluaciones docentes positivas, lo que puede tener retribuciones
+directas en procesos de promoción y/o permanencia. Por otro lado, desde
+una racionalidad económica, calificar con bajas notas requiere mayor
+inversión de tiempo y energía, pues se debe entregar una
+retroalimentación más detallada en comparación con un trabajo mejor
+elaborado. Entonces, los docentes podrían estar evaluando con menor
+exigencia a los estudiantes con el fin de reducir su tiempo en tareas de
+revisión y, así, maximizarlo para otras labores. Una última posible
+causa se puede encontrar en la cultura de las adecuaciones que ha
+caracterizado a los estudiantes, sobre todo el período posterior a la
+pandemia. Las adecuaciones curriculares, que son casi en su totalidad
+por salud mental, entregan una amplia flexibilidad para cumplir con las
+responsabilidades académicas, llegando al punto de que los
+universitarios pueden ausentarse a las evaluaciones regulares de los
+cursos y solamente presentarse al examen final, o bien que la asistencia
+obligatoria pierda este carácter. Si bien estas medidas pretenden
+brindar una estabilidad psicoemocional a los estudiantes, también
+podrían estar afectando su rendimiento sin que esto se vea reflejado en
+sus calificaciones.
+
+En el segundo semestre del 2025, la Facultad de Ciencias Sociales
+(FACSO) de la Universidad de Chile se planificó un estudio de notas que
+contemplaba, inicialmente, realizar un diagnóstico general en cuanto al
+rendimiento académico del cuerpo estudiantil, con el objetivo de
+identificar y apoyar a aquellos estudiantes que presentan mayores
+dificultades en el logro de resultados. Este
+\href{https://tomasurzuam.github.io/estudio-notas/output/reports/ReporteA_2025.html}{análisis
+preliminar} se llevó a cabo por la Dirección de Pregrado, realizado a
+partir de los promedios finales de estudiantes regulares entre 2020 y
+2025\footnote{Este promedio es una nota única que registra UCampus
+  considerando todos los períodos académicos que el estudiante terminó.
+  Así, para un estudiante que ingresó el 2025 se refleja sólo el primer
+  semestre, mientras que para un estudiante que ingresó el 2021 su nota
+  considera los promedios de 9 semestres.}, considerando las siete
+carreras que imparte FACSO (N = 2578). Los principales hallazgos fueron,
+en primer lugar, que el promedio de notas de FACSO sería \textbf{6,4}.
+Si bien este alto promedio podría interpretarse como que la mayoría de
+los estudiantes tiene un rendimiento sobresaliente, también es dable
+pensar que estamos ante un escenario de inflación de notas, lo que tiene
+una serie de implicancias. En primer lugar, no permite discriminar entre
+aquellos estudiantes que tienen un rendimiento académico destacado y
+aquellos que podrían estar enfrentando dificultades, lo que dificulta la
+implementación de estrategias de apoyo efectivas. Segundo, los
+estudiantes podrían estar recibiendo una retroalimentación inadecuada
+sobre su desempeño, lo que podría afectar su motivación y su desarrollo
+académico a largo plazo. Tercero, la inflación de notas puede generar
+una percepción de injusticia entre los estudiantes, ya que aquellos que
+se esfuerzan por obtener buenas calificaciones podrían sentirse
+desmotivados al ver que otros reciben calificaciones similares sin el
+mismo nivel de esfuerzo. En cuarto lugar, en este escenario la
+asistencia a clases también se vuelve irrelevante, ya que las
+calificaciones no dependen de asistir o no. Por último, este fenómeno
+podría estar contribuyendo a un aumento del estrés académico, ya que los
+estudiantes podrían sentir la presión de mantener un alto rendimiento en
+un entorno donde las expectativas son cada vez más elevadas.
+
+Debido a ello, se le solicitó a la Dirección de Investigación de FACSO
+realizar un estudio detallado sobre las calificaciones en la facultad,
+con el fin de abordar las interrogantes relacionadas a la distribución
+de las calificaciones y los modos de evaluación. Considerando lo
+anterior, el presente reporte plantea cuatro preguntas: ¿Existe la
+inflación de notas en la Facultad de Ciencias Sociales? (1) ¿Las notas
+permiten discriminar grupos de estudiantes en función del rendimiento?
+(2) ¿Qué tan alto es el nivel de exigencia en cuánto a la aprobación de
+asignaturas? (3) ¿Qué factores asociados dan cuenta de las notas, el
+grado de discriminación y la tasa de aprobación? (4).
+
+Para responder estas incógnitas, el estudio plantea dos objetivos
+principales: (1) \textbf{describir y analizar el rendimiento académico
+en las y los estudiantes de pregrado de FACSO sus cambios en el tiempo y
+sus factores asociados}, y (2) \textbf{describir y analizar el
+rendimiento académico de los cursos de pregrado de FACSO entre 2018 y
+2025, sus variaciones en el tiempo y características asociadas} (2). Con
+el fin de cumplir estos objetivos, este estudio propone una
+operacionalización de la inflación de notas que va más allá del mero
+promedio, integrando la dispersión de notas y el porcentaje de
+aprobación.
+
+El informe se estructurará a partir de las siguientes secciones:
+Metodología, Resultados y Conclusiones. En la metodología se presenta la
+información en detalle de los datos y técnicas estadísticas que se han
+utilizado para desarrollar la investigación. Posteriormente, el apartado
+de resultados se divide en un subapartado para estudiantes y otro para
+cursos, los que contienen la totalidad de los análisis, estudiando la
+situación de la Facultad, así como las diferencias por carrera y en el
+tiempo. Por último, en la conclusión se resumen los principales
+resultados de la investigación y se proponen lineamientos de acción para
+profundizar en esta agenda.
+
+\bookmarksetup{startatroot}
+
+\chapter{Metodología}\label{metodologuxeda}
+
+Este apartado se divide en dos secciones principales: Métodos para la
+dimensión de estudiantes (1) y para la dimensión de cursos (2). Cada una
+de ellas se compone de tres subsecciones. Primero, se presentan los
+datos con los cuales se realiza el informe, detallando las bases de
+datos disponibles desde un inicio, las tomas de decisiones para el
+procesamiento de las mismas y la nueva generación de información. En
+segundo lugar, se presentan las variables disponibles del estudio, junto
+con su descripción y algunos estadísticos de las variables de interés.
+Por último, se define la estrategia analítica a utilizar para elaborar
+los resultados. Cabe mencionar que todos los códigos asociados al
+procesamiento y análisis de los datos se encuentran disponibles en el
+\href{https://github.com/tomasurzuam/estudio-notas}{repositorio GitHub
+asociado al estudio}
+
+\section{Sección estudiantes}\label{secciuxf3n-estudiantes}
+
+\subsection{Datos}\label{datos}
+
+Al comienzo de este estudio, se entregaron dos bases de datos
+previamente construidas a partir de información de UCampus: la base
+\texttt{Original\ general} y \texttt{Notas\ por\ curso}. La primera base
+contiene información sobre estudiantes de todas las carreras de FACSO
+entre los años 2020 y 2025. Cada estudiante tiene una nota que
+representa el promedio de las notas de todos sus cursos. Además,
+presenta variables de caracterización sociodemográficas y académicas,
+las cuales serán detalladas más adelante. La segunda base tiene las
+notas desagregadas por curso entre 2020 y 2024, es decir, posee las
+calificaciones de todos los ramos que cursaron durante ese período. No
+obstante, no cuenta con variables de caracterización ni un promedio
+agregado como la base \texttt{Original\ general}.
+
+Todas las variables de caracterización son propias de UCampus a
+excepción de nivel socioeconómico, ya que esta variable fue obtenida
+mediante una encuesta institucional de caracterización aplicada de
+manera externa a la plataforma UCampus, y posteriormente fue integrada a
+sus bases de datos. Esta variable refleja el nivel de vulnerabilidad de
+la comuna de origen del estudiante, con valores que oscilan entre 0 y 8,
+donde los valores más bajos indican mayor vulnerabilidad socioeconómica.
+Con el propósito de facilitar su interpretación y análisis, la variable
+fue recategorizada en tres niveles: bajo (0, 1 y 2), medio (3, 4 y 5) y
+alto (6, 7 y 8). Las demás variables de caracterización tuvieron
+procesamientos menores, tales como etiquetado y transformación a factor.
+
+A partir de las dos bases que fueron dispuestas para trabajar, se generó
+una \texttt{Base\ madre}, que es un dataframe creado a partir del merge
+de las bases \texttt{Original\ general} y \texttt{Notas\ por\ curso},
+uniéndose mediante el RUT del estudiante. Se decidió esto para tener una
+base que contuviera la mayor cantidad de información posible para el
+análisis, obteniendo las notas por curso y variables de caracterización
+en una sola base de datos. Debido a la incompatibilidad de los años
+presentes en ambas bases, se logró mantener información entre 2020 y
+2024, perdiéndose el año 2025.
+
+La base \texttt{Original\ general} contiene 2578 casos válidos. Por su
+parte, \texttt{Notas\ por\ curso} tiene 3638 casos. Posterior al merge,
+\texttt{Base\ madre} queda con un N total de 1981 individuos. La
+disminución de casos en la base final se debe a la falta de información
+disponible en ambas bases, es decir, hay estudiantes que están presentes
+en la base \texttt{Original\ general} pero no en
+\texttt{Notas\ por\ curso}, y viceversa.
+
+Posterior a la generación de la \texttt{Base\ madre}, se crearon
+múltiples bases filtrando por carrera, por lo que la estructura de los
+datos es idéntica, lo cual aporta a la eficiencia de los análisis y
+reproducibilidad del código. En este marco, todas las bases que parten
+con \texttt{Notas} seguido del nombre de la carrera, fueron construidas
+de esta forma. Todas las bases mencionadas tienen como unidad de
+análisis a los estudiantes.
+
+Para llevar a cabo los análisis, se utilizan las notas de la base
+\texttt{Notas\ por\ curso}, construyéndose una nueva variable de
+promedio de notas por estudiante, la cual se considera más fiable al
+haber sido procesada por el mismo equipo de investigación. Para la
+construcción de esta nueva variable de notas, se tomaron las siguientes
+decisiones: (1) se recodificaron como NA los valores iguales a 0 y 1
+debido a que este era su significado real. (2) Para calcular el
+promedio, se consideraron la totalidad los ramos que cursó un
+estudiante. En este contexto, si un estudiante cursó tres veces un ramo,
+en el cual las primeras dos veces lo reprobó y la última lo aprobó, esas
+tres notas se contemplan para el promedio, al igual que el resto de los
+cursos finalizados por la persona. Por último, para determinar factores
+que afectan las notas de los estudiantes, se recurre a variables de
+caracterización de origen en la base \texttt{Original\ general}.
+
+A partir de todas las decisiones de procesamiento tomadas, la muestra
+analítica se constituyó en un total de 1981 cursos.
+
+Todas las bases de datos se pueden encontrar en
+\href{https://github.com/tomasurzuam/estudio-notas/tree/main/input/data}{este
+repositorio}.
+
+\begin{table}
+
+\caption{\label{tbl-bbdd}Bases de datos disponibles}
+
+\centering{
+
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}{l|l|l|l|l}
+\hline
+Base de datos & Código de la base & N & Formato & Base creada\\
+\hline
+Original general & original.rds & 2578 & Wide & No\\
+\hline
+Notas por curso & notas\_cursos.rds & 291675 & Long & No\\
+\hline
+Notas por curso procesada & notas\_cursos\_proc.rds & 3638 & Wide & Sí\\
+\hline
+Base madre & base\_madre.rds & 1981 & Wide & Sí\\
+\hline
+Notas sociología & df\_socio.rds & 459 & Wide & Sí\\
+\hline
+Notas psicología & df\_psico.rds & 549 & Wide & Sí\\
+\hline
+Notas antropología & df\_antropo.rds & 468 & Wide & Sí\\
+\hline
+Notas trabajo social & df\_trabajo.rds & 294 & Wide & Sí\\
+\hline
+Notas educación parvularia & df\_parvularia.rds & 211 & Wide & Sí\\
+\hline
+\end{tabular}}
+
+}
+
+\end{table}%
+
+\subsection{Variables}\label{variables}
+
+\begin{table}
+
+\caption{\label{tbl-var}Variables disponibles}
+
+\centering{
+
+\centering\begingroup\fontsize{6}{8}\selectfont
+
+\begin{tabular}{>{\raggedright\arraybackslash}p{2.2cm}|>{\raggedright\arraybackslash}p{1.7cm}|>{\raggedright\arraybackslash}p{1.6cm}|>{\raggedright\arraybackslash}p{6cm}|>{\raggedright\arraybackslash}p{1.9cm}|>{\raggedright\arraybackslash}p{1.2cm}}
+\hline
+Variable & Codigo & Tipo de variable & Categorias de respuesta & Valores de respuesta & Variable creada\\
+\hline
+\cellcolor{gray!10}{RUT} & \cellcolor{gray!10}{id} & \cellcolor{gray!10}{Numerica} & \cellcolor{gray!10}{-} & \cellcolor{gray!10}{-} & \cellcolor{gray!10}{No}\\
+\hline
+Tipo de ingreso a la universidad & ingreso & Categorica & "ESTUDIANTES CIEGOS" "LICENCIADOS Y TITULADOS"        
+  "TRANSFERENCIAS EXTERNAS" "EQUIDAD DE GENERO"              
+  "DEPORTISTA DESTACADO" "EST. MEDIOS EXTRANJERO"         
+  "BEA (BECA EXCELENCIA ACADEMICA)" "SIPEE"                          
+  "PACE" "PSU" "PUEBLOS INDIGENAS" "DISCAPACIDAD" & - & No\\
+\hline
+\cellcolor{gray!10}{Sexo} & \cellcolor{gray!10}{sexo} & \cellcolor{gray!10}{Dicotomica} & \cellcolor{gray!10}{"Hombre" "Mujer"} & \cellcolor{gray!10}{0 | 1} & \cellcolor{gray!10}{No}\\
+\hline
+Nacionalidad & nacionalidad & Categorica & "Chilena"                      "Otra nacionalidad;Chilena"   
+ "Alemana;Venezolana"           "Venezolana"                  
+ "Chilena;Argentina"            "Ecuatoriana;Chilena"         
+ "Peruana;Chilena"              "Otra nacionalidad;Argentina" 
+ "Otra nacionalidad;Colombiana" "Peruana"                     
+ "Ecuatoriana"                  "Francesa;Chilena"            
+ "Boliviana"                    "Brasileña"                   
+ "Colombiana"                   "Suiza;Chilena"               
+ "Costarricense;Chilena"        "Italiana;Chilena"            
+ "Argentina"                    "Uruguaya"                    
+ "Chilena;Uruguaya" & - & No\\
+\hline
+Origen etnico & origen\_etnico & Categorica & "NINGUNA"                  "MAPUCHE"                 
+  "AYMARA"                   NA                        
+  "DIAGUITA"                 "QUECHUA"                 
+  "SIN INFORMACION"          "AFRODESCENDIENTE CHILENO"
+  "ATACAMEÑO o LICKANANTAI"  "RAPA NUI"                
+\cellcolor{gray!10}{ "COLLA"} & \cellcolor{gray!10}{-} & \cellcolor{gray!10}{No}\\
+\hline
+Situacion academica & sit\_academica & Categorica & "MATRICULADO"                "POSTERGACION   1º SEMESTRE"
+ "POSTERGACION ANUAL"         "TRANSFERENCIA INTERNA"     
+ "RENUNCIA  A LA CARRERA" & - & No\\
+\hline
+Carrera & carrera & Categorica & "PSICOLOGIA"                        "ANTROPOLOGIA ARQUEOLOGIA"         
+ "SOCIOLOGIA"                        "TRABAJO SOCIAL"                   
+\cellcolor{gray!10}{ "PEDAGOGIA EN EDUCACION PARVULARIA"} & \cellcolor{gray!10}{-} & \cellcolor{gray!10}{No}\\
+\hline
+Cohorte & cohorte & Categorica & 2020 2021 2022 2023 2024 2025 & - & No\\
+\hline
+Tipo de colegio de procedencia & colegio & Categorica & "S/INF"                    "MUNICIPAL"               
+\cellcolor{gray!10}{ "PARTICULAR SUBVENCIONADO" "PARTICULAR PAGADO"} & \cellcolor{gray!10}{-} & \cellcolor{gray!10}{No}\\
+\hline
+Año de egreso de enseñanza media & egreso\_emedia & Categorica & 2003 2006 2007 2013 2015 2016 2017 2019 2018 2009 2014 2020 2011 2008
+ 2012 2021 2002 2022 2001 2010 2023 1986 2005 & - & No\\
+\hline
+\cellcolor{gray!10}{Promedio de enseñanza media} & \cellcolor{gray!10}{promedio\_emedia} & \cellcolor{gray!10}{Categorica} & \cellcolor{gray!10}{-} & \cellcolor{gray!10}{-} & \cellcolor{gray!10}{No}\\
+\hline
+Nivel socioeconómico & nse & Ordinal & 0 5 4 7 3 8 2 6 1 & 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 & No\\
+\hline
+\cellcolor{gray!10}{Percentil en PAES o PSU} & \cellcolor{gray!10}{pct\_paes\_psu} & \cellcolor{gray!10}{Numerica} & \cellcolor{gray!10}{-} & \cellcolor{gray!10}{-} & \cellcolor{gray!10}{Sí}\\
+\hline
+Decil en PAES o PSU & decil\_paes\_psu & Numerica & - & - & Sí\\
+\hline
+Region de origen & region\_origen & Categorica & "REGION METROPOLITANA"          
+ "REGION DEL BIOBÍO"              "REGIÓN DE ÑUBLE"               
+ "REGION DE LOS LAGOS"            "REGION DE LA ARAUCANIA"        
+ "REGION DE VALPARAÍSO"           "REGION DEL LIB. B. OHIGGINS"   
+ "SIN INFORMACIÓN"                "REGION DE TARAPACA"            
+ "REGION DE COQUIMBO"             "REGHON DE COQUIMBO"            
+ "REGION DEL MAULE"               "REGION DE MAGALLANES"          
+ "REGION DE AYSÉN"                "REGION DE ARICA Y PARINACOTA"  
+ "REGION DE METROPOLITANA"        "REGION DE LOS RIOS"            
+ "REGION DE ANTOFAGASTA"          "REGION DE IQUIQUE Y PARINACOTA"
+ "REGION DE ATACAMA"              "REGION DE O'HIGGINS"           
+\cellcolor{gray!10}{ "REGION DEL ÑUBLE"} & \cellcolor{gray!10}{-} & \cellcolor{gray!10}{No}\\
+\hline
+Cursos & prefijo "curso\_" seguido del nombre del curso & Numerica & - & - & No\\
+\hline
+\cellcolor{gray!10}{Promedio de notas por defecto} & \cellcolor{gray!10}{promedio\_ucampus} & \cellcolor{gray!10}{Numerica} & \cellcolor{gray!10}{-} & \cellcolor{gray!10}{-} & \cellcolor{gray!10}{No}\\
+\hline
+Promedio de notas calculado & promedio\_calculado & Numerica & - & - & Sí\\
+\hline
+\end{tabular}
+\endgroup{}
+
+}
+
+\end{table}%
+
+En la Tabla~\ref{tbl-var} se pueden observar todas las variables
+disponibles del estudio esquemáticamente, presentándose su naturaleza,
+codificación y categorías de respuesta. Para efectos del análisis, se
+realizaron procesamientos a algunas variables, como es el caso de nivel
+socioeconómico (NSE). En principio, esta variable poseía 9 categorías,
+que iban del 0 al 8, pero se recategorizó de tal forma que quedaron tres
+categorías: 0, 1 y 2 = Bajo; 3, 4, 5 = Medio; 6, 7 y 8 = Alto. Por otro
+lado, para las bases centradas en estudiantes, se consideraron los años
+de cohorte desde el 2021 al 2024, pues son los años en común que estaban
+disponibles para la \texttt{Base\ madre}, permitiendo observar las notas
+de cursos junto con caracterización sociodemográfica.
+
+\begin{table}
+
+\caption{\label{tbl-desc-num}Descriptivos variables numéricas}
+
+\centering{
+
+\centering\begingroup\fontsize{13}{15}\selectfont
+
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}{>{\raggedright\arraybackslash}p{10em}|c|c|c|c|c|c}
+\hline
+\multicolumn{1}{c|}{\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{ }}}} & \multicolumn{2}{c|}{\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Datos}}}} & \multicolumn{3}{c|}{\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Estadísticos Descriptivos}}}} & \multicolumn{1}{c}{\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Distribución}}}} \\
+\cline{2-3} \cline{4-6} \cline{7-7}
+\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Variable}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{\% Casos Válidos}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{\% Casos Perdidos}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Media}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Desviación Estándar}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Rango}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Histograma}}}\\
+\hline
+\textbf{Promedio calculado} & 100\% & 0\% & 5.92 & 0.58 & (1.5-6.84615384615385) & ▁▁▁▂▇\\
+\hline
+\textbf{Percentil prueba admisión} & 95.31\% & 4.69\% & 50.09 & 28.91 & (0.116550116550117-99.8834498834499) & ▇▇▇▇▇\\
+\hline
+\end{tabular}}
+\endgroup{}
+
+}
+
+\end{table}%
+
+\begin{table}
+
+\caption{\label{tbl-desc-cat}Descriptivos variables categóricas}
+
+\centering{
+
+\centering
+\caption{\label{tab:tbl-desc-cat}Estadísticas Descriptivas de Variables Categóricas}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\fontsize{13}{15}\selectfont
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{10em}|c|c|c|l}
+\hline
+\multicolumn{1}{c|}{\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{ }}}} & \multicolumn{2}{c|}{\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Muestra}}}} & \multicolumn{2}{c}{\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Categorías}}}} \\
+\cline{2-3} \cline{4-5}
+\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Variable}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{\% Casos válidos}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{\% Perdidos}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{N Categorías}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Categoría Más Frecuente}}}\\
+\hline
+\textbf{Sexo} & 100\% & 0\% & 2 & 1: 1334, 0: 647\\
+\hline
+\textbf{Nivel socioeconómico} & 100\% & 0\% & 3 & Med: 1466, Alt: 399, Baj: 116\\
+\hline
+\textbf{Tipo de colegio} & 98.79\% & 1.21\% & 3 & Par: 778, Mun: 683, Par: 496\\
+\hline
+\end{tabular}}
+
+}
+
+\end{table}%
+
+\subsection{Distinción del tiempo: cohorte y
+año}\label{distinciuxf3n-del-tiempo-cohorte-y-auxf1o}
+
+En los datos se encuentran dos variables para medir el tiempo, a saber,
+la cohorte y el año, los cuales se distinguen en sus dimensiones
+conceptual y analítica, por lo que es fundamental comprender su
+diferencia para la interpretación de los análisis.
+
+Las cohortes apuntan al año de ingreso, donde los estudiantes de
+cohortes más antiguas tienen mayor información disponible debido a que
+han cursado más semestres y, por tanto, más ramos.
+
+El año es una variable que está asociada a cuándo se realizó el curso,
+en ese sentido, los cursos cuentan con información que puede someterse a
+comparación entregando una interpretación más intuitiva que las
+cohortes. Al comparar las notas promedios de los cursos por año, esto
+enfoca los cambios que se dan en el tiempo, es decir, entre año y año,
+pero tomando en cuenta que los cambios están enfocados en los cursos. En
+este caso, las cohortes tienen un rol secundario, ya que personas de
+distintas cohortes pueden compartir cursos entre sí, por lo que no
+afectarían los resultados.
+
+Los análisis centrados en estudiantes se realizaron utilizando la
+variable cohorte para modelar cambios en el tiempo, mientras que los
+cambios por año se visualizan con los datos centrados en cursos. Para
+descomponer el efecto de la cohorte y el tiempo en las notas, en función
+de robustecer el análisis, se generó una sección de
+\href{https://tomasurzuam.github.io/estudio-notas/docs/apendices/A-analisis-tiempo.html}{análisis
+por año}, la cual se encuentra en anexos.
+
+\subsection{Métodos}\label{muxe9todos}
+
+En una primera etapa se realizan análisis descriptivos de las
+calificaciones, considerando medidas de tendencia central y dispersión
+(promedio, mediana, desviación estándar y rangos). Estos análisis se
+efectúan, en primer lugar, a nivel de Facultad, con el objetivo de
+identificar patrones generales. Posteriormente, los datos se desagregan
+por carrera y cohorte, permitiendo una comparación más detallada entre
+programas académicos y una mejor comprensión de la variabilidad interna
+del desempeño estudiantil.
+
+En una segunda etapa se examinan las asociaciones entre las
+calificaciones y un conjunto de variables sociodemográficas relevantes.
+Las asociaciones se presentan principalmente a partir de gráficos,
+siguiendo este orden: nivel facultad (1), nivel carrera (2) y nivel
+facultad por cohorte (3). Esta fase busca identificar relaciones que
+diluciden la composición de las calificaciones a partir de distintas
+variables de interés.
+
+En la tercera etapa se estiman modelos de regresión multivariada con el
+fin de evaluar el efecto independiente de cada variable explicativa
+sobre las calificaciones, controlando por el resto de los factores
+incluidos en el modelo. La especificación de los modelos se ajusta a la
+naturaleza continua de la variable dependiente y a los supuestos
+estadísticos correspondientes. Se reportan los coeficientes estimados y
+niveles de significación, junto con indicadores de ajuste global del
+modelo. Como aspecto adicional, se incorporan interacciones entre
+variables con un fin exploratorio, con tal de evidenciar si los efectos
+de alguna variable por sobre otra son matizados o potenciados.
+
+\section{Sección cursos}\label{secciuxf3n-cursos}
+
+\subsection{Datos}\label{datos-1}
+
+Los datos para la sección de cursos se construyeron a partir de bases de
+datos definidas por la cohorte de ingreso de los estudiantes,
+realizándose así un proceso de transformación para obtener una base
+centrada en cursos. Para esto, se procesaron bases que contienen
+información de cursos \textbf{entre el 2018 y el 2025}, tales como el
+nombre del curso, su código respectivo y la nota de los y las
+estudiantes que estuvieron en tal curso. Al aplicar procesamientos
+iniciales, se dio cuenta que la base de 2018 tiene cursos perdidos, es
+decir, carece de información en comparación a las bases de los demás
+años. Esto junto con información adicional se puede encontrar en los
+\href{https://tomasurzuam.github.io/estudio-notas/docs/apendices/C-anexos-cursos.html}{anexos}.
+
+A partir de la información de cursos se logró profundizar en la
+operacionalización de la inflación de notas, ya que además de contar con
+la calificación promedio de los cursos, se pudieron integrar el
+porcentaje de aprobación de los cursos y la dispersión de notas de cada
+uno de ellos, logrando la consrtucción de un instrumento de medición
+capaz de aportar mayores recursos de información a la comprensión del
+concepto y el análisis de los resultados.
+
+Para identificar la carrera de los cursos se realizó un proceso de
+clasificación, el cual se basó en \textbf{la identificación del prefijo
+del código del curso}. Por ejemplo, si el código del curso empezaba con
+``SOC'', se clasificaba como un curso de Sociología. Este proceso se
+realizó para cada una de las carreras, utilizando palabras clave
+específicas para cada una, lo que nos permitió reconocer la carrera de
+origen a la que pertenecen los cursos. En este contexto, el estudio
+considera solamente cursos que pertenecen a alguna de las cinco carreras
+contempladas (Antropología, Educación Parvularia, Psicología,
+Sociología, Trabajo Social), dejando fuera aquellos cursos a nivel
+campus tales como artísticos y/o deportivos. Esto marca una distinción
+con los cursos disponibles en la sección anterior, donde se consideraron
+todos los ramos cursados por estudiante con el objetivo de abarcar la
+mayor cantidad de información posible. En cambio, para esta sección, la
+decisión se fundamenta en la prioridad que tiene este informe hacia la
+Facultad de Ciencias Sociales, enfocándose solamente en las notas que
+son asignadas dentro de FACSO.
+
+Para enriquecer el análisis se creó una variable de identificación del
+semestre curricular, la cual se calculó restando el año en que los
+estudiantes cursaron el ramo con el año de ingreso a la carrera.
+Considerando la moda de cada curso, se pudo identificar en qué semestre
+curricular se encontraba cada uno de ellos. Con ello, se pudo encontrar
+que habían casos disonantes: personas que figuraban con un curso algún
+año anterior a su ingreso. Estos casos fueron eliminados debido a su
+baja presencia (el año con mayor presencia de casos disonantes fue 2020
+con un 3.6\% de los casos totales) y a la falta de información para
+hallar su origen.Además, se realizó un proceso de \textbf{clasificación
+de los cursos según su carácter}, es decir, una variable que
+diferenciaba cursos obligatorios y electivos. Para esto, se utilizó
+información de la malla curricular de cada carrera, lo que nos permitió
+aplicar una identificación inicial de los cursos obligatorios y
+clasificarlos según su área temática. Después de esto, algunos cursos
+quedaron sin clasificación, por lo que tuvo que realizarse un proceso
+manual para asegurar su correcta categorización.
+
+Terminado la creación de variables, se generó una base madre que
+contenía toda la información disponible, y a partir de esta se
+desprendieron dos bases agregadas a nivel curso: la primera considerando
+las secciones de cada curso, y una segunda que unificaba los cursos que
+tuvieran más de una sección.
+
+Finalizado este proceso, se llevó a cabo una depuración final de los
+datos, pues habían cursos duplicados y otros que eran inconsistentes.
+Los duplicados fueron aquellos que repetían la misma información (nombre
+y código del curso, semestre y año), por lo que se optó por mantener
+solamente un caso de ellos. Por su parte, los casos inconsistentes eran
+cursos que tenían el mismo nombre, año y código pero distinto semestre
+curricular. Este problema se generó principalmente en los cursos
+electivos debido a que no son cursos con un semestre fijo, pues se
+ofrecen a estudiantes entre tercer y quinto año en algunos casos. Para
+solucionar esto, se unificaron los cursos en orden de perder la menor
+cantidad de información, ponderando sus medidas para minimizar el margen
+de error al calcular los valores asociados a las calificaciones.
+
+Las últimas decisiones de análisis se cristalizan en dos principalmente:
+el uso de todos los cursos disponibles con sus respectivas secciones en
+el análisis (1) y la consideración de cursos con, al menos, 10
+estudiantes (2). La primera decisión se justifica en que cada sección de
+un mismo curso se puede comprender como un curso en sí mismo, lo que
+constituye un aporte valioso para la variabilidad de información, así
+como para observar de manera más clara el panorama. La segunda decisión
+se fundamenta en la alta influencia que tenían los cursos con pocos
+estudiantes en los análisis de resultados. En este marco, la mayoría de
+los cursos de tamaño reducido tenían solamente un estudiante, los cuales
+correspondían a cursos de seminario y/o práctica. Al estar registrados
+como cursos, la evaluación a una persona tenía el mismo peso que una
+evaluación a 100 estudiantes, lo que no es acertado en términos
+estadísticos ni sustantivos. Para justificar esto empíricamente, el
+promedio general de la facultad con todos los datos es de un 6.4, y al
+dejar fuera los cursos con menos de 10 personas disminuye a un 6.0 (ver
+\href{https://tomasurzuam.github.io/estudio-notas/docs/apendices/C-anexos-cursos.html}{anexos}),
+demostrando la distorsión de los resultados sin el filtrado. Por ello,
+se tomó la decisión de conservar para el análisis aquellos cursos con un
+mínimo de 10 personas.
+
+A partir de todas las decisiones de procesamiento tomadas, la muestra
+analítica se constituyó en un total de 2291 cursos.
+
+\subsection{Variables}\label{variables-1}
+
+En la Tabla~\ref{tbl-codebook-cursos} se pueden visualizar todas las
+variables disponibles para el análisis de cursos junto con su naturaleza
+y una breve descripción de cada una. Posteriormente, se presentan los
+descriptivos de las variables, distinguiendo por variables categóricas
+(Tabla~\ref{tbl-categoricas-cursos}) y variables numéricas
+(Tabla~\ref{tbl-numericas-cursos}).
+
+\begin{table}
+
+\caption{\label{tbl-codebook-cursos}Libro de códigos}
+
+\centering{
+
+\begingroup\fontsize{9}{11}\selectfont
+
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabu} to \linewidth {>{\raggedright}X>{\raggedright}X>{\centering}X>{\raggedright}X}
+\hline
+\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Grupo}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Variable}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Tipo}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Descripción}}}\\
+\hline
+ & \ttfamily{\textbf{codigo}} & Categórica & Código único del curso (ej. ANT00001). Primeros 3 caracteres = sigla carrera; 5 siguientes = correlativo.\\
+\cline{2-4}
+ & \ttfamily{\textbf{curso}} & Categórica & Nombre oficial del curso según catálogo académico.\\
+\cline{2-4}
+ & \ttfamily{\textbf{carrera}} & Categórica & Nombre del programa académico al que pertenece el curso.\\
+\cline{2-4}
+\multirow[t]{-4}{2.2cm}{\raggedright\arraybackslash \textbf{Identificación}} & \ttfamily{\textbf{caracter}} & Categórica & Carácter del curso en el plan de estudios: 'Obligatorio' o 'Electivo'.\\
+\cline{1-4}
+ & \ttfamily{\textbf{ano}} & Categórica & Año académico en que se dictó la sección. Convertir con as.integer(ano) para cálculos.\\
+\cline{2-4}
+ & \ttfamily{\textbf{semestre\_moda}} & Numérica & Semestre modal del curso según la malla curricular. Rango: 1–10.\\
+\cline{2-4}
+ & \ttfamily{\textbf{semestre\_cv}} & factor ordenado & Semestre del plan de estudios como etiqueta textual. 10 niveles: Primer semestre … Décimo semestre.\\
+\cline{2-4}
+\multirow[t]{-4}{2.2cm}{\raggedright\arraybackslash \textbf{Temporal}} & \ttfamily{\textbf{seccion}} & integer & Número de sección del curso en el año. Un mismo curso puede tener varias secciones por año.\\
+\cline{1-4}
+ & \ttfamily{\textbf{n\_estudiantes}} & integer & Total de estudiantes matriculados al cierre del período (excluye bajas oficiales).\\
+\cline{2-4}
+ & \ttfamily{\textbf{n\_aprobados}} & integer & Estudiantes que aprobaron el curso (nota ≥ 4.0). Verificar: n\_aprobados + n\_reprobados = n\_estudiantes.\\
+\cline{2-4}
+ & \ttfamily{\textbf{n\_reprobados}} & integer & Estudiantes que reprobaron el curso (nota < 4.0).\\
+\cline{2-4}
+ & \ttfamily{\textbf{n\_hombres}} & integer & Estudiantes hombres matriculados según registro oficial. Verificar: n\_hombres + n\_mujeres = n\_estudiantes.\\
+\cline{2-4}
+\multirow[t]{-5}{2.2cm}{\raggedright\arraybackslash \textbf{Matrícula}} & \ttfamily{\textbf{n\_mujeres}} & integer & Estudiantes mujeres matriculadas según registro oficial.\\
+\cline{1-4}
+ & \ttfamily{\textbf{nota\_promedio}} & Numérica & Nota promedio de los estudiantes de la sección. Escala 1.0–7.0; aprobación mínima: 4.0.\\
+\cline{2-4}
+ & \ttfamily{\textbf{desv\_std}} & Numérica & Desviación estándar de las notas de la sección. Indica dispersión del rendimiento.\\
+\cline{2-4}
+ & \ttfamily{\textbf{nota\_min}} & Numérica & Nota mínima obtenida en la sección. Escala 1.0–7.0.\\
+\cline{2-4}
+ & \ttfamily{\textbf{nota\_max}} & Numérica & Nota máxima obtenida en la sección. Escala 1.0–7.0.\\
+\cline{2-4}
+\multirow[t]{-5}{2.2cm}{\raggedright\arraybackslash \textbf{Rendimiento}} & \ttfamily{\textbf{porcentaje\_aprobacion}} & Numérica & Porcentaje de aprobación: (n\_aprobados / n\_estudiantes) × 100. Rango: 0–100.\\
+\hline
+\end{tabu}}
+\endgroup{}
+
+}
+
+\end{table}%
+
+\begin{table}
+
+\caption{\label{tbl-categoricas-cursos}Estadísticas descriptivas de
+variables categóricas}
+
+\centering{
+
+\centering\begingroup\fontsize{8}{10}\selectfont
+
+\begin{tabular}{>{\raggedright\arraybackslash}p{2.2cm}|>{\centering\arraybackslash}p{1.8cm}|>{\centering\arraybackslash}p{1.7cm}|>{\centering\arraybackslash}p{1.7cm}|>{\raggedright\arraybackslash}p{5cm}}
+\hline
+\multicolumn{1}{c|}{\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{ }}}} & \multicolumn{2}{c|}{\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Muestra}}}} & \multicolumn{2}{c}{\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Categorías}}}} \\
+\cline{2-3} \cline{4-5}
+\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Variable}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{\% Casos válidos}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{\% Perdidos}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{N Categorías}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Distribución}}}\\
+\hline
+\textbf{Semestre curricular} & 99.91\% & 0.09\% & 10 & Sexto semestre (n = 425); Séptimo semestre (n = 306); Quinto semestre (n = 292); Cuarto semestre (n = 271); Segundo semestre (n = 254); Tercer semestre (n = 247); Primer semestre (n = 243); Octavo semestre (n = 225); Noveno semestre (n = 16); Décimo semestre (n = 10)\\
+\hline
+\textbf{Tipo de curso} & 98.6\% & 1.4\% & 2 & Obligatorio (n = 1616); Electivo (n = 643)\\
+\hline
+\textbf{Carrera} & 100\% & 0\% & 5 & Antropología (n = 610); Psicología (n = 602); Sociología (n = 510); Educación Parvularia (n = 289); Trabajo Social (n = 280)\\
+\hline
+\end{tabular}
+\endgroup{}
+
+}
+
+\end{table}%
+
+\begin{table}
+
+\caption{\label{tbl-numericas-cursos}Estadísticas descriptivas de
+variables numéricas}
+
+\centering{
+
+\centering\begingroup\fontsize{13}{15}\selectfont
+
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}{>{\raggedright\arraybackslash}p{12em}|c|c|c|c|c|c|c|c|c}
+\hline
+\multicolumn{1}{c|}{\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{ }}}} & \multicolumn{2}{c|}{\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Muestra}}}} & \multicolumn{7}{c}{\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Estadísticos descriptivos}}}} \\
+\cline{2-3} \cline{4-10}
+\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Variable}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{\% Casos válidos}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{\% Perdidos}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Media}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{DE}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Mín}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Q1}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Mediana}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Q3}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Máx}}}\\
+\hline
+\textbf{Nota promedio} & 100\% & 0\% & 6.01 & 0.52 & 3.76 & 5.70 & 6.07 & 6.39 & 7.00\\
+\hline
+\textbf{Desviación estándar} & 100\% & 0\% & 0.67 & 0.38 & 0.00 & 0.39 & 0.59 & 0.88 & 2.67\\
+\hline
+\textbf{Cantidad de estudiantes} & 100\% & 0\% & 42.42 & 25.87 & 10.00 & 24.00 & 38.00 & 54.00 & 197.00\\
+\hline
+\textbf{Tasa de aprobación} & 100\% & 0\% & 97.28 & 4.69 & 55.81 & 96.15 & 100.00 & 100.00 & 100.00\\
+\hline
+\textbf{Cantidad de hombres} & 100\% & 0\% & 12.98 & 10.31 & 0.00 & 5.00 & 12.00 & 18.00 & 71.00\\
+\hline
+\textbf{Cantidad de mujeres} & 100\% & 0\% & 29.44 & 18.43 & 1.00 & 15.00 & 26.00 & 39.00 & 126.00\\
+\hline
+\end{tabular}}
+\endgroup{}
+
+}
+
+\end{table}%
+
+\subsection{Métodos}\label{muxe9todos-1}
+
+La primera parte del análisis centrado en cursos considera la
+presentación general de estadísticos descriptivos con el objetivo de
+entregar una comprensión profunda y clara de la composición de los
+datos. Se comienza con descriptivos relacionados a la cantidad de cursos
+existentes en FACSO, para luego dar paso a los descriptivos que dan
+cuenta de distintas maneras la composición de las calificaciones en la
+facultad: la nota, el porcentaje de aprobación y la dispersión de las
+notas. En esta sección se presentan gráficos a nivel facultad y
+desagregados por carrera, primero desde una perspectiva general y
+posteriormente presentando las trayectorias en el tiempo de las
+variables.
+
+En la segunda parte se presentan los cruces entre las notas de los
+cursos y las variables de caracterización: tipo de curso, género y
+tamaño del curso. Las asociaciones se ordenan a partir de la siguiente
+estructura de gráficos: gráfico general de facultad (1), trayectoria
+temporal de la facultad (2), gráfico desagregado por carreras (3) y
+trayectoria temporal desagregada por carreras (4). En este punto se
+pretende identificar en qué medida las variables de caracterización
+determinan las calificaciones de los cursos, además de buscar distinguir
+patrones generalizables a nivel facultad tanto como hallazgos
+particulares de carreras.
+
+\bookmarksetup{startatroot}
+
+\chapter{Resultados: Estudiantes}\label{resultados-estudiantes}
+
+Este apartado tiene como objetivo presentar los principales resultados
+de la investigación con los estudiantes como unidad de análisis. En
+primer lugar, se exponen resultados descriptivos a nivel de Facultad y,
+posteriormente, se detallan a nivel de carrera. En segundo lugar, se
+analizan las asociaciones entre las notas y las variables de
+caracterización más relevantes (sexo, colegio de procedencia, nivel
+socioeconómico y prueba de admisión universitaria). Por último, se
+estima un modelo de regresión con el objetivo de identificar qué
+variables resultan más determinantes en las calificaciones de las y los
+estudiantes.
+
+La presentación de los resultados descriptivos y de asociación se
+organiza de la siguiente manera: (1) tabla de promedios de notas por
+carrera y categoría; (2) gráfico de distribución de las notas a nivel de
+Facultad y (3) gráficos de distribución de las notas según carrera.
+
+\section{Descriptivos generales}\label{descriptivos-generales}
+
+Esta sección tiene como objetivo determinar el promedio general de los
+estudiantes de FACSO. En primer lugar, se va a estimar la distribución
+de las notas a partir de la base de promedios generales UCampus, la cual
+tiene un N total de 2578.
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{03-resultados-est_files/figure-pdf/fig-histo-og-1.pdf}}
+
+}
+
+\caption{\label{fig-histo-og}Elaboración propia - datos de promedios
+generales UCampus (2026)}
+
+\end{figure}%
+
+Considerando la Figura~\ref{fig-histo-og}, se confirma que la estimación
+del promedio general realizada en el análisis previo por la Dirección de
+Pregrado de la facultad es correcta. El gráfico presenta una
+distribución asimétrica, donde la mayoría de los casos se concentran en
+notas entre 6.0 y 7.0, mientras que las notas menores a 5.0 son
+inperceptibles, destacándose un promedio a nivel facultad de 6.4.
+Además, el peak de concentración de notas está por sobre el promedio, es
+decir, cercano al 6.6-6.7. Respecto a la dispersión de las notas, el
+promedio de la base original general cuenta con una desviación estándar
+de 0.33, lo que significa que aproximadamente dos tercios de los
+estudiantes tienen un promedio final de notas entre de 6.1 y 6.7
+(asumiendo distribución normal). En suma, la información entregada por
+la figura refleja una concentración de las notas de los estudiantes en
+la parte más alta de la escala de notas, acompañado de una baja
+dispersión.
+
+Ahora bien, con la base general de promedios de UCampus no teníamos
+información clara respecto al proceso de construcción del promedio
+general de cada estudiante. Debido a ello, se solicitó una base con las
+notas desagregadas por curso para así calcular el promedio de
+estudiantes a partir de sus notas en cada curso. Al realizar este
+cálculo, el resultado es el siguiente:
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{03-resultados-est_files/figure-pdf/fig-histo-c-1.pdf}}
+
+}
+
+\caption{\label{fig-histo-c}Elaboración propia - datos de notas por
+cursos UCampus (2026)}
+
+\end{figure}%
+
+Se observa que la Figura~\ref{fig-histo-c} tiene una distribución de las
+calificaciones menos concentrada en la parte alta de la escala de notas,
+lo cual se condice con una disminución del promedio a nivel facultad a
+un 6.1. En relación con esto, la desviación estándar corresponde a un
+0.62, lo que significa que el 68\% de los casos (asumiendo distribución
+normal) se encuentra entre un 5.5 y un 6.7, afirmando que este cálculo
+del promedio presenta una mayor dispersión en las notas. Aun así, el
+promedio general sigue siendo alto e, incluso, el 50\% de los casos se
+concentra por encima del 6.2.
+
+La disminución del promedio respecto a la Figura~\ref{fig-histo-og} se
+debe a las decisiones tomadas para el cálculo de los promedios. En este
+caso, se decidió considerar las notas de los cursos aprobados y
+reprobados por cada estudiante para estimar su promedio final. Esto se
+debe al enfoque del estudio, puesto que nos interesa reflejar de mejor
+manera el proceso de calificación en la facultad más que solamente la
+nota final. Otra razón para considerar este promedio de notas es que
+este cálculo puede reflejar mayor varianza y, por tanto, entregar más
+información respecto a la asociación con variables de caracterización.
+Sin embargo, las variables de caracterización se encontraban solo en la
+base inicial de promedios generales, por lo que se realizó una fusión de
+la base original general (que cuenta con variables de caracterización) y
+la base de notas por curso. Esto trajo el siguiente resultado:
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{03-resultados-est_files/figure-pdf/fig-histo-facso-1.pdf}}
+
+}
+
+\caption{\label{fig-histo-facso}Elaboración propia en base a datos de
+UCampus (2026)}
+
+\end{figure}%
+
+Al unir las dos bases se reducen los casos a 1981 estudiantes. La
+primera diferencia que se observa en la Figura~\ref{fig-histo-facso} es
+que el promedio disminuye a un 5.9. Esto se complementa con la
+distribución de las notas, donde la columna que representa las
+calificaciones más altas ya no es la que tiene la mayor concentración.
+La desviación estándar corresponde a 0.6, lo que significa que el 68\%
+de los casos se mantiene entre el 5.3 y el 6.5, presentando una mayor
+variabilidad que la Figura~\ref{fig-histo-og}. Cabe considerar que este
+es el escenario con el resultado más bajo que se puede encontrar. Aun
+así, la mitad de los estudiantes obtienen notas sobre 6.0, incluyendo
+los cursos reprobados en sus trayectorias. En síntesis, si bien este
+cálculo del promedio de los estudiantes permite observar una mayor
+dispersión respecto al promedio que contenía la base original general,
+la concentración de las calificaciones sigue ubicándose en la parte
+superior de la escala de notas.
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{03-resultados-est_files/figure-pdf/fig-box-facso-1.pdf}}
+
+}
+
+\caption{\label{fig-box-facso}Elaboración propia en base a datos de
+UCampus (2026)}
+
+\end{figure}%
+
+Para profundizar en la comprensión del promedio general de la facultad,
+en la Figura~\ref{fig-box-facso} se presentan las diferencias en los
+promedios de notas según carrera. Se observa que Educación Parvularia
+presenta los valores centrales más, seguido de Psicolgía. Antropología,
+Sociología y Trabajo Social exhiben valores muy similares. Cabe resaltar
+que en todas las carreras se observan algunos valores atípicos bajos, lo
+que indica la existencia de muy pocos estudiantes con promedios
+considerablemente inferiores al promedio general.
+
+\section{Asociación entre nota y variables de
+caracterización}\label{asociaciuxf3n-entre-nota-y-variables-de-caracterizaciuxf3n}
+
+\subsection{Género}\label{guxe9nero}
+
+\begin{table}
+
+\centering{
+
+\centering\begingroup\fontsize{14}{16}\selectfont
+
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}{l|c|c|c}
+\hline
+Carrera & Hombre & Mujer & Diferencia (Mujer - Hombre)\\
+\hline
+Antropología & 5.79 & 5.93 & 0.14\\
+\hline
+Educación Parvularia & 5.90 & 6.20 & 0.30\\
+\hline
+Psicología & 5.86 & 6.07 & 0.20\\
+\hline
+Sociología & 5.80 & 5.92 & 0.12\\
+\hline
+Trabajo Social & 5.41 & 5.89 & 0.48\\
+\hline
+\end{tabular}}
+\endgroup{}
+
+}
+
+\caption{\label{tbl-gen}Promedios por carrera según género 2020-2024}
+
+\end{table}%
+
+La Tabla~\ref{tbl-gen} exhibe los promedios de notas por carrera
+distinguiendo entre hombres y mujeres. Se observa una tendencia
+consistente en las cinco carreras del estudio, donde las mujeres
+sistemáticamente obtienen mejores calificaciones. En este contexto,
+Trabajo Social es la carrera que presenta la mayor brecha en rendimiento
+académico por género, con 0.48 décimas a favor de las estudiantes.
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{03-resultados-est_files/figure-pdf/fig-hist-gen-1.pdf}}
+
+}
+
+\caption{\label{fig-hist-gen}Elaboración propia en base a datos de
+UCampus (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-hist-gen} se encuentran histogramas que presentan
+la distribución de las notas por género, primero a nivel facultad y
+luego por carrera. Un primer hallazgo a reportar es la forma de la
+distribución entre hombres y mujeres, las cuales son claramente
+distintas. Aquello se evidencia en que los hombres presentan más casos
+en la cola izquierda de la distribución, aludiendo a notas más bajas,
+mientras que las mujeres tienen una concentración mayor desde el 6 en
+adelante. Trabajo Social demuestra claramente este resultado, donde
+destacan varias barras pequeñas azules entre el 1 y el 5, contrario a la
+menor dispersión de las barras naranjas, acumuladas entre el 6 y 6.3.
+Por último, en Educación Parvularia no se logran divisar barras de
+hombres, lo que se debe a la mínima cantidad de estudiantes varones que
+cursan esa carrera.
+
+\subsection{Tipo de colegio}\label{tipo-de-colegio}
+
+\begin{table}
+
+\centering{
+
+\centering\begingroup\fontsize{14}{16}\selectfont
+
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}{l|c|c|c}
+\hline
+carrera & Municipal & Particular Subvencionado & Particular Pagado\\
+\hline
+Antropología & 5.79 & 5.89 & 5.93\\
+\hline
+Educación Parvularia & 6.12 & 6.26 & 6.27\\
+\hline
+Psicología & 5.79 & 6.16 & 6.14\\
+\hline
+Sociología & 5.73 & 5.87 & 5.96\\
+\hline
+Trabajo Social & 5.72 & 5.84 & 5.60\\
+\hline
+\end{tabular}}
+\endgroup{}
+
+}
+
+\caption{\label{tbl-notas-col}Promedios por carrera según colegio
+2020-2024}
+
+\end{table}%
+
+La Tabla~\ref{tbl-notas-col} muestra los promedios por carrera,
+distinguiendo el tipo de colegio del que provienen los estudiantes. En
+antropología, educación parvularia y sociología se aprecia un patrón
+escalonado ascendente según el financiamiento de las escuelas, donde las
+notas más bajas son de aquellos que egresaron de un colegio municipal,
+siendo superados por los particulares subvencionados, y los que
+estudiaron en particulares pagados son quienes poseen mejores
+calificaciones. Sin embargo, en Psicología y Trabajo Social se presenta
+un patrón distinto al ya visto, pues el grupo de particulares
+subvencionados es el que obtiene las calificaciones más altas, mientras
+que los particulares pagados son relegados al segundo lugar.
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{03-resultados-est_files/figure-pdf/fig-dens-carreras-1.pdf}}
+
+}
+
+\caption{\label{fig-dens-carreras}Elaboración propia en base a datos de
+UCampus (2026)}
+
+\end{figure}%
+
+La Figura~\ref{fig-dens-carreras} presenta las distribuciones de
+densidad, primero en un nivel de facultad, y posteriormente por cada
+carrera. A nivel facultad se observa claramente que los colegios
+municipales poseen una concentración menor de notas desde el 6 en
+adelante, a comparación con los particulares subvencionados y pagados.
+Las curvas verdes y azules mantienen una forma bastante similar, lo que
+da a entender que, en promedio en FACSO, quienes provienen de algún tipo
+de colegio particular, tienen un rendimiento académico similar. En
+sociología y psicología se mantiene este patrón, no así en antropología
+y educación parvularia, donde los particulares subvencionados tienen una
+concentración mayor entre el 6 y 6.5 por sobre los particulares pagados,
+mientras los municipales se mantienen en último lugar. Sin embargo, en
+trabajo social se da algo distinto a las demás carreras, y es que las
+notas de los provenientes de particulares pagados son las más bajas, lo
+que queda demostrado al ser la curva más baja de las tres, seguido de
+los municipales y los subvencionados.
+
+\subsection{Nivel socioeconómico}\label{nivel-socioeconuxf3mico}
+
+La variable nivel socioeconómico fue obtenida mediante una encuesta
+institucional de caracterización aplicada de manera externa a la
+plataforma UCampus, siendo posteriormente integrada a sus bases de
+datos. Esta variable refleja el nivel de vulnerabilidad de la comuna de
+origen del estudiante, con valores que oscilan entre 0 y 8, donde los
+valores más bajos indican mayor vulnerabilidad socioeconómica. Con el
+propósito de facilitar su interpretación y análisis, la variable fue
+recategorizada en tres niveles: bajo (0, 1 y 2), medio (3, 4 y 5) y alto
+(6, 7 y 8).
+
+\begin{table}
+
+\centering{
+
+\centering\begingroup\fontsize{14}{16}\selectfont
+
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}{l|c|c|c}
+\hline
+carrera & Bajo & Medio & Alto\\
+\hline
+Antropología & 5.76 & 5.85 & 6.01\\
+\hline
+Educación Parvularia & 5.91 & 6.25 & 6.17\\
+\hline
+Psicología & 5.94 & 5.99 & 6.07\\
+\hline
+Sociología & 5.65 & 5.85 & 5.93\\
+\hline
+Trabajo Social & 5.79 & 5.77 & 5.65\\
+\hline
+\end{tabular}}
+\endgroup{}
+
+}
+
+\caption{\label{tbl-notas-nse}Promedios por carrera según nivel
+socioeconómico 2020-2024}
+
+\end{table}%
+
+La Tabla~\ref{tbl-notas-nse} presenta los promedios de nota de las
+carreras, distinguiendo por nivel socioeconómico. En los casos de
+antropología, psicología y sociología se exhibe un patrón ascendente de
+notas desde el menor al mayor estatus socioeconómico, reflejando que,
+aquellos con mejores condiciones económicas de base obtienen un logro
+académico superior. No obstante, es interesante observar que esta
+tendencia no se cumple en educación parvularia ni trabajo social.
+Respecto a educación parvularia, son los estudiantes de nivel
+socioeconómico medio quienes tienen calificaciones más altas que
+aquellos con estatus más alto, mientras que los de nivel bajo siguen
+siendo los de menor rendimiento. Por su parte, en trabajo social, los
+estudiantes de nivel socioeconómico más alto son los que tienen las
+notas más bajas, al contrario de los niveles bajos y medios que,
+coincidentemente, poseen la misma nota promediada.
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{03-resultados-est_files/figure-pdf/fig-dens-carreranse-1.pdf}}
+
+}
+
+\caption{\label{fig-dens-carreranse}Elaboración propia en base a datos
+de UCampus (2026)}
+
+\end{figure}%
+
+La Figura~\ref{fig-dens-carreranse} presenta gráficos de densidad del
+promedio de notas según nivel socioeconómico (NSE), primero a nivel de
+facultad y luego desagregados por carrera. A nivel agregado se observa
+un patrón estratificado claro: el NSE bajo presenta una menor
+concentración de densidad en notas superiores a 6, seguido del NSE
+medio, mientras que el NSE alto concentra su distribución en los valores
+más altos del rendimiento académico.
+
+En Sociología se observa un patrón distinto, ya que el NSE bajo exhibe
+una distribución bimodal, con una mayor frecuencia cercana al 6
+---aunque levemente desplazado hacia la izquierda--- y otra en torno a
+la nota 5. El NSE alto, en cambio, concentra sus valores hacia el
+extremo derecho de la distribución, pese a presentar menor densidad. Por
+su parte, psicología reproduce un patrón estratificado similar al de la
+facultad.
+
+En Antropología y Educación Parvularia destaca que el NSE medio presenta
+una mayor concentración en torno a la nota 6 en comparación con los
+otros grupos; en Antropología, además, la distribución del NSE bajo
+sugiere una estructura multimodal, lo que indica mayor heterogeneidad en
+el desempeño. Finalmente, en Trabajo Social el NSE medio concentra la
+mayor densidad cerca del 6, mientras que el NSE bajo presenta
+adicionalmente una masa relevante en torno a notas cercanas a 4, y el
+NSE alto muestra una distribución más extendida entre aproximadamente
+4.5 y 6.
+
+\subsection{Asociación de nota y prueba de admisión
+(PSU/PAES)}\label{asociaciuxf3n-de-nota-y-prueba-de-admisiuxf3n-psupaes}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{03-resultados-est_files/figure-pdf/fig-scat-facso-1.pdf}}
+
+}
+
+\caption{\label{fig-scat-facso}Elaboración propia en base a datos de
+UCampus (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-scat-facso} se presenta la asociación entre el
+promedio de notas de los estudiantes y su percentil en la prueba de
+admisión universitaria (PSU o PAES). A nivel facultad, se encontró una
+relación positiva pero débil (\emph{r} = .22), sin haber un patrón claro
+en cómo se distribuyen los puntos en el plano. Además se observa que la
+dispersión es levemente más pronunciada en los percentiles bajos y
+medios, donde coexisten estudiantes con notas muy disímiles, mientras
+que en los percentiles altos la distribución tiende a concentrarse,
+aunque las diferencias son poco notorias. Por lo tanto, el desempeño
+académico en la universidad no parece estar relacionado con el desempeño
+previo.
+
+\section{Modelamiento}\label{modelamiento}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{03-resultados-est_files/figure-pdf/fig-coefplot-1.pdf}}
+
+}
+
+\caption{\label{fig-coefplot}Elaboración propia en base a datos de
+UCampus (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-coefplot} se presentan los coeficientes de
+regresión de un modelo multivariado con los datos a nivel de facultad,
+donde el promedio de notas es la variable predicha. En primer lugar, las
+mujeres obtienen, en promedio, 0.208 puntos más que los hombres (β =
+0.208***), diferencia estadísticamente significativa y consistente con
+los resultados bivariados. Este hallazgo confirma una ventaja
+sistemática femenina en el desempeño académico dentro de la facultad,
+independientemente de las demás variables del modelo.
+
+En segundo lugar, los resultados muestran que tanto los estudiantes de
+nivel socioeconómico medio (β = 0.145) como alto (β = 0.176) obtienen
+promedios significativamente superiores a aquellos estudiante de estrato
+bajo. La magnitud de ambos coeficientes es similar, aunque el nivel alto
+presenta una ventaja leve.
+
+En tercer lugar, tomando como referencia el colegio municipal, tanto los
+estudiantes provenientes de establecimientos subvencionados (β = 0.126)
+como particulares pagados (β = 0.092) presentan un rendimiento
+significativamente superior. Resulta llamativo que la ventaja de los
+subvencionados sobre el municipal sea mayor que la de los particulares
+pagados, lo que podría sugerir que, una vez controladas otras variables
+como el nivel socioeconómico, el origen en un establecimiento particular
+pagado no representa una ventaja adicional tan marcada como podría
+esperarse.
+
+Por último, al considerar la carrera, Educación Parvularia destaca con
+el coeficiente más alto de todo el modelo (β = 0.416), lo que indica que
+sus estudiantes obtienen promedios notablemente superiores a los de
+Psicología, confirmando que esta carrera concentra el rendimiento
+académico más elevado de la facultad. Por su parte, Trabajo Social (β =
+−0.006) y Sociología (β = 0.005) muestran coeficientes prácticamente
+nulos y no significativos, lo que indica que su rendimiento es
+estadísticamente indistinguible del de Psicología. Antropología presenta
+el único coeficiente negativo y marginalmente significativo (β =
+−0.067), sugiriendo un rendimiento levemente inferior al de Psicología.
+
+\bookmarksetup{startatroot}
+
+\chapter{Resultados: Cursos}\label{resultados-cursos}
+
+Este apartado tiene como objetivo presentar los principales resultados
+de la investigación con los cursos como unidad de análisis. En primer
+lugar, se exponen resultados descriptivos de la cantidad de cursos
+disponibles para introducir un contexto general, y luego se presentan
+los descriptivos de tres variables que son una expresión relevante de
+las calificaciones: las notas, el porcentaje de aprobación y la
+dispersión de las notas.
+
+Posterior a los descriptivos, se presentan análisis de cruces entre las
+notas y tres variables de caracterización de los cursos: el tipo de
+curso, la composición de género y el tamaño de los cursos.
+
+La presentación de los resultados se estructura de la siguiente manera:
+gráficos descriptivos de facultad (1), trayectoria temporal de la
+facultad (2), análisis desagregado por carreras (3) y trayectoria
+temporal desagregada por carreras (4). Esta estructura presenta una
+excepción en el punto \textbf{5.3 Tasa de aprobación}, donde se muestran
+tablas en vez de gráficos para facilitar la interpretación.
+
+\section{Descriptivos generales}\label{descriptivos-generales-1}
+
+Antes de entrar de lleno al análisis de las notas y sus aristas
+asociadas, es importante comprender la estructura de cursos de la
+Facultad de Ciencias Sociales. A modo de introducción, se presentan
+algunos descriptivos clave para entender el el desarrollo del informe,
+así como las decisiones más relevantes a hora de qué cursos considerar
+en el análisis.
+
+\subsection{Contexto de la conformación de
+cursos}\label{contexto-de-la-conformaciuxf3n-de-cursos}
+
+La cantidad de cursos que se imparten en la Facultad de Ciencias
+Sociales no es un dato que tenga un registro claro, y sin embargo es una
+información valiosa a la hora de estudiar cómo se distribuyen las
+calificaciones.
+
+\subsubsection{Total de cursos}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-cursos-facso-1.pdf}}
+
+}
+
+\caption{\label{fig-cursos-facso}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Distinción por curso}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-cursos-facso-stack-1.pdf}}
+
+}
+
+\caption{\label{fig-cursos-facso-stack}Elaboración propia (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-cursos-facso} se observa la cantidad de cursos por
+año que ofrece la facultad en Sociología, Psicología, Antropología,
+Trabajo Social y Educación Parvularia. El resultado más llamativo y
+claro es el patrón ascendente en la cantidad de cursos conforme el paso
+del tiempo. Si bien el crecimiento de los cursos parece paulatino por la
+forma de las barras, resulta interesante que los cursos en el año 2024
+crecen de manera exponencial, marcando una diferencia de más de 300
+cursos con el año anterior. En la Figura~\ref{fig-cursos-facso-stack} se
+muestra el mismo análisis pero desagregado por los cursos con sección
+única y aquellos con más de una sección. Aquí hay una pista clara: el
+crecimiento de los cursos se debe principalmente al incremento de cursos
+multisección. Entre 2021 y 2025 los cursos de sección única se mantienen
+estables, pero son aquellos con más de una sección los que terminan por
+marcar una pauta clara en la oferta programática. Esto puede también
+deberse a la formalización de cursos en las plataformas de la
+universidad que, en años anteriores, no contaban con un registro
+oficial.
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-cursos-carrera-stack-1.pdf}}
+
+}
+
+\caption{\label{fig-cursos-carrera-stack}Elaboración propia (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-cursos-carrera-stack} se presentan los cursos que
+existen por carrera entre el 2018 y el 2025. Se pueden observar
+diferencias claras entre carreras: Antropología y Psicología son las
+carreras que ofrecen más cursos en la facultad. Por su parte, Sociología
+ofrece menos cursos que las dos carreras anteriores, pero se caracteriza
+por tener la mayor cantidad de cursos con más de una sección en términos
+proporcionales como absolutos. Educación Parvularia y Trabajo Social son
+las carreras que tienen la oferta programática más baja, ofreciendo
+menos de la mitad de cursos que las tres carreras ya mencionadas.
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-facso-notasnof-1.pdf}}
+
+}
+
+\caption{\label{fig-facso-notasnof}Elaboración propia (2026)}
+
+\end{figure}%
+
+La Figura~\ref{fig-facso-notasnof} muestra la distribución de notas en
+FACSO entre 2018 y 2025, la cual es marcadamente asimétrica, con una
+fuerte concentración de notas entre 6 y 7 y donde el valor más frecuente
+es precisamente 7 (cerca de 500 casos). La línea punteada vertical
+representa el promedio, ubicándose aproximadamente en 6.3 al considerar
+el curso como unidad de análisis. Las notas bajo 5 son muy poco
+frecuentes, y prácticamente no existen registros entre 2 y 3.
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-density-est-1.pdf}}
+
+}
+
+\caption{\label{fig-density-est}Elaboración propia (2026)}
+
+\end{figure}%
+
+La Figura~\ref{fig-density-est} muestra la concentración de estudiantes
+por cursos a nivel facultad. El gráfico entrega un resultado importante:
+el volumen mayoritario de cursos tiene aproximadamente entre 1 a 10
+estudiantes. Si bien hay una parte que cubre hasta los 60 estudiantes
+aproximadamente, la curva de la parte izquierda de la figura es
+sumamente pronunciada, resaltando con creces en comparación a las otras
+áreas. Este resultado es llamativo, pero es necesario profundizar un
+poco más en el análisis para encontrar alguna razón a ello.
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-semestres-1.pdf}}
+
+}
+
+\caption{\label{fig-semestres}Elaboración propia (2026)}
+
+\end{figure}%
+
+Ante este panorama, es necesario ahondar en la composición de los cursos
+para entender en qué medida las calificaciones de distintos cursos son
+comparables. Al respecto, un elemento fundamental es el número de
+estudiantes por curso, ya que carece de sentido comparar cursos muy
+distintos en esta magnitud. Además, también se debe establecer cómo
+varía el tamaño de los cursos a medida que se avanza en las carreras, ya
+que es esperable que este vaya disminuyendo. En la
+Figura~\ref{fig-semestres} se muestra una caída pronunciada y sostenida
+en el número de estudiantes por curso a medida que avanza el semestre
+curricular. Los primeros cuatro semestres mantienen tamaños
+relativamente grandes y estables (\textasciitilde50--54 estudiantes), lo
+que refleja la estructura de cursos obligatorios masivos propios de los
+ciclos iniciales de las carreras. A partir del quinto semestre se
+produce un quiebre, con una caída que lleva el promedio de
+\textasciitilde53 a \textasciitilde35 estudiantes, y que continúa de
+forma acelerada hasta estabilizarse en valores muy bajos en los
+semestres finales. Esta trayectoria es consistente con la lógica
+curricular esperada: los semestres avanzados concentran cursos
+electivos, seminarios y actividades de titulación de menor matrícula.
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-tamano-1.pdf}}
+
+}
+
+\caption{\label{fig-tamano}Distribución de notas de cursos pequeños y
+normales FACSO (2018-2025)}
+
+\end{figure}%
+
+Con el fin de despejar incógnitas, la Figura~\ref{fig-tamano} muestra la
+distribución de notas para cursos con menos de 10 estudiantes y para
+cursos con 10 o más estudiantes. Ambos gráficos muestran una
+concentración de notas en los rangos altos de la escala, pero las
+diferencias entre ambas distribuciones son sustantivas. Los cursos con
+menos de 10 estudiantes presentan una distribución fuertemente
+concentrada en las notas máximas ---especialmente en torno a 7,0--- y
+una marcada asimetría, junto con algunos casos extremos de notas bajas,
+lo que sugiere una menor variabilidad interna y una tendencia a
+calificaciones más altas. En cambio, los cursos con 10 o más estudiantes
+exhiben una distribución más equilibrada y dispersa, con una forma
+cercana a la normal y una concentración principal entre 5,5 y 6,5. Así,
+mientras los cursos pequeños tienden a acumular calificaciones
+excepcionalmente altas, los cursos más numerosos muestran patrones de
+evaluación más heterogéneos y moderados.
+
+Estos cursos pequeños, en la mayoría de los casos, son cursos con sólo
+un estudiante, puesto que son ramos donde las personas desarrollan sus
+prácticas profesionales y/o memorias de título. El problema con esto es
+que un curso de una persona tendría el mismo peso que un curso de 100
+estudiantes, por ejemplo, lo cual distorsionaría en gran medida los
+resultados de los análisis. Con el objetivo de realizar un estudio con
+el menor margen de error, en este informe se toma la decisión de dejar
+fuera de los análisis posteriores todo curso que tenga menos de 10
+estudiantes, lo que corresponde a 2368 cursos.
+
+\subsection{Notas}\label{notas}
+
+\subsubsection{Nivel facultad}\label{nivel-facultad}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-facso-notas-1.pdf}}
+
+}
+
+\caption{\label{fig-facso-notas}Elaboración propia (2026)}
+
+\end{figure}%
+
+La Figura~\ref{fig-facso-notas} presenta la distribución de las notas a
+nivel facultad una vez eliminados los cursos con menos de 10
+estudiantes. El gráfico muestra una distribución de notas con un
+promedio 6.0, difiriendo con el resultado antes del filtrado. Su
+distribución se concentra principalmente entre 5,5 y 6,5, representando
+un 67\% del total, y con su punto máximo en torno a 6,1--6,3, lo que
+indica un predominio de cursos con calificaciones altas en la facultad.
+La distribución presenta una leve asimetría hacia la izquierda,
+evidenciada por una cola de casos con notas más bajas, aunque estos son
+relativamente poco frecuentes. Asimismo, las notas extremas bajo 5,0
+aparecen de manera marginal, mientras que las calificaciones cercanas a
+7,0 disminuyen progresivamente. En conjunto, los resultados sugieren
+calificaciones elevadas y homogéneas.
+
+\subsubsection{Facultad y carreras a lo largo del
+tiempo}\label{facultad-y-carreras-a-lo-largo-del-tiempo}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-facso-notas-tiempo-1.pdf}}
+
+}
+
+\caption{\label{fig-facso-notas-tiempo}Elaboración propia (2026)}
+
+\end{figure}%
+
+En Figura~\ref{fig-facso-notas-tiempo} se presentan las notas promedio
+por año a nivel facultad junto a otras medidas estadísticas. El gráfico
+muestra un aumento sostenido de las notas promedio de la facultad entre
+2018 y 2021, pasando desde medianas cercanas a 5,5--5,7 hacia valores
+sobre 6,1, lo que sugiere un incremento generalizado en las
+calificaciones, bien la flexibilización de los estándares de evaluación
+durante ese período. A partir de 2021, las distribuciones tienden a
+estabilizarse en torno a promedios altos, manteniéndose relativamente
+constantes hasta 2025, aunque con una leve disminución en 2024 y una
+recuperación parcial en 2025. Asimismo, desde 2020 en adelante se
+observa una mayor dispersión y una presencia más frecuente de valores
+atípicos bajos, especialmente entre 2022 y 2025, indicando que, pese a
+la estabilidad de las medianas, persisten diferencias importantes en el
+desempeño de algunos cursos o estudiantes.
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-box-notas-facso-1.pdf}}
+
+}
+
+\caption{\label{fig-box-notas-facso}Elaboración propia (2026)}
+
+\end{figure}%
+
+En Figura~\ref{fig-box-notas-facso} se pueden observar los promedios de
+las distintas carreras considerando información entre 2018 y 2025. El
+gráfico evidencia diferencias moderadas pero consistentes entre carreras
+en la distribución de las notas. Psicología y Educación Parvularia
+presentan las medianas más altas, ambas sobre 6,2, mientras
+Antropología, Sociología y Trabajo Social muestran medianas alrededor de
+6,0. Sociología y Antropología destacan además por exhibir una mayor
+dispersión y una mayor cantidad de valores atípicos bajos, indicando
+heterogeneidad en sus cursos. Por su parte, Educación Parvularia
+presenta una distribución más compacta y homogénea, mientras que
+Psicología combina medianas altas con una dispersión relativamente
+amplia. En conjunto, aunque todas las carreras concentran sus notas en
+niveles elevados, existen diferencias relevantes en términos de
+variabilidad de los desempeños académicos.
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-trayec-notas-facso-1.pdf}}
+
+}
+
+\caption{\label{fig-trayec-notas-facso}Elaboración propia (2026)}
+
+\end{figure}%
+
+Figura~\ref{fig-trayec-notas-facso} presenta la evolución de las notas
+promedio por carrera entre 2018 y 2025. En términos generales, todas las
+carreras muestran un patrón similar: las notas aumentan entre 2018 y
+2020-2021, para luego estabilizarse o descender levemente hacia el final
+del período. Este comportamiento es especialmente claro en Psicología y
+Educación Parvularia, que mantienen de manera consistente los promedios
+más altos durante todo el período, superando en la mayoría de los años
+el 6,0. En contraste, Antropología presenta una trayectoria de menor
+rendimiento, partiendo desde 5,6 en 2018, alcanzando un peak en 2020
+cercano al 6,0, y mostrando un descenso sostenido hacia 2025 hasta
+situarse en torno al 5,7. Sociología y Trabajo Social exhiben
+trayectorias intermedias y relativamente similares entre sí, con valores
+que oscilan entre 5,5 y 6,0 a lo largo del período, aunque con algunas
+fluctuaciones puntuales como la caída de Sociología en 2019.
+
+Un elemento destacable es el alza generalizada observada entre 2019 y
+2021, presente en todas las carreras, lo que podría asociarse al
+contexto de pandemia y los ajustes en las modalidades de evaluación. En
+conjunto, los resultados evidencian una convergencia general hacia
+niveles altos de notas, con Educación Parvularia y Psicología liderando
+consistentemente el período, y Antropología como la carrera con el
+rendimiento promedio más bajo y la tendencia más descendente en los
+últimos años.
+
+\subsection{Tasa de aprobación}\label{tasa-de-aprobaciuxf3n}
+
+Otra arista importante para entender las calificaciones en la facultad,
+y que está directamente ligada a las notas, es el porcentaje de
+aprobación dentro de los cursos. El porcentaje de aprobación puede
+entregar pistas de la complejidad que implica cursar ramos
+universitarios y superarlos exitosamente. En este sentido, el aprobar un
+ramo debería ser signo de reconocimiento respecto al cumplimiento de los
+aprendizajes esperados dentro de una cátedra.
+
+\subsubsection{Facultad en el tiempo}\label{facultad-en-el-tiempo}
+
+\begin{longtable}[t]{lrr}
+
+\caption{\label{tbl-aprobacion}Porcentaje de aprobación de la facultad
+por año:}
+
+\tabularnewline
+
+\\
+\toprule
+\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Año}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Aprobación promedio (\%)}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{N cursos}}}\\
+\midrule
+2018 & 97.19 & 77\\
+2019 & 97.50 & 145\\
+2020 & 97.80 & 273\\
+2021 & 97.49 & 369\\
+2022 & 97.11 & 381\\
+\addlinespace
+2023 & 97.15 & 392\\
+2024 & 97.01 & 367\\
+2025 & 97.21 & 287\\
+\cellcolor[HTML]{f2f2f2}{\textbf{Total}} & \cellcolor[HTML]{f2f2f2}{\textbf{97.31}} & \cellcolor[HTML]{f2f2f2}{\textbf{2291}}\\
+\bottomrule
+
+\end{longtable}
+
+La Tabla~\ref{tbl-aprobacion} presenta los porcentajes de aprobación en
+FACSO por año. Se puede observar un patrón estable en el tiempo: todos
+los años tienen un 97\% de aprobación promedio, variando solamente en
+algunas décimas. A pesar de que 2022 y 2023 concentran mayores
+cantidades de cursos que otros años, la consistencia en la aprobación de
+los cursos es persistente. Este resultado indica que en FACSO existe una
+cantidad mínima de cursos que cuentan con estudiantes reprobados, lo
+cual también se puede comprender como una alta homogeneización en
+términos evaluativos al notar que solamente un 3\% de la población
+estudiantil reprueba.
+
+\subsubsection{Carreras en el tiempo}\label{carreras-en-el-tiempo}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-aprobacion-1.pdf}}
+
+}
+
+\caption{\label{fig-aprobacion}Elaboración propia (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-aprobacion} se muestran los porcentajes de
+aprobación promedio de cada carrera desde el 2018 hasta el 2025. El
+gráfico muestra que las tasas de aprobación en todas las carreras de
+FACSO se mantienen consistentemente elevadas a lo largo del período
+2018--2025, oscilando casi siempre entre el 95\% y el 100\%, lo que
+indica que la reprobación es un fenómeno marginal en la facultad con
+independencia de la carrera o el año. Dicho esto, emergen algunas
+diferencias relevantes: Psicología y Educación Parvularia son las
+carreras más estables y con tasas sostenidamente altas, rozando el 99\%
+en varios años. Antropología, en cambio, muestra la trayectoria más
+volátil y una tendencia levemente decreciente, partiendo cerca del 100\%
+en 2018 y situándose en torno al 96\% hacia 2024--2025. Por su parte,
+Sociología es la carrera con mayor variabilidad entre años y registra
+los valores más bajos del conjunto, con una caída en 2019
+(\textasciitilde94\%) y fluctuaciones persistentes que la ubican por
+debajo del resto de carreras. Trabajo Social presenta un comportamiento
+intermedio, con ciertas variaciones pero relativamente estable. En suma,
+aunque el nivel general de aprobación es alto en toda la facultad,
+Sociología y Antropología exhiben una fragilidad relativa que las
+distingue del resto al ser durante varios años las carreras con las
+tasas de aprobación más bajas, aunque el panorama general sigue
+mostrando una alta aprobación en todas las carreras.
+
+\subsection{Dispersión de notas}\label{dispersiuxf3n-de-notas}
+
+Hasta ahora, sabemos que las notas individuales son altas, y que la tasa
+de reprobación es muy baja, pero no sabemos qué tanto varían las notas
+dentro de cada curso. Esto es especialmente importante, ya que cursos
+con una dispersión más homogénea no permiten distinguir a los y las
+estudiantes que tienen un rendimiento sobresaliente de aquellos con un
+rendimiento regular, inhibiendo el rol diferenciador de las
+evaluaciones, lo que puede causar una sensación de injusticia en la
+población estudiantil. Por ello, además de estudiar las calificaciones,
+es relevante entender la dispersión de las notas.
+
+La desviación estándar es una medida estadística que permite evaluar el
+grado de dispersión o variabilidad de las notas respecto de su promedio.
+En términos simples, indica qué tan homogéneo o heterogéneo es el
+desempeño académico de los y las estudiantes dentro de un curso. Por
+ejemplo, si el promedio de notas de la facultad es 5.9 y tiene una
+desviación estándar de 1, esto significa el 68\% de los casos se
+encuentra entre +1 y -1 desviación estándar, es decir, entre el 5.8 y el
+6.0 (asumiendo una distribución normal de las notas).
+
+El análisis de esta medida resulta especialmente relevante para
+comprender las dinámicas de evaluación al interior de los cursos, ya que
+permite complementar la información entregada por los promedios de
+notas. De esta manera, la desviación estándar contribuye a identificar
+cursos con evaluaciones más homogéneas o más diferenciadoras, entregando
+una visión más completa sobre las prácticas de evaluación y el desempeño
+estudiantil.
+
+\subsubsection{Nivel facultad}\label{nivel-facultad-1}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-desv-facso-1.pdf}}
+
+}
+
+\caption{\label{fig-desv-facso}Elaboración propia (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-desv-facso} se muestra la concentración de las
+desviaciones estándar de los cursos impartidos en FACSO. Se puede
+observar que la mayoría de los cursos presentan desviaciones estándar
+entre 0 y 1, donde la mayor concentración se ubica en el 0.4. Esto
+quiere decir que el patrón más recurrente es que los cursos tienden a
+variar + o - 0.4 décimas respecto a su promedio. Con ello, los
+resultados indican que la mayoría de los cursos en FACSO mantienen una
+variabilidad media baja.
+
+Considerando que el promedio de notas de la facultad es 6.0, una
+desviación estándar de 0.4 implica que aproximadamente el 68\% de los
+estudiantes en un curso típico se encuentra entre 5.6 y 6.4, mientras
+que el 96\% se halla entre 5.2 y 6.8, lo que sugiere una alta
+homogeneidad en las calificaciones. Sin embargo, también se observa una
+cola hacia desviaciones estándar más altas, lo que indica que existen
+cursos con mayor heterogeneidad en las notas, aunque estos son menos
+frecuentes.
+
+\subsubsection{Facultad en el tiempo}\label{facultad-en-el-tiempo-1}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-desv-facso-tiempo-1.pdf}}
+
+}
+
+\caption{\label{fig-desv-facso-tiempo}Elaboración propia (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-desv-facso-tiempo} se presentan las desviaciones
+estándar promedios por año a nivel facultad. En el gráfico se puede
+observar que el 2019 es el año con mayor dispersión de notas, seguido de
+una baja el 2020 que posteriormente vuelve a tomar un patrón ascendente
+hasta 2022. Seguido de esto, la trayectoria presenta un comportamiento
+irregular donde 2023 disminuye la dispersión, el año siguiente aumenta
+y, finalmente, el 2025 se caracteriza por ser el año con mayor
+homogeneidad en las calificaciones. Con todo, se puede evidenciar que a
+medida que pasa el tiempo las evaluaciones tienden a homogeneizarse, lo
+cual se expresa en una menor dispersión promedio.
+
+\subsubsection{Nivel carrera}\label{nivel-carrera}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-desv-carr-1.pdf}}
+
+}
+
+\caption{\label{fig-desv-carr}Elaboración propia (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-desv-carr} se muestran las concentraciones de
+desviaciones estándar por carrera. En el gráfico se puede observar que
+todas las carreras comparten un patrón similar: la gran mayoría de sus
+cursos concentra desviaciones estándar bajas (entre 0.2 y 0.5), lo que
+indica que en general el rendimiento estudiantil tiende a ser homogéneo.
+Sin embargo, existen diferencias relevantes en las colas de la
+distribución: Antropología destaca claramente del resto al presentar una
+cola derecha notoriamente más extensa, con cursos que alcanzan
+desviaciones estándar de hasta 2.0--2.5, evidenciando que poseen una
+proporción mayor de cursos con rendimiento altamente heterogéneo.
+Educación Parvularia y Trabajo Social, en cambio, muestran las
+distribuciones más concentradas y con colas más cortas, sugiriendo mayor
+uniformidad en sus calificaciones. Psicología presenta la forma más alta
+y estrecha, lo que la posiciona como la carrera con menor dispersión
+interna en sus calificaciones. Por su parte, Sociología ocupa una
+posición intermedia con una dispersión moderada, pero con una cola
+derecha más amplia que las demás carreras, sugiriendo que presenta una
+mayor cantidad de cursos con desviaciones estándar mayores a 1. En
+síntesis, si bien el patrón general apunta hacia notas homogéneas en
+toda la facultad, Antropología y Sociología resaltan como la excepción,
+con una variabilidad interna mayor que el resto de las carreras.
+
+\subsubsection{Carreras en el tiempo}\label{carreras-en-el-tiempo-1}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-desv-carr-tiempo-1.pdf}}
+
+}
+
+\caption{\label{fig-desv-carr-tiempo}Elaboración propia (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-desv-carr-tiempo} se muestra la evolución de la
+dispersión de notas por carrera entre 2018 y 2025, revelando
+trayectorias claramente diferenciadas. Psicología destaca por una
+tendencia decreciente sostenida, convergiendo hacia valores cercanos a
+0.43--0.47 en 2025, lo que indica una progresiva homogeneización del
+rendimiento. Si bien Educación Parvularia también presenta una
+trayectoria descendente, tiene la particularidad que el año 2024 su
+dispersión se dispara en términos heterogéneos para luego decaer
+abruptamente el año siguiente. Sociología, en contraste, es la carrera
+con mayor y más persistente dispersión a lo largo de todo el período,
+alcanzando su punto más alto el 2019 y niveles que se mantienen elevados
+hasta 2022 para luego descender moderadamente, confirmando la
+heterogeneidad en los cursos que la carrera. Por su lado, Antropología
+se presenta con una tendencia ascendente entre 2018 y 2024 que los años
+posteriores decae, mientras que Trabajo Social tiene sus puntos de
+dispersión más altos los años límites del estudio, notándose un patrón
+homogeneización entre 2020 y 2023. En conjunto, los datos sugieren que
+la dispersión en FACSO no es un fenómeno uniforme sino que responde a
+dinámicas propias de cada carrera.
+
+\section{Cruces}\label{cruces}
+
+Esta subsección tiene el objetivo de profundizar en los resultados ya
+encontrados a partir de la asociación de las calificaciones de los
+cursos con variables que caracterizan a estos mismos. En esta línea, el
+paso siguiente es comprender en qué medida el tipo de curso, el género y
+el tamaño del curso determinan las notas universitarias.
+
+\subsection{Tipo de curso}\label{tipo-de-curso}
+
+\subsubsection{Nivel facultad}\label{nivel-facultad-2}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-car-facso-1.pdf}}
+
+}
+
+\caption{\label{fig-car-facso}Elaboración propia (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-car-facso} se presentan las distribuciones de
+notas distinguiendo por cursos obligatorios y electivos. El gráfico
+muestra que los cursos electivos tienen una mediana 6.3 con una
+distribución compacta y con algunos casos extremos. Por su parte, los
+cursos obligatorios poseen una mediana cercana al 6.0 con una
+distribución ligeramente más dispersa que los cursos electivos, pero con
+una mayor cantidad de cursos que presentan valores muy bajos. En
+síntesis, los cursos electivos tienen valores más altos y concentrados
+en la parte alta de la escala de notas en comparación a los cursos
+obligatorios.
+
+\subsubsection{Trayectoria nivel
+facultad}\label{trayectoria-nivel-facultad}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-car-facso-tiempo-1.pdf}}
+
+}
+
+\caption{\label{fig-car-facso-tiempo}Elaboración propia (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-car-facso-tiempo} se muestran los promedios de
+notas de los cursos electivos obligatorios por año. Los resultados
+muestran que durante todo el período analizado los cursos electivos
+mantienen notas promedio consistentemente superiores a los obligatorios.
+Ambas categorías experimentan un alza notable en 2020--2021, atribuible
+a la flexibilidad académica durante la pandemia, pero la trayectoria
+post-pandemia revela una divergencia estructural: mientras los electivos
+se estabilizan en torno a 6.2--6.3, los cursos obligatorios muestran una
+caída sostenida que hacia 2025 los sitúa cerca a los niveles
+pre-pandemia (\textasciitilde5.8), sugiriendo que el retorno a la
+presencialidad impactó de forma asimétrica ambos tipos de cursos.
+
+\subsubsection{Nivel carrera}\label{nivel-carrera-1}
+
+\subsubsection{Sociología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-box-socio-1.pdf}}
+
+}
+
+\caption{\label{fig-box-socio}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Psicología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-box-psico-1.pdf}}
+
+}
+
+\caption{\label{fig-box-psico}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Antropología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-box-ant-1.pdf}}
+
+}
+
+\caption{\label{fig-box-ant}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Trabajo Social}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-box-ts-1.pdf}}
+
+}
+
+\caption{\label{fig-box-ts}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Educación Parvularia}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-box-ed-1.pdf}}
+
+}
+
+\caption{\label{fig-box-ed}Elaboración propia (2026)}
+
+\end{figure}%
+
+En este panel se observan las distribuciones de las notas distinguiendo
+cursos electivos y obligatorios por carrera. Los boxplots muestran un
+patrón consistente en las 5 carreras de FACSO: los cursos electivos
+presentan medianas levemente superiores exceptuando Educación
+Parvularia, con cajas estrechas y prácticamente sin valores atípicos en
+comparación a los cursos obligatorios, lo que refleja calificaciones
+homogéneas concentradas en el tramo alto. Los cursos obligatorios, en
+cambio, exhiben mayor variabilidad y outliers hacia la baja en todas las
+unidades académicas ---particularmente en Antropología y Educación
+Parvularia---, evidenciando una distribución más heterogénea con
+presencia de rendimientos inferiores. Con todo, el hecho de que este
+patrón se replique de forma casi idéntica en Sociología, Psicología,
+Antropología y Trabajo Social sugiere que se trata de un fenómeno
+estructural de la facultad y no de una particularidad de alguna carrera
+específica.
+
+\subsubsection{Trayectorias por carrera}\label{trayectorias-por-carrera}
+
+\subsubsection{Sociología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-car-socio-t-1.pdf}}
+
+}
+
+\caption{\label{fig-car-socio-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Psicología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-car-psico-t-1.pdf}}
+
+}
+
+\caption{\label{fig-car-psico-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Antropología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-car-ant-t-1.pdf}}
+
+}
+
+\caption{\label{fig-car-ant-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Trabajo Social}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-car-ts-t-1.pdf}}
+
+}
+
+\caption{\label{fig-car-ts-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Educación Parvularia}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-car-ed-t-1.pdf}}
+
+}
+
+\caption{\label{fig-car-ed-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+Este panel de gráficos muestra la trayectoria de notas promedio por
+carácter del curso en cada carrera. Los electivos superan
+consistentemente a los obligatorios en casi todas las carreras, pero con
+matices importantes. Sociología mantiene una brecha estable y
+persistente a lo largo de todo el período, con los obligatorios
+mostrando una caída hacia 2025 que amplía la diferencia respecto a los
+electivos. Asimismo, Psicología presenta la brecha más pronunciada de la
+facultad, con electivos que se estabilizan en torno a 6.4 mientras los
+obligatorios descienden sostenidamente desde 2020, llegando a
+\textasciitilde5.8 en 2025, lo que configura una divergencia
+post-pandemia particularmente marcada. Antropología es el caso más
+llamativo: ambas líneas convergen casi completamente desde 2020 en
+adelante, rondando el 5.8--6.0, sugiriendo que en esta carrera el
+carácter del curso no genera diferencias relevantes en el rendimiento.
+Por su parte, Trabajo Social muestra una brecha moderada pero con
+obligatorios que se estabilizan cerca del 5.9, mientras los electivos
+tienen un patrón estable sobre el 6.0. Educación Parvularia vuelve a
+destacar como caso atípico: los obligatorios parten más altos que los
+electivos en 2018 y ambas líneas se mantienen entrelazadas durante todo
+el período, con los electivos superando levemente el 2025
+(\textasciitilde6.6 vs \textasciitilde6.2), reforzando la idea de que en
+esta carrera el carácter del curso tiene escasa incidencia en las
+calificaciones.
+
+\subsection{Género}\label{guxe9nero-1}
+
+\subsubsection{Nivel facultad}\label{nivel-facultad-3}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-gen-facso-1.pdf}}
+
+}
+
+\caption{\label{fig-gen-facso}Elaboración propia (2026)}
+
+\end{figure}%
+
+La Figura~\ref{fig-gen-facso} muestra una asociación leve pero visible
+entre la composición de género y las notas: los cursos con mayor
+proporción de mujeres (81--100\%) presentan las medianas más altas
+(\textasciitilde6.3) y menor dispersión, mientras que los grupos de
+composición mixta (21--80\%) exhiben medianas más bajas
+(\textasciitilde5.9--6.0) y mayor variabilidad, con outliers que
+descienden hasta notas cercanas a 4.0. Aun así, las diferencias
+absolutas son pequeñas y deben interpretarse con cautela.
+
+\subsubsection{Facultad en el tiempo}\label{facultad-en-el-tiempo-2}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-gen-facso-tiempo-1.pdf}}
+
+}
+
+\caption{\label{fig-gen-facso-tiempo}Elaboración propia (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-gen-facso-tiempo} se presentan las trayectorias de
+los cursos agrupando por composición de género. El gráfico confirma y
+enriquece el hallazgo anterior: los cursos con mayor proporción de
+mujeres (81--100\%) mantienen una ventaja sostenida y estable a lo largo
+de todo el período 2018--2025, situándose consistentemente por encima
+del resto (a excepción del 2024) con notas que oscilan entre 5.8 y 6.4.
+El resto de los grupos muestra trayectorias más entrelazadas y
+volátiles, con un alza generalizada en 2020--2021 que podría estar
+relacionada al efecto pandemia y una posterior convergencia hacia
+valores similares (\textasciitilde5.8--6.0) desde 2022 en adelante. Se
+destaca que los grupos de composición mixta (41--60\% y 21--40\%) no
+solo parten más bajos sino que exhiben mayor inestabilidad en sus
+trayectorias, mientras que el grupo 61--80\% se comporta de forma más
+estable pero sin alcanzar las calificaciones promedio del grupo de mayor
+feminización. En síntesis, la composición de género predominantemente
+femenina se asocia con calificaciones superiores y más estables en el
+tiempo, mientras que los cursos con una mayor heterogeneidad de género
+presentan notas más bajas y trayectorias más cambiantes.
+
+\subsubsection{Nivel carrera}\label{nivel-carrera-2}
+
+\subsubsection{Sociología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-gen-socio-1.pdf}}
+
+}
+
+\caption{\label{fig-gen-socio}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Psicología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-gen-psico-1.pdf}}
+
+}
+
+\caption{\label{fig-gen-psico}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Antropología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-gen-ant-1.pdf}}
+
+}
+
+\caption{\label{fig-gen-ant}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Trabajo Social}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-gen-ts-1.pdf}}
+
+}
+
+\caption{\label{fig-gen-ts}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Educación Parvularia}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-gen-ed-1.pdf}}
+
+}
+
+\caption{\label{fig-gen-ed}Elaboración propia (2026)}
+
+\end{figure}%
+
+Los gráficos de este panel desagregan la relación entre composición de
+género de los cursos y notas por carrera. Al observar una por una las
+figuras, se puede notar la falta de categorías para algunas carreras
+como Trabajo Social y Educación Parvularia, lo cual se debe a la alta
+matrícula femenina en detrimento de la masculina en estos programas,
+limitando la comparación con las demás carreras. En Sociología se
+aprecia una leve ventaja del grupo 81--100\% (\textasciitilde6.4)
+respecto a los demás, aunque con dispersión considerable y
+calificaciones inferiores en los grupos intermedios. En Psicología las
+distribuciones son prácticamente idénticas entre todos los grupos pero
+difieren en la mediana; se aprecia que el grupo de menor presencia
+femenina es apenas visible, lo que puede deberse a la poca cantidad de
+cursos dentro de esta categoría. En Antropología todas las categorías
+disponibles muestran dispersiones similares, pero es llamativo que la
+categoría más femenizada es la que tiene la mediana más baja. Por su
+lado, Trabajo Social, que solo cuenta con tres grupos, presenta un
+patrón escalonado ascendente, donde los cursos con mayor presencia
+femenina tienen mejores calificaciones. Educación Parvularia presenta
+únicamente el grupo 81--100\%, lo que impide cualquier comparación
+interna. Si bien se pueden observar diferencias en los patrones entre
+carreras, el principal hallazgo es la inexistencia de cursos con
+proporciones bajas de mujeres en carreras como Trabajo Social y
+Educación Parvularia sugiriendo una predominación femenina de
+estudiantes que deciden cursar estos programas.
+
+\subsubsection{Carrera en el tiempo}\label{carrera-en-el-tiempo}
+
+\subsubsection{Sociología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-gen-socio-t-1.pdf}}
+
+}
+
+\caption{\label{fig-gen-socio-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Psicología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-gen-psico-t-1.pdf}}
+
+}
+
+\caption{\label{fig-gen-psico-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Antropología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-gen-ant-t-1.pdf}}
+
+}
+
+\caption{\label{fig-gen-ant-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Trabajo Social}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-gen-ts-t-1.pdf}}
+
+}
+
+\caption{\label{fig-gen-ts-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Educación Parvularia}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-gen-ed-t-1.pdf}}
+
+}
+
+\caption{\label{fig-gen-ed-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+El anterior grupo de gráficos muestra la trayectoria de notas según
+composición de género al interior de cada carrera, y el hallazgo
+transversal más relevante es que no existe un patrón consistente ni
+uniforme entre carreras. En Sociología, el grupo 81--100\% mujeres
+destaca con notas más altas y estables (\textasciitilde6.4--6.6),
+mientras el resto de los grupos presenta un alza notable en 2020 para
+luego variar con mayor volatilidad en torno al 6.0. En Psicología, las
+líneas se entrelazan de forma irregular y el grupo 21--40\% muestra una
+caída abrupta en 2023 (\textasciitilde5.0) que distorsiona cualquier
+tendencia, sin que ningún grupo muestre una ventaja sostenida clara. Por
+su parte, en Antropología las categorías intermedias oscilan en un rango
+estrecho (\textasciitilde5.8--6.1) sin diferencias sistemáticas, pero se
+observa un resultado llamativo: desde 2024 se invierte el patrón y los
+cursos con menor presencia femenina son aquellos con mejores
+calificaciones. En Trabajo Social, el grupo 81--100\% muestra una
+ventaja más visible y creciente hacia 2025 (\textasciitilde6.3),
+mientras el grupo 41--60\% cae notoriamente en los últimos años.
+Educación Parvularia, con un único grupo disponible, se mantiene estable
+en torno a 6.1--6.3. En síntesis, si bien hay una tendencia en que la
+composición femenina obtiene mejores calificaciones, esto no se explica
+de forma sistemática, ya que las variaciones observadas responden más a
+dinámicas propias de cada carrera que a un efecto atribuible al género.
+
+\subsection{Cantidad de estudiantes}\label{cantidad-de-estudiantes}
+
+\subsubsection{Nivel facultad}\label{nivel-facultad-4}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-est-facso-1.pdf}}
+
+}
+
+\caption{\label{fig-est-facso}Elaboración propia (2026)}
+
+\end{figure}%
+
+En la Figura~\ref{fig-est-facso} se observa una relación inversa leve
+entre el tamaño del curso y el rendimiento: los cursos más pequeños (≤20
+y 21--40 estudiantes) presentan medianas ligeramente más altas
+(\textasciitilde6.1--6.2) y cajas más compactas en el rango superior,
+mientras que los cursos medianos y grandes (41--60, 61--80 y ≥81)
+muestran medianas algo menores (\textasciitilde5.9--6.0) y mayor
+dispersión, con cajas que se extienden hacia valores más bajos. Sin
+embargo, las diferencias absolutas entre grupos son pequeñas y todos los
+grupos comparten outliers hacia la baja, siendo los cursos de tamaño
+medio (41--60) los que presentan los valores atípicos más extremos
+(\textasciitilde3.9). En síntesis, aunque existe una tendencia a que los
+cursos más pequeños obtengan notas ligeramente superiores y más
+homogéneas, las diferencias no llegan a ser concluyentes.
+
+\subsubsection{Facultad por año}\label{facultad-por-auxf1o}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-est-facso-tiempo-1.pdf}}
+
+}
+
+\caption{\label{fig-est-facso-tiempo}Elaboración propia (2026)}
+
+\end{figure}%
+
+La Figura~\ref{fig-est-facso-tiempo} muestra la trayectoria de notas
+según tamaño del curso entre 2018 y 2025, y el hallazgo más relevante es
+que las diferencias inicialmente observadas entre grupos se diluyen con
+el tiempo. En 2018 existe una diferenciación clara, con los cursos más
+pequeños (≤20) partiendo considerablemente más alto (\textasciitilde6.3)
+mientras los cursos grandes (61--80) tienen notas más bajas
+(\textasciitilde5.5), pero desde 2020 todas las líneas convergen en un
+rango estrecho de 5.9--6.2, sugiriendo que el efecto pandemia
+homogeneizó el rendimiento independientemente del tamaño. Desde el 2023
+la dinámica se estabiliza, donde todos los grupos muestran una tendencia
+levemente decreciente (a excepción de los cursos entre 61-80
+estudiantes) que los sitúa en torno a 5.8--6.2 hacia 2025, pero los
+cursos pequeños (≤20 y 21--40) se mantienen ligeramente con mejores
+calificaciones. En síntesis, el tamaño del curso muestra una asociación
+débil y decreciente con las notas: la ventaja de los cursos pequeños,
+notoria en 2018, se ha ido erosionando progresivamente, y la trayectoria
+post-pandemia apunta hacia una convergencia general con leve desventaja
+de los cursos más grandes.
+
+\subsubsection{Nivel carrera}\label{nivel-carrera-3}
+
+\subsubsection{Sociología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-n-carrera-socio-1.pdf}}
+
+}
+
+\caption{\label{fig-n-carrera-socio}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Psicología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-n-carrera-psico-1.pdf}}
+
+}
+
+\caption{\label{fig-n-carrera-psico}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Antropología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-n-ant-1.pdf}}
+
+}
+
+\caption{\label{fig-n-ant}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Trabajo Social}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-n-ts-1.pdf}}
+
+}
+
+\caption{\label{fig-n-ts}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Educación Parvularia}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-n-ed-1.pdf}}
+
+}
+
+\caption{\label{fig-n-ed}Elaboración propia (2026)}
+
+\end{figure}%
+
+Este grupo de gráficos desagrega la relación entre tamaño del curso y
+las notas por carrera. Se observa un patrón general donde las
+diferencias son pequeñas y poco sistemáticas en todas las unidades. En
+Sociología se aprecia una leve tendencia decreciente: los cursos más
+pequeños (≤20) tienen medianas ligeramente superiores
+(\textasciitilde6.1) y los más grandes (≥81) muestran menores
+calificaciones y, en algunos casos, mayor dispersión. En Psicología el
+patrón es similar pero atenuado, con medianas más altas para los cursos
+de tamaño reducido y menores calificaciones acompañadas de mayor
+dispersión para cursos más numerosos . En Antropología no existe ninguna
+tendencia clara: todos los tamaños muestran medianas similares
+(\textasciitilde6.0) y dispersión homogénea con outliers distribuidos en
+varios grupos. Por el lado de Trabajo Social los cursos más grandes
+(61--80) presentan medianas más bajas (\textasciitilde5.8) respecto a
+los más pequeños, pero cuenta sólo con cuatro categorías. Educación
+Parvularia muestra un comportamiento uniforme, con medianas estables en
+torno a 6.0--6.1 independientemente del tamaño. En conjunto, el tamaño
+del curso presenta ciertas diferencias al analizar por carrera, pero en
+general no se encuentran diferencias sustantivas.
+
+\subsubsection{Carreras en el tiempo}\label{carreras-en-el-tiempo-2}
+
+\subsubsection{Sociología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-n-socio-t-1.pdf}}
+
+}
+
+\caption{\label{fig-n-socio-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Psicología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-n-psico-t-1.pdf}}
+
+}
+
+\caption{\label{fig-n-psico-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Antropología}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-n-ant-t-1.pdf}}
+
+}
+
+\caption{\label{fig-n-ant-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Trabajo Social}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-n-ts-t-1.pdf}}
+
+}
+
+\caption{\label{fig-n-ts-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+\subsubsection{Educación Parvularia}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados-curso_files/figure-pdf/fig-n-ed-t-1.pdf}}
+
+}
+
+\caption{\label{fig-n-ed-t}Elaboración propia (2026)}
+
+\end{figure}%
+
+Este grupo de gráficos presenta la trayectoria de notas según tamaño del
+curso por carrera, y el hallazgo central es que no existe un patrón
+sistemático que pueda generalizarse entre carreras. En Sociología, los
+cursos más pequeños (≤20) muestran una ventaja leve y creciente hacia
+2025, mientras los más grandes (≥81) exhiben la trayectoria más baja e
+inestable, aunque todas las líneas se entrelazan frecuentemente. En
+Psicología, las líneas son altamente volátiles y se cruzan de forma
+irregular, sin que ningún tamaño mantenga una ventaja sostenida,
+destacando solo una caída pronunciada del grupo 61--80 en 2024. En
+Antropología, todas las categorías oscilan en un rango estrecho
+(\textasciitilde5.8--6.1) con trayectorias entrelazadas y sin
+diferencias apreciables. Por su parte, en Trabajo Social, el grupo
+21--40 muestra una caída abrupta hacia 2024--2025 que lo distingue
+negativamente del resto, mientras que los cursos más grandes (61-80)
+experimentan un alza notoria el 2025. Educación Parvularia presenta el
+comportamiento más estable, con la mayoría de los grupos convergiendo en
+torno a 6.0--6.4 desde 2020 en adelante. Es llamativo que Trabajo Social
+y Educación Parvularia no tengan la categoría más alta de tamaños de
+curso, pero esto se debe a que las carreras no admiten tales cantidades
+de estudiantes por año, resultando en un límite de la planificación de
+matrículas En síntesis, desagregando por carrera, el tamaño del curso no
+explica de forma sistemática las diferencias en rendimiento, confirmando
+la conclusión del análisis transversal previo.
+
+\bookmarksetup{startatroot}
+
+\chapter{Panel interactivo Cursos
+FACSO}\label{panel-interactivo-cursos-facso}
+
+\bookmarksetup{startatroot}
+
+\chapter{Conclusiones}\label{conclusiones}
+
+El Estudio de Notas de la Facultad de Ciencias Sociales ha entregado
+luces acerca de cómo se distribuyen las calificaciones, enfocándose en
+los estudiantes y cursos a partir de un nivel agregado de facultad, como
+también en las dinámicas de cada carrera. Así, los resultados observados
+permiten responder las preguntas que fueron planteadas en la
+introducción del reporte.
+
+\textbf{¿Existe la inflación de notas en la Facultad de Ciencias
+Sociales?}
+
+A partir de los elementos que circunscriben el análisis, se encontró
+evidencia que puede sustentar la hipótesis de inflación de notas. El
+alza pronunciada de las notas en los años 2020 y 2021 en comparación de
+años prepandémicos y su persistencia hasta el año 2025 demuestran que
+FACSO atraviesa un proceso que actualmente está presente en la educación
+superior a nivel global.
+
+\textbf{¿Las notas permiten discriminar grupos de estudiantes en función
+del rendimiento?}
+
+Las calificaciones dificultan realizar una distinción entre estudiantes
+que sobresalen académicamente de aquellos que necesitan apoyo para
+cumplir con los aprendizajes esperados debido a la baja variabilidad de
+las notas que obtienen los estudiantes. Incluso, las calificaciones han
+tendido a homogeneizarse con el paso del tiempo, complicando aún más la
+tarea de diferenciar grupos de estudiantes a partir de su rendimiento
+académico. Esto es sumamente preocupante, ya que no se cuenta con la
+información necesaria para gestionar e implementar políticas enfocadas
+en estudiantes que requieren un apoyo adicional en su trayectoria
+académica, con el objetivo de reducir las brechas educativas de base.
+
+\textbf{¿Qué tan alto es el nivel de exigencia en cuánto a la aprobación
+de asignaturas?}
+
+Los niveles de exigencia de los cursos en FACSO pueden entenderse como
+bajos, puesto que entre 2018 y 2025 el promedio de aprobación de los
+cursos fue de un 97\%. Esto significa que reprobar un curso es una
+experiencia anómala, donde no hay mayores dificultades en acreditar la
+obtención de los conocimientos esperados de un ramo.
+
+\textbf{¿Qué factores asociados dan cuenta de las notas, el grado de
+discriminación y la tasa de aprobación?}
+
+En primer lugar, factores socioeconómicos como el tipo de colegio y el
+nivel socioeconómico demostraron ser determinantes en las calificaciones
+de los estudiantes. En segundo lugar, el género evidenció tener un rol
+explicativo importante, donde las mujeres tienen un rendimiento más alto
+que su contraparte. En tercer lugar, variables institucionales como el
+tipo de curso y el tamaño del curso se confirmaron como factores
+asociados a las calificaciones.
+
+Considerando el conjunto de estos hallazgos se asoma como un imperativo
+desarrollar una discusión seria sobre el panorama actual de la dimensión
+formativa-evaluativa de la facultad: en un contexto de inflación de
+notas, el hecho que las evaluaciones no hagan posible diferenciar a
+grupos de estudiantes puede tener consecuencias graves en la población
+estudiantil, como sentimientos de injusticia en la calificación
+académica. Además, se podría hipotetizar una carencia formativa de los
+estudiantes, pero precisamente la alta homogeneidad en las
+calificaciones no permite identificar si tales carencias existen.
+
+En el marco de la incorporación de normativas que promulgan la no
+discriminación y la equidad, hay que tener suma precaución con que estos
+principios no se confundan con la capacidad de capturar las diferencias
+sociales y académicas que, como institución de excelencia, la
+Universidad de Chile debe ser capaz de observar y abordar
+apropiadamente. Por ello, es un deber institucional generar estrategias
+que puedan comprender cómo se plantean y despliegan las evaluaciones a
+estudiantes. Con todo, este estudio representa un diagnóstico de las
+dinámicas en las calificaciones académicas, y puede significar un insumo
+sumamente valioso para las autoridades al momento de promover de manera
+enfocada los recursos necesarios para pulir los sistemas de evaluación
+y, en última instancia, acortar las brechas en el logro académico de los
+estudiantes.
+
+En el futuro, este estudio podría entregar más pistas sobre las
+calificaciones en la facultad a partir de la incorporación de
+información nueva. En este contexto, contar con las evaluaciones
+docentes y los cursos impartidos a lo largo del tiempo podrían aportar a
+caracterizar con mayor profundidad qué cursos cuentan con mayores tasas
+de aprobación, y cómo eso se relaciona con el juicio que realizan los
+estudiantes de los cursos. Asimismo, sería valioso realizar un estudio
+comparativo de los criterios de evaluación que declaran los cursos de
+cada carrera en sus programas, puesto que se podrían mapear los modos de
+capturar los aprendizajes, la asignación de métricas y los umbrales que
+determinan el éxito del proceso. Como última propuesta, replicar el este
+estudio en otras facultades significaría un avance en la comprensión del
+escenario formativo-evaluativo a nivel Universidad de Chile, ya que
+permitiría comparar las diferencias entre facultades que forman parte de
+un mismo ecosistema académico.
+
+\bookmarksetup{startatroot}
+
+\chapter{Referencias}\label{referencias}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-achen_what_2009}
+Achen, A. C., \& Courant, P. N. (2009). What Are Grades Made Of?
+\emph{Journal of Economic Perspectives}, \emph{23}(3), 77-92.
+\url{https://doi.org/10.1257/jep.23.3.77}
+
+\bibitem[\citeproctext]{ref-hernandez-julian_measuring_2016}
+Hernández-Julián, R., \& Looney, A. (2016). Measuring Inflation in
+Grades: An Application of Price Indexing to Undergraduate Grades.
+\emph{Economics of Education Review}, \emph{55}, 220-232.
+\url{https://doi.org/10.1016/j.econedurev.2016.11.001}
+
+\bibitem[\citeproctext]{ref-jephcote_grade_2021}
+Jephcote, C., Medland, E., \& Lygo-Baker, S. (2021). Grade Inflation
+versus Grade Improvement: Are Our Students Getting More Intelligent?
+\emph{Assessment \& Evaluation in Higher Education}, \emph{46}(4),
+547-571. \url{https://doi.org/10.1080/02602938.2020.1795617}
+
+\bibitem[\citeproctext]{ref-jewell_whose_2011}
+Jewell, R. T., McPherson, M. A., \& Tieslau, M. A. (2011). Whose Fault
+Is It? Assigning Blame for Grade Inflation in Higher Education.
+\emph{Applied Economics}, \emph{45}(9), 1185-1200.
+\url{https://doi.org/10.1080/00036846.2011.621884}
+
+\bibitem[\citeproctext]{ref-lipnevich_what_2020}
+Lipnevich, A. A., Guskey, T. R., Murano, D. M., \& Smith, J. K. (2020).
+What Do Grades Mean? Variation in Grading Criteria in American College
+and University Courses. \emph{Assessment in Education: Principles,
+Policy \& Practice}, \emph{27}(5), 480-500.
+\url{https://doi.org/10.1080/0969594X.2020.1799190}
+
+\bibitem[\citeproctext]{ref-lynch_learning_2017}
+Lynch, R., \& Hennessy, J. (2017). Learning to Earn? The Role of
+Performance Grades in Higher Education. \emph{Studies in Higher
+Education}, \emph{42}(9), 1750-1763.
+\url{https://doi.org/10.1080/03075079.2015.1124850}
+
+\bibitem[\citeproctext]{ref-schorr_addressing_2025}
+Schorr, C. (2025). Addressing the Grade Inflation Collective Action
+Problem \textbar{} U.S. Department of Education. En \emph{U. S.
+Department of Education}.
+http://www.ed.gov/about/homeroom-blog/addressing-grade-inflation-collective-action-problem.
+
+\bibitem[\citeproctext]{ref-universidaddechile_modelo_2024}
+Universidad de Chile. (2024). \emph{Modelo educativo de la Universidad
+de Chile} (Universidad de Chile).
+
+\end{CSLReferences}
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{part}{Apéndices}
+\appendix
+
+\chapter{Anexos estudiantes}\label{anexos-estudiantes}
+
+\section{Cantidad de notas según categoría de
+agrupación}\label{cantidad-de-notas-seguxfan-categoruxeda-de-agrupaciuxf3n}
+
+\begin{longtable}[t]{lrrr}
+
+\caption{\label{tbl-group-notas}Cantidad de notas según categoría
+(2020-2024)}
+
+\tabularnewline
+
+\toprule
+\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Categoría nota}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Frec. absoluta}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Frec. relativa}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Frec. acumulada}}}\\
+\midrule
+<= 7,0 y >= 6,5 & 146 & 0.07 & 0.07\\
+<= 6,4 y >= 6,0 & 926 & 0.47 & 0.54\\
+<= 5,9 y >= 5,5 & 628 & 0.32 & 0.86\\
+<= 5,4 y >= 5,0 & 180 & 0.09 & 0.95\\
+<= 4,9 & 101 & 0.05 & 1.00\\
+\addlinespace
+\cellcolor[HTML]{f2f2f2}{\textbf{Total}} & \cellcolor[HTML]{f2f2f2}{\textbf{1981}} & \cellcolor[HTML]{f2f2f2}{\textbf{1.00}} & \cellcolor[HTML]{f2f2f2}{\textbf{1.00}}\\
+\bottomrule
+
+\end{longtable}
+
+\section{Notas promedio de cada carrera por
+cohorte}\label{notas-promedio-de-cada-carrera-por-cohorte}
+
+\begin{table}
+
+\caption{\label{tbl-desc-carreras}Estadísticas descriptivas del promedio
+por carrera y cohorte}
+
+\centering{
+
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}{>{\raggedright\arraybackslash}p{4cm}|c|c|c|c|l}
+\hline
+\textbf{carrera} & \textbf{2020} & \textbf{2021} & \textbf{2022} & \textbf{2023} & \textbf{2024}\\
+\hline
+\textbf{Antropología} & 6 (DE = 0.4) [4.8–6.7] & 5.9 (DE = 0.4) [4–6.7] & 5.8 (DE = 0.6) [2.6–6.7] & 5.8 (DE = 0.4) [4.4–6.4] & 5.8 (DE = 0.4) [3.5–6.5]\\
+\cline{1-6}
+\textbf{Educación Parvularia} & 6.4 (DE = 0.2) [5.8–6.7] & 6.4 (DE = 0.2) [5.9–6.8] & 6.2 (DE = 0.3) [5.2–6.8] & 6.2 (DE = 0.4) [4.2–6.7] & 5.9 (DE = 1.2) [1.5–6.8]\\
+\cline{1-6}
+\textbf{Psicología} & 6.4 (DE = 0.3) [5–6.8] & 6.2 (DE = 0.3) [5.1–6.8] & 6.1 (DE = 0.5) [2–6.5] & 5.8 (DE = 0.8) [2.6–6.6] & 5.6 (DE = 0.6) [2.8–6.5]\\
+\cline{1-6}
+\textbf{Sociología} & 6.1 (DE = 0.5) [2.6–6.6] & 5.9 (DE = 0.7) [2.6–6.6] & 5.9 (DE = 0.4) [4.5–6.5] & 5.8 (DE = 0.5) [3.7–6.7] & 5.7 (DE = 0.4) [3.4–6.5]\\
+\cline{1-6}
+\textbf{Trabajo Social} & 6 (DE = 0.3) [5.3–6.5] & 6 (DE = 0.4) [4.2–6.5] & 5.9 (DE = 0.4) [4.5–6.4] & 5.6 (DE = 0.7) [2.6–6.3] & 5.4 (DE = 1.1) [1.6–6.4]\\
+\hline
+\end{tabular}}
+
+}
+
+\end{table}%
+
+\section{Género por cohortes}\label{guxe9nero-por-cohortes}
+
+\begin{figure}
+
+\caption{\label{fig-plotly-gen}Elaboración propia (2026)}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-plotly-gen-1.pdf}}
+
+}
+
+\end{figure}%
+
+\section{Tipo colegio por cohortes}\label{tipo-colegio-por-cohortes}
+
+\begin{figure}
+
+\caption{\label{fig-time-col}Elaboración propia (2026)}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-time-col-1.pdf}}
+
+}
+
+\end{figure}%
+
+\#\# Nivel socioeconómico por cohortes
+
+\begin{figure}
+
+\caption{\label{fig-plotly-nse}Elaboración propia (2026)}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-plotly-nse-1.pdf}}
+
+}
+
+\end{figure}%
+
+\section{Percentil prueba admisión universitaria por
+cohortes}\label{percentil-prueba-admisiuxf3n-universitaria-por-cohortes}
+
+\begin{figure}
+
+\caption{\label{fig-scat-pct}Elaboración propia (2026)}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-scat-pct-1.pdf}}
+
+}
+
+\end{figure}%
+
+\section{Percentil prueba admisión universitaria por
+carrera}\label{percentil-prueba-admisiuxf3n-universitaria-por-carrera}
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-admision-1.pdf}}
+
+}
+
+\caption{\label{fig-admision}Elaboración propia en base a datos de
+UCampus (2026)}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-scat-socio}Elaboración propia en base a datos de
+UCampus (2026)}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-scat-socio-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-scat-psico}Elaboración propia en base a datos de
+UCampus (2026)}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-scat-psico-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-scat-antropo}Elaboración propia en base a datos de
+UCampus (2026)}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-scat-antropo-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-scat-educa}Elaboración propia en base a datos de
+UCampus (2026)}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-scat-educa-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-scat-trabajo}Elaboración propia en base a datos de
+UCampus (2026)}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-scat-trabajo-1.pdf}}
+
+}
+
+\end{figure}%
+
+\section{Comparación del top 40}\label{comparaciuxf3n-del-top-40}
+
+\begin{figure}
+
+\caption{\label{fig-socio-top}Comparación de las mejores 40 notas de
+Sociología por cohorte}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-socio-top-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-psi-top}Comparación de las mejores 40 notas de
+Psicología por cohorte}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-psi-top-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-trabajo-top}Comparación de las mejores 40 notas de
+Trabajo Social por cohorte}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-trabajo-top-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-antropo-top}Comparación de las mejores 40 notas de
+Antropología por cohorte}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-antropo-top-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-educa-top}Comparación de las mejores 40 notas de
+Educación Parvularia por cohorte}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-educa-top-1.pdf}}
+
+}
+
+\end{figure}%
+
+\section{Comparación del bottom 40}\label{comparaciuxf3n-del-bottom-40}
+
+\begin{figure}
+
+\caption{\label{fig-socio-bottom}Comparación de las 40 notas más bajas
+de Sociología por cohorte}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-socio-bottom-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-psi-bottom}Comparación de las 40 notas más bajas de
+Psicología por cohorte}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-psi-bottom-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-trabajo-bottom}Comparación de las 40 notas más bajas
+de Trabajo Social por cohorte}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-trabajo-bottom-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-antropo-bottom}Comparación de las 40 notas más bajas
+de Antropología por cohorte}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-antropo-bottom-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-educa-bottom}Comparación de las 40 notas más bajas
+de Educación Parvularia por cohorte}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-educa-bottom-1.pdf}}
+
+}
+
+\end{figure}%
+
+\section{Análisis de notas a través del
+tiempo}\label{anuxe1lisis-de-notas-a-travuxe9s-del-tiempo}
+
+Se adjunta el código con el cual se construyeron las bases de los cursos
+de primer año. Este código fue ejecutado en \texttt{proc-bbdd.qmd}, el
+cual se encuentra en la carpeta \texttt{proc}.
+
+\section{Promedio de la Facultad a través del
+tiempo}\label{promedio-de-la-facultad-a-travuxe9s-del-tiempo}
+
+\begin{figure}
+
+\caption{\label{fig-año-facso}Promedio de notas por año 2021 - 2024
+FACSO}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-año-facso-1.pdf}}
+
+}
+
+\end{figure}%
+
+\section{Promedios de carrera a través del
+tiempo}\label{promedios-de-carrera-a-travuxe9s-del-tiempo}
+
+\begin{figure}
+
+\caption{\label{fig-año-socio}Promedio de notas por año 2021 - 2024
+Sociología}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-año-socio-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-año-psico}Promedio de notas por año 2021 - 2024
+Psicología}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-año-psico-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-año-antropo}Promedio de notas por año 2021 - 2024
+Antropología}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-año-antropo-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-año-educa}Promedio de notas por año 2021 - 2024
+Educación Parvularia}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-año-educa-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-año-trabajo}Promedio de notas por año 2021 - 2024
+Trabajo Social}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-año-trabajo-1.pdf}}
+
+}
+
+\end{figure}%
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/unnamed-chunk-16-1.pdf}}
+
+\begin{figure}
+
+\caption{\label{fig-facso-full}Asociación entre Promedio por defecto y
+Promedio calculado - FACSO}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-facso-full-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-socio-full}Asociación entre Promedio bruto y
+Promedio calculado - Sociología}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-socio-full-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-psico-full}Asociación entre Promedio bruto y
+Promedio calculado - Psicología}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-psico-full-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-trabajo-full}Asociación entre Promedio bruto y
+Promedio calculado - Trabajo social}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-trabajo-full-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-educa-full}Asociación entre Promedio bruto y
+Promedio calculado - Educación Parvularia}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-educa-full-1.pdf}}
+
+}
+
+\end{figure}%
+
+\begin{figure}
+
+\caption{\label{fig-antropo-full}Asociación entre Promedio bruto y
+Promedio calculado - Antropología Arqueología}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{apendices/A-anexos-estudiantes_files/figure-pdf/fig-antropo-full-1.pdf}}
+
+}
+
+\end{figure}%
+
+\chapter{Anexos cursos}\label{anexos-cursos}
+
+\begin{longtable}[t]{lrrrrr>{}r}
+
+\caption{\label{tbl-n-cursos}Cantidad de cursos por año y carrera
+(2018-2025)}
+
+\tabularnewline
+
+\toprule
+\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Año}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Antropología}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Educación Parvularia}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Psicología}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Sociología}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Trabajo Social}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Total}}}\\
+\midrule
+2018 & 12 & 12 & 36 & 33 & 25 & \textbf{118}\\
+2019 & 29 & 25 & 51 & 60 & 38 & \textbf{203}\\
+2020 & 93 & 37 & 88 & 92 & 54 & \textbf{364}\\
+2021 & 153 & 68 & 102 & 126 & 67 & \textbf{516}\\
+2022 & 219 & 103 & 109 & 195 & 69 & \textbf{695}\\
+\addlinespace
+2023 & 225 & 103 & 135 & 187 & 70 & \textbf{720}\\
+2024 & 218 & 132 & 423 & 178 & 94 & \textbf{1045}\\
+2025 & 220 & 147 & 298 & 193 & 140 & \textbf{998}\\
+\cellcolor[HTML]{f2f2f2}{\textbf{Total}} & \cellcolor[HTML]{f2f2f2}{\textbf{1169}} & \cellcolor[HTML]{f2f2f2}{\textbf{627}} & \cellcolor[HTML]{f2f2f2}{\textbf{1242}} & \cellcolor[HTML]{f2f2f2}{\textbf{1064}} & \cellcolor[HTML]{f2f2f2}{\textbf{557}} & \textbf{\cellcolor[HTML]{f2f2f2}{\textbf{4659}}}\\
+\bottomrule
+
+\end{longtable}
+
+\begin{longtable}[t]{lrrrr}
+
+\caption{\label{tbl-n-notas}Descriptivos según tamaño del curso
+(2018-2025)}
+
+\tabularnewline
+
+\toprule
+\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Tamaño del curso}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Frec. absoluta}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Frec. relativa}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Nota promedio}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Nota prom. acumulada}}}\\
+\midrule
+1 estudiante & 689 & 0.15 & 6.36 & 6.36\\
+> 1 y <= 5 & 1346 & 0.29 & 6.34 & 6.34\\
+> 5 y <= 10 & 387 & 0.08 & 6.22 & 6.32\\
+> 10 y <= 20 & 435 & 0.09 & 6.08 & 6.29\\
+> 20 y <= 40 & 783 & 0.17 & 6.11 & 6.25\\
+\addlinespace
+> 40 & 1024 & 0.22 & 5.90 & 6.17\\
+\cellcolor[HTML]{f2f2f2}{\textbf{Total}} & \cellcolor[HTML]{f2f2f2}{\textbf{4664}} & \cellcolor[HTML]{f2f2f2}{\textbf{1.00}} & \cellcolor[HTML]{f2f2f2}{\textbf{37.00}} & \cellcolor[HTML]{f2f2f2}{\textbf{6.36}}\\
+\bottomrule
+
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+
+\caption{\label{tbl-cat-notas}Cantidad de cursos según nota promedio
+(2018-2025)}
+
+\tabularnewline
+
+\toprule
+\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Categoría nota}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Frec. absoluta}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Frec. relativa}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Frec. acumulada}}}\\
+\midrule
+< 4,0 & 68 & 0.01 & 0.01\\
+>= 4,0 y < 5,0 & 168 & 0.04 & 0.05\\
+>= 5,0 y < 6,0 & 1268 & 0.27 & 0.32\\
+>= 6,0 y < 6,5 & 1402 & 0.30 & 0.62\\
+\cellcolor[HTML]{f2f2f2}{\textbf{>= 6,5}} & \cellcolor[HTML]{f2f2f2}{\textbf{1758}} & \cellcolor[HTML]{f2f2f2}{\textbf{0.38}} & \cellcolor[HTML]{f2f2f2}{\textbf{1.00}}\\
+\bottomrule
+
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+
+\caption{\label{tbl-cat-aprob}Cantidad de cursos según tasa de
+aprobación (2018-2025)}
+
+\tabularnewline
+
+\toprule
+\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{\% aprobación}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Frec. absoluta}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Frec. relativa}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Frec. acumulada}}}\\
+\midrule
+< 90 & 329 & 0.07 & 0.07\\
+>= 90 y < 92 & 93 & 0.02 & 0.09\\
+>= 92 y < 94 & 136 & 0.03 & 0.12\\
+>= 94 y < 96 & 175 & 0.04 & 0.16\\
+>= 96 y < 98 & 310 & 0.07 & 0.22\\
+\addlinespace
+>= 98 y < 100 & 172 & 0.04 & 0.26\\
+\cellcolor[HTML]{f2f2f2}{\textbf{100}} & \cellcolor[HTML]{f2f2f2}{\textbf{3449}} & \cellcolor[HTML]{f2f2f2}{\textbf{0.74}} & \cellcolor[HTML]{f2f2f2}{\textbf{1.00}}\\
+\bottomrule
+
+\end{longtable}
+
+\begin{longtable}[t]{lllrr}
+
+\caption{\label{tbl-conteo-notas}Listado de cursos con notas promedio
+menores a 4.0}
+
+\tabularnewline
+
+\toprule
+\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Año}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Carrera}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Curso}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Nota promedio}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{N estudiantes}}}\\
+\midrule
+2018 & Psicología & Estadística 2 & 1 & 3.30\\
+2018 & Sociología & Economía & 2 & 2.75\\
+2018 & Sociología & Teorías Sociológicas Contemporáneas & 5 & 3.02\\
+2018 & Trabajo Social & Planificación y Gestión Social & 1 & 1.00\\
+2019 & Sociología & Electivo de Especialidad - Sociología Urbana & 1 & 1.40\\
+\addlinespace
+2019 & Sociología & Desigualdades y Estratificación Social & 3 & 3.17\\
+2020 & Trabajo Social & Núcleo Temático Electivo I + D III: Estudios Interdisciplinarios en Trabajo Social & 3 & 3.67\\
+2021 & Educación Parvularia & Seminario Temático de Investigación & 2 & 3.75\\
+2021 & Educación Parvularia & Seminario Temático de Investigación & 2 & 3.85\\
+2022 & Antropología & Taller de Memoria I: Mención Social & 1 & 1.00\\
+\addlinespace
+2022 & Antropología & Taller de Investigación II - Arqueología & 1 & 1.00\\
+2022 & Antropología & Taller de Investigación I - Social & 1 & 1.00\\
+2022 & Antropología & Taller de Investigación I - Social & 5 & 3.20\\
+2022 & Antropología & Histología & 16 & 3.76\\
+2022 & Antropología & Taller de Investigación I - Social & 1 & 3.90\\
+\addlinespace
+2022 & Educación Parvularia & Seminario Título II & 1 & 1.00\\
+2022 & Educación Parvularia & Seminario Temático de Investigación & 2 & 3.05\\
+2022 & Educación Parvularia & Seminario Título II & 1 & 3.60\\
+2023 & Antropología & Taller de Memoria I: Mención Social & 1 & 1.00\\
+2023 & Antropología & Taller de Investigación I - Social & 1 & \vphantom{1} 1.00\\
+\addlinespace
+2023 & Antropología & Taller de Investigación I - Social & 1 & 1.00\\
+2023 & Antropología & Taller de Memoria II: Mención Social & 1 & 1.00\\
+2023 & Antropología & Taller de Memoria I: Mención Social & 1 & 3.00\\
+2023 & Antropología & Taller de Integración: Ciencia y Tecnología & 8 & 3.09\\
+2023 & Antropología & Taller de Investigación II - Social & 2 & 3.50\\
+\addlinespace
+2023 & Antropología & Taller de Investigación I - Social & 2 & 3.85\\
+2023 & Antropología & Taller de Memoria I Mención Arqueología & 2 & 3.90\\
+2023 & Antropología & Taller de Investigación I - Social & 4 & 3.90\\
+2023 & Educación Parvularia & Seminario Título II & 1 & 3.60\\
+2023 & Sociología & Seminario de Título II & 2 & 3.00\\
+\addlinespace
+2023 & Sociología & Seminario de Título II & 1 & \vphantom{1} 3.50\\
+2023 & Sociología & Seminario de Título II & 1 & 3.50\\
+2023 & Sociología & Seminario de Título II & 2 & 3.75\\
+2023 & Sociología & Seminario de Grado & 3 & 3.77\\
+2024 & Antropología & Taller de Memoria I: Mención Social & 1 & 1.00\\
+\addlinespace
+2024 & Antropología & Taller de Investigación II - Arqueología & 1 & 1.00\\
+2024 & Antropología & Taller de Investigación II - Social & 1 & \vphantom{1} 3.00\\
+2024 & Antropología & Taller de Investigación II - Social & 1 & 3.00\\
+2024 & Antropología & Taller de Investigación I - Social & 2 & 3.40\\
+2024 & Antropología & Taller de Investigación II - Física & 2 & 3.55\\
+\addlinespace
+2024 & Antropología & Taller de Investigación II - Arqueología & 2 & 3.65\\
+2024 & Antropología & Taller de Investigación I - Social & 3 & 3.77\\
+2024 & Antropología & Taller de Investigación II - Arqueología & 4 & 3.80\\
+2024 & Antropología & Taller de Memoria I Mención Arqueología & 5 & 3.80\\
+2024 & Educación Parvularia & Seminario Temático de Investigación & 2 & 1.75\\
+\addlinespace
+2024 & Psicología & Seminario de Práctica 1 Psicología Clínica Cognitivo Constructivista & 1 & 1.00\\
+2024 & Psicología & Práctica Profesional 1 Psicología Clínica Cognitivo Constructivista & 1 & 3.00\\
+2024 & Sociología & Seminario de Grado & 1 & 1.00\\
+2025 & Antropología & Teoría Social & 1 & 1.00\\
+2025 & Antropología & Taller de Investigación II - Arqueología & 1 & 1.00\\
+\addlinespace
+2025 & Antropología & Taller de Investigación II - Social & 1 & 1.00\\
+2025 & Antropología & Taller de Memoria II: Mención Social & 1 & 3.00\\
+2025 & Antropología & Taller de Memoria I Mención Arqueología & 2 & 3.20\\
+2025 & Antropología & Taller de Memoria II: Mención Arqueología & 1 & 3.50\\
+2025 & Antropología & Taller de Investigación II - Arqueología & 2 & 3.50\\
+\addlinespace
+2025 & Antropología & Taller de Investigación I - Social & 2 & 3.65\\
+2025 & Antropología & Taller de Investigación II - Arqueología & 6 & 3.72\\
+2025 & Psicología & Filosofía & 9 & 3.32\\
+2025 & Psicología & Epistemología de las Ciencias Sociales & 2 & 3.40\\
+2025 & Psicología & Estadística 1 & 2 & 3.55\\
+\addlinespace
+2025 & Sociología & Historia Social de América Latina & 5 & 3.60\\
+2025 & Sociología & Teorías Sociológicas Contemporáneas & 43 & 3.91\\
+2025 & Sociología & Estrategias de Investigación Cuantitativa & 42 & 3.95\\
+2025 & Trabajo Social & Estadística I & 2 & 2.70\\
+2025 & Trabajo Social & Estado y Sociedad Contemporánea & 2 & 3.10\\
+\addlinespace
+2025 & Trabajo Social & Estadística I & 9 & 3.56\\
+2025 & Trabajo Social & Enfoques Críticos en Trabajo Social & 1 & 3.70\\
+2025 & Trabajo Social & Teoría Sociológica II & 3 & 3.73\\
+\bottomrule
+
+\end{longtable}
+
+\begin{longtable}[t]{lllr}
+
+\caption{\label{tbl-conteo-secciones}Listado de cursos con más de dos
+secciones}
+
+\tabularnewline
+
+\toprule
+\cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Año}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Carrera}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{Curso}}} & \cellcolor[HTML]{952626}{\textcolor{white}{\textbf{N secciones}}}\\
+\midrule
+2018 & Sociología & Introducción a la Sociología & 3\\
+2020 & Sociología & Introducción a la Sociología & 3\\
+2020 & Sociología & Sociología de las Políticas Públicas & 3\\
+2020 & Sociología & Teoría Sociológica Clásica & 3\\
+2021 & Antropología & Taller de Investigación I - Social & 12\\
+\addlinespace
+2021 & Antropología & Taller de Investigación II - Arqueología & 12\\
+2021 & Antropología & Taller de Investigación II - Social & 12\\
+2021 & Educación Parvularia & Seminario Temático de Investigación & 19\\
+2021 & Sociología & Seminario de Grado & 26\\
+2021 & Sociología & Transformaciones Sociales del Chile Contemporáneo & 4\\
+\addlinespace
+2021 & Sociología & Diseños de Investigación & 3\\
+2021 & Sociología & Introducción a la Sociología & 3\\
+2021 & Sociología & Sociología de las Políticas Públicas & 3\\
+2021 & Sociología & Teoría Sociológica Clásica & 3\\
+2022 & Antropología & Taller de Investigación I - Social & 16\\
+\addlinespace
+2022 & Antropología & Taller de Investigación II - Social & 13\\
+2022 & Antropología & Taller de Memoria I: Mención Social & 13\\
+2022 & Antropología & Taller de Investigación II - Arqueología & 12\\
+2022 & Antropología & Taller de Memoria I Mención Arqueología & 11\\
+2022 & Antropología & Taller de Memoria II: Mención Arqueología & 11\\
+\addlinespace
+2022 & Antropología & Taller de Memoria II: Mención Social & 11\\
+2022 & Antropología & Taller de Memoria I: Mención Física & 5\\
+2022 & Antropología & Taller de Memoria II: Mención Física & 4\\
+2022 & Antropología & Taller de Investigación II - Física & 3\\
+2022 & Educación Parvularia & Seminario Temático de Investigación & 20\\
+\addlinespace
+2022 & Educación Parvularia & Seminario Título I & 16\\
+2022 & Educación Parvularia & Seminario Título II & 15\\
+2022 & Sociología & Seminario de Grado & 27\\
+2022 & Sociología & Seminario de Título I & 26\\
+2022 & Sociología & Seminario de Título II & 26\\
+\addlinespace
+2022 & Sociología & Práctica Profesional & 25\\
+2022 & Sociología & Transformaciones Sociales del Chile Contemporáneo & 4\\
+2022 & Sociología & Introducción a la Sociología & 3\\
+2022 & Sociología & Teoría Sociológica Clásica & 3\\
+2022 & Trabajo Social & Núcleo Temático Electivo I + D I: & 5\\
+\addlinespace
+2022 & Trabajo Social & Núcleo Temático Electivo I + D II: & 5\\
+2022 & Trabajo Social & Núcleo Temático Electivo I + D III & 5\\
+2022 & Trabajo Social & Núcleo Temático Electivo I+D IV & 5\\
+2022 & Trabajo Social & Núcleo de Titulación I+D I: & 5\\
+2022 & Trabajo Social & Núcleo de Titulación I+D II: & 5\\
+\addlinespace
+2023 & Antropología & Taller de Investigación II - Social & 18\\
+2023 & Antropología & Taller de Investigación I - Social & 16\\
+2023 & Antropología & Taller de Investigación II - Arqueología & 15\\
+2023 & Antropología & Taller de Memoria II: Mención Social & 14\\
+2023 & Antropología & Taller de Memoria I: Mención Social & 13\\
+\addlinespace
+2023 & Antropología & Taller de Memoria I Mención Arqueología & 11\\
+2023 & Antropología & Taller de Memoria II: Mención Arqueología & 11\\
+2023 & Antropología & Taller de Investigación II - Física & 4\\
+2023 & Antropología & Taller de Memoria I: Mención Física & 3\\
+2023 & Antropología & Taller de Memoria II: Mención Física & 3\\
+\addlinespace
+2023 & Educación Parvularia & Seminario Temático de Investigación & 19\\
+2023 & Educación Parvularia & Seminario Título II & 16\\
+2023 & Educación Parvularia & Seminario Título I & 14\\
+2023 & Sociología & Seminario de Título I & 28\\
+2023 & Sociología & Seminario de Título II & 28\\
+\addlinespace
+2023 & Sociología & Seminario de Grado & 26\\
+2023 & Sociología & Práctica Profesional & 22\\
+2023 & Sociología & Transformaciones Sociales del Chile Contemporáneo & 4\\
+2023 & Trabajo Social & Núcleo Temático Electivo I + D I: & 5\\
+2023 & Trabajo Social & Núcleo Temático Electivo I + D II: & 5\\
+\addlinespace
+2023 & Trabajo Social & Núcleo Temático Electivo I + D III & 5\\
+2023 & Trabajo Social & Núcleo Temático Electivo I+D IV & 5\\
+2023 & Trabajo Social & Núcleo de Titulación I+D I: & 5\\
+2023 & Trabajo Social & Núcleo de Titulación I+D II: & 5\\
+2024 & Antropología & Taller de Memoria I: Mención Social & 15\\
+\addlinespace
+2024 & Antropología & Taller de Investigación II - Arqueología & 14\\
+2024 & Antropología & Taller de Investigación II - Social & 14\\
+2024 & Antropología & Taller de Investigación I - Social & 13\\
+2024 & Antropología & Taller de Memoria II: Mención Social & 13\\
+2024 & Antropología & Taller de Memoria II: Mención Arqueología & 11\\
+\addlinespace
+2024 & Antropología & Taller de Memoria I Mención Arqueología & 10\\
+2024 & Antropología & Taller de Investigación II - Física & 8\\
+2024 & Antropología & Taller de Memoria I: Mención Física & 3\\
+2024 & Antropología & Taller de Memoria II: Mención Física & 3\\
+2024 & Educación Parvularia & Seminario Temático de Investigación & 22\\
+\addlinespace
+2024 & Educación Parvularia & Seminario Título II & 14\\
+2024 & Educación Parvularia & Seminario Título I & 10\\
+2024 & Educación Parvularia & Práctica Profesional 1 Ciclo & 9\\
+2024 & Educación Parvularia & Taller de Práctica 1 & 9\\
+2024 & Educación Parvularia & Práctica Profesional 2 Ciclo & 8\\
+\addlinespace
+2024 & Educación Parvularia & Taller de Práctica 2 & 6\\
+2024 & Psicología & Práctica Profesional & 91\\
+2024 & Psicología & Memoria de Título & 74\\
+2024 & Psicología & Práctica Profesional 2 Psicología Jurídica & 6\\
+2024 & Psicología & Práctica Profesional Psicología Jurídica & 6\\
+\addlinespace
+2024 & Psicología & Seminario de Práctica 2 Psicología Jurídica & 6\\
+2024 & Psicología & Seminario de Práctica Psicología Clínica Sistémico & 6\\
+2024 & Psicología & Seminario de Práctica Psicología Jurídica & 6\\
+2024 & Psicología & Práctica Profesional 2 Psicología Clínica Sistémica & 5\\
+2024 & Psicología & Práctica Profesional Psicología Clínica Sistémica & 5\\
+\addlinespace
+2024 & Psicología & Seminario de Práctica 2 Psicología Clínica Sistémico & 5\\
+2024 & Psicología & Práctica Profesional 2 Psicología Educacional & 4\\
+2024 & Psicología & Práctica Profesional Psicología Educacional & 4\\
+2024 & Psicología & Seminario de Práctica 1 Psicología Educacional & 4\\
+2024 & Psicología & Seminario de Práctica 2 Psicología Educacional & 4\\
+\addlinespace
+2024 & Psicología & Práctica Profesional 2 Psicología del Trabajo y las Organizaciones & 3\\
+2024 & Psicología & Práctica Profesional Psicología del Trabajo y las Organizaciones & 3\\
+2024 & Psicología & Seminario de Práctica 1 Psicología del Trabajo y las Organizaciones & 3\\
+2024 & Psicología & Seminario de Práctica 2 Psicología del Trabajo y las Organizaciones & 3\\
+2024 & Sociología & Seminario de Grado & 28\\
+\addlinespace
+2024 & Sociología & Seminario de Título II & 26\\
+2024 & Sociología & Seminario de Título I & 25\\
+2024 & Sociología & Práctica Profesional & 24\\
+2024 & Sociología & Transformaciones Sociales del Chile Contemporáneo & 4\\
+2024 & Trabajo Social & NÚCLEO TEMÁTICO ELECTIVO I+D IV & 11\\
+\addlinespace
+2024 & Trabajo Social & NUCLEO DE TITULACIÓN I+D II & 9\\
+2024 & Trabajo Social & NÚCLEO TEMÁTICO ELECTIVO I+D II: & 7\\
+2024 & Trabajo Social & Núcleo Temático Electivo I + D II: & 6\\
+2024 & Trabajo Social & Núcleo Temático Electivo I + D I: & 5\\
+2024 & Trabajo Social & Núcleo Temático Electivo I + D III & 5\\
+\addlinespace
+2024 & Trabajo Social & Núcleo de Titulación I+D I: & 5\\
+2024 & Trabajo Social & NÚCLEO TEMÁTICO ELECTIVO I+D IV: & 3\\
+2024 & Trabajo Social & Núcleo de Titulación I+D II: & 3\\
+2025 & Antropología & Taller de Investigación I - Social & 16\\
+2025 & Antropología & Taller de Investigación II - Social & 15\\
+\addlinespace
+2025 & Antropología & Taller de Memoria I: Mención Social & 15\\
+2025 & Antropología & Taller de Investigación II - Arqueología & 14\\
+2025 & Antropología & Taller de Memoria I Mención Arqueología & 13\\
+2025 & Antropología & Taller de Memoria II: Mención Arqueología & 12\\
+2025 & Antropología & Taller de Memoria II: Mención Social & 12\\
+\addlinespace
+2025 & Antropología & Taller de Investigación II - Física & 7\\
+2025 & Antropología & Taller de Memoria II: Mención Física & 7\\
+2025 & Antropología & Taller de Memoria I: Mención Física & 6\\
+2025 & Educación Parvularia & Seminario Temático de Investigación & 24\\
+2025 & Educación Parvularia & Seminario Título I & 21\\
+\addlinespace
+2025 & Educación Parvularia & Seminario Título II & 16\\
+2025 & Educación Parvularia & Práctica Profesional 1 Ciclo & 10\\
+2025 & Educación Parvularia & Taller de Práctica 1 & 10\\
+2025 & Educación Parvularia & Práctica Profesional 2 Ciclo & 9\\
+2025 & Educación Parvularia & Taller de Práctica 2 & 9\\
+\addlinespace
+2025 & Psicología & Memoria de Título & 16\\
+2025 & Psicología & Práctica Profesional & 16\\
+2025 & Psicología & Práctica Profesional 1 Psicología Clínica Psicoanálisis & 6\\
+2025 & Psicología & Práctica Profesional 1 Psicología Jurídica & 6\\
+2025 & Psicología & Práctica Profesional 2 Psicología Clínica Psicoanálisis & 6\\
+\addlinespace
+2025 & Psicología & Práctica Profesional 2 Psicología Jurídica & 6\\
+2025 & Psicología & Seminario de Práctica 1 Psicología Clínica Psicoanálisis & 6\\
+2025 & Psicología & Seminario de Práctica 1 Psicología Jurídica & 6\\
+2025 & Psicología & Seminario de Práctica 2 Psicología Clínica Psicoanálisis & 6\\
+2025 & Psicología & Seminario de Práctica 2 Psicología Jurídica & 6\\
+\addlinespace
+2025 & Psicología & Práctica Profesional 1 Psicología Clínica Sistémica & 5\\
+2025 & Psicología & Práctica Profesional 2 Psicología Clínica Sistémica & 5\\
+2025 & Psicología & Seminario de Práctica 1 Psicología Clínica Sistémico & 5\\
+2025 & Psicología & Seminario de Práctica 2 Psicología Clínica Sistémico & 5\\
+2025 & Psicología & Práctica Profesional 1 Psicología Educacional & 4\\
+\addlinespace
+2025 & Psicología & Práctica Profesional 2 Psicología Educacional & 4\\
+2025 & Psicología & Seminario de Práctica 1 Psicología Educacional & 4\\
+2025 & Psicología & Seminario de Práctica 2 Psicología Educacional & 4\\
+2025 & Psicología & Práctica Profesional 2 Psicología del Trabajo y las Organizaciones & 3\\
+2025 & Psicología & Seminario de Práctica 2 Psicología del Trabajo y las Organizaciones & 3\\
+\addlinespace
+2025 & Sociología & Seminario de Grado & 31\\
+2025 & Sociología & Seminario de Título I & 27\\
+2025 & Sociología & Seminario de Título II & 26\\
+2025 & Sociología & Práctica Profesional & 25\\
+2025 & Sociología & Transformaciones Sociales del Chile Contemporáneo & 3\\
+\addlinespace
+2025 & Trabajo Social & NUCLEO DE TITULACIÓN I+D II & 18\\
+2025 & Trabajo Social & Núcleo de Titulación I+D I: & 18\\
+2025 & Trabajo Social & NÚCLEO TEMÁTICO ELECTIVO I+D II: & 16\\
+2025 & Trabajo Social & NÚCLEO TEMÁTICO ELECTIVO I+D IV & 16\\
+2025 & Trabajo Social & Núcleo Temático Electivo I + D I: & 16\\
+\addlinespace
+2025 & Trabajo Social & Núcleo Temático Electivo I + D III & 16\\
+\cellcolor[HTML]{f2f2f2}{\textbf{2026}} & \cellcolor[HTML]{f2f2f2}{\textbf{Sociología}} & \cellcolor[HTML]{f2f2f2}{\textbf{Práctica Profesional}} & \cellcolor[HTML]{f2f2f2}{\textbf{3}}\\
+\bottomrule
+
+\end{longtable}
+
+
+\backmatter
+
+% --- Cuerpo del libro (capítulos) en arábigos ---
+\mainmatter
+\pagestyle{scrheadings}
+
+% --- (Opcional) Estilo del índice general ---
+% \addtocontents{toc}{\protect\thispagestyle{plain}}
+
+
+\end{document}

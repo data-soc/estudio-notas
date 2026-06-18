@@ -1,0 +1,322 @@
+---
+title: Anexos cursos
+code-fold: true
+---
+
+```{r}
+#| echo: false
+
+pacman::p_load(knitr, digest, stargazer, sjPlot, codebook, summarytools, dplyr, tidyr,
+ lme4, ggplot2, ggeffects, skimr, table1, patchwork, here, kableExtra, ggthemes, tidyverse,
+ ggbreak, texreg, coefplot, plotly, modelsummary)
+options(scipen = 999)
+```
+
+```{r}
+#| echo: false
+
+here::i_am("output/reports/book-estudio-notas/apendices/B-anexos-cursos.qmd")
+
+cc_facso <- readRDS(here::here("input/data/proc_data/cc_sec.rds"))
+```
+
+
+```{r}
+#| label: tbl-n-cursos
+#| tbl-cap: Cantidad de cursos por año y carrera (2018-2025)
+#| tbl-cap-location: top
+
+tabla_final <- (cc_facso %>% filter(ano != "2026")) %>%
+  group_by(ano, carrera) %>%
+  summarise(total_cursos = n_distinct(codigo, seccion), .groups = "drop") %>%  # <-- aquí
+  pivot_wider(
+    names_from  = carrera,
+    values_from = total_cursos,
+    values_fill = 0
+  ) %>%
+  mutate(ano = as.character(ano)) %>%
+  bind_rows(
+    summarise(., across(-ano, sum)) %>% mutate(ano = "Total")
+  ) %>%
+  mutate(Total = rowSums(across(-ano)))
+
+# Nombres de columnas: "Año" + nombres reales de carreras + "Total"
+nombres_columnas <- c("Año", names(tabla_final)[-1])
+
+tabla_final %>%
+  kable(col.names = nombres_columnas) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  row_spec(
+    0,
+    bold = TRUE,
+    color = "white",
+    background = "#952626"
+  ) %>%
+  row_spec(
+    nrow(tabla_final),
+    bold = TRUE,
+    background = "#f2f2f2"
+  ) %>%
+  column_spec(
+    ncol(tabla_final),
+    bold = TRUE
+  )
+```
+
+```{r}
+#| label: tbl-n-notas
+#| tbl-cap: Descriptivos según tamaño del curso (2018-2025)
+#| tbl-cap-location: top
+
+tabla_notas_n <- cc_facso %>%
+  mutate(
+    cat_estudiantes = case_when(
+      n_estudiantes == 1                          ~ "1 estudiante",
+      n_estudiantes > 1  & n_estudiantes <= 5      ~ "> 1 y <= 5",
+      n_estudiantes > 5  & n_estudiantes <= 10    ~ "> 5 y <= 10",
+      n_estudiantes > 10 & n_estudiantes <= 20   ~ "> 10 y <= 20",
+      n_estudiantes > 20  & n_estudiantes <= 40   ~ "> 20 y <= 40",
+      n_estudiantes > 40                          ~ "> 40"
+    ),
+    cat_estudiantes = factor(cat_estudiantes,
+  levels = c("1 estudiante", "> 1 y <= 5", "> 5 y <= 10",
+             "> 10 y <= 20", "> 20 y <= 40", "> 40"))
+  ) %>%
+  group_by(cat_estudiantes) %>%
+  summarise(
+    frec_absoluta = n(),
+    nota_promedio = mean(nota_promedio, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    frec_relativa  = frec_absoluta / sum(frec_absoluta),
+    nota_prom_acum = cumsum(nota_promedio * frec_absoluta) / cumsum(frec_absoluta)
+  ) %>%
+  select(cat_estudiantes, frec_absoluta, frec_relativa, nota_promedio, nota_prom_acum)
+
+tabla_notas_n %>%
+  bind_rows(
+    summarise(.,
+      cat_estudiantes = factor("Total"),
+      frec_absoluta   = sum(frec_absoluta),
+      frec_relativa   = sum(frec_relativa),
+      nota_promedio   = sum(nota_promedio * frec_absoluta) / sum(frec_absoluta),
+      nota_prom_acum  = max(nota_prom_acum)
+    )
+  ) %>%
+  kable(
+    digits = 2,
+    col.names = c(
+      "Tamaño del curso",
+      "Frec. absoluta",
+      "Frec. relativa",
+      "Nota promedio",
+      "Nota prom. acumulada"
+    )
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  row_spec(
+    0,
+    bold = TRUE,
+    color = "white",
+    background = "#952626"
+  ) %>%
+  row_spec(
+    nrow(tabla_notas_n) + 1,
+    bold = TRUE,
+    background = "#f2f2f2"
+  )
+```
+
+```{r}
+#| label: tbl-cat-notas
+#| tbl-cap: Cantidad de cursos según nota promedio (2018-2025)
+#| tbl-cap-location: top
+
+tabla_notas_ano <- cc_facso %>%
+  mutate(
+    cat_nota = case_when(
+      nota_promedio < 4.0                        ~ "< 4,0",
+      nota_promedio >= 4.0 & nota_promedio < 5.0 ~ ">= 4,0 y < 5,0",
+      nota_promedio >= 5.0 & nota_promedio < 6.0 ~ ">= 5,0 y < 6,0",
+      nota_promedio >= 6.0 & nota_promedio < 6.5 ~ ">= 6,0 y < 6,5",
+      nota_promedio >= 6.5                       ~ ">= 6,5"
+    ),
+    cat_nota = factor(cat_nota,
+      levels = c("< 4,0", ">= 4,0 y < 5,0", ">= 5,0 y < 6,0", ">= 6,0 y < 6,5", ">= 6,5"))
+  ) %>%
+  group_by(cat_nota) %>%
+  summarise(
+    frec_absoluta = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    frec_relativa  = frec_absoluta / sum(frec_absoluta),
+    frec_acumulada = cumsum(frec_relativa)
+  )
+
+tabla_notas_ano %>%
+  kable(
+    digits = 2,
+    col.names = c("Categoría nota", "Frec. absoluta", "Frec. relativa", "Frec. acumulada")
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  row_spec(
+    0,
+    bold = TRUE,
+    color = "white",
+    background = "#952626"
+  ) %>%
+  row_spec(
+    nrow(tabla_notas_ano),
+    bold = TRUE,
+    background = "#f2f2f2"
+  )
+```
+
+```{r}
+#| label: tbl-cat-aprob
+#| tbl-cap: Cantidad de cursos según tasa de aprobación (2018-2025)
+#| tbl-cap-location: top
+
+tabla_aprobacion <- cc_facso %>%
+  mutate(
+    cat_aprobacion = case_when(
+      porcentaje_aprobacion < 90                         ~ "< 90",
+      porcentaje_aprobacion >= 90 & porcentaje_aprobacion < 92 ~ ">= 90 y < 92",
+      porcentaje_aprobacion >= 92 & porcentaje_aprobacion < 94 ~ ">= 92 y < 94",
+      porcentaje_aprobacion >= 94 & porcentaje_aprobacion < 96 ~ ">= 94 y < 96",
+      porcentaje_aprobacion >= 96 & porcentaje_aprobacion < 98 ~ ">= 96 y < 98",
+      porcentaje_aprobacion >= 98 & porcentaje_aprobacion < 100 ~ ">= 98 y < 100",
+      porcentaje_aprobacion == 100                        ~ "100"
+    ),
+    cat_aprobacion = factor(cat_aprobacion,
+      levels = c("< 90", ">= 90 y < 92", ">= 92 y < 94",
+                 ">= 94 y < 96", ">= 96 y < 98", ">= 98 y < 100", "100"))
+  ) %>%
+  group_by(cat_aprobacion) %>%
+  summarise(
+    frec_absoluta = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    frec_relativa  = frec_absoluta / sum(frec_absoluta),
+    frec_acumulada = cumsum(frec_relativa)
+  )
+
+tabla_aprobacion %>%
+  kable(
+    digits = 2,
+    col.names = c("% aprobación", "Frec. absoluta", "Frec. relativa", "Frec. acumulada")
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  row_spec(
+    0,
+    bold = TRUE,
+    color = "white",
+    background = "#952626"
+  ) %>%
+  row_spec(
+    nrow(tabla_aprobacion),
+    bold = TRUE,
+    background = "#f2f2f2"
+  )
+```
+
+```{r}
+#| label: tbl-conteo-notas
+#| tbl-cap: Listado de cursos con notas promedio menores a 4.0
+#| tbl-cap-location: top
+
+tabla_notas <- cc_facso %>%
+  select(ano, carrera, curso, n_estudiantes, nota_promedio) %>%
+  filter(nota_promedio < 4) %>%
+  arrange(ano, carrera, nota_promedio)
+
+tabla_notas %>%
+  kable(
+    col.names = c(
+      "Año",
+      "Carrera",
+      "Curso",
+      "Nota promedio",
+      "N estudiantes"
+    ),
+    digits = 2
+  ) %>%
+  kable_styling(
+    bootstrap_options = c(
+      "striped",
+      "hover",
+      "condensed",
+      "responsive"
+    ),
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  row_spec(
+    0,
+    bold = TRUE,
+    color = "white",
+    background = "#952626"
+  )
+```
+
+
+```{r}
+#| label: tbl-conteo-secciones
+#| tbl-cap: Listado de cursos con más de dos secciones
+#| tbl-cap-location: top
+
+tabla_cursos <- cc_facso %>%
+  count(ano, carrera, curso, name = "n_secciones") %>%
+  filter(n_secciones > 2) %>%
+  arrange(ano, carrera, desc(n_secciones))
+
+tabla_cursos %>%
+  kable(
+    col.names = c(
+      "Año",
+      "Carrera",
+      "Curso",
+      "N secciones"
+    )
+  ) %>%
+  kable_styling(
+    bootstrap_options = c(
+      "striped",
+      "hover",
+      "condensed",
+      "responsive"
+    ),
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  row_spec(
+    0,
+    bold = TRUE,
+    color = "white",
+    background = "#952626"
+  ) %>%
+  row_spec(
+    nrow(tabla_cursos),
+    bold = TRUE,
+    background = "#f2f2f2"
+  )
+```

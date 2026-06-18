@@ -1,0 +1,130 @@
+# Configuracion principal de la plantilla FACSO.
+# Lee los comentarios para saber donde activar o desactivar opciones rapidas.
+
+project:
+  type: book
+  output-dir: ../../../docs        # Cambia si publicas el libro en otra carpeta (ej. dist/)
+  resources:
+    - assets/favicon-2025-20251031.svg  # Asegura que el favicon versionado llegue a docs/
+
+book:
+  title: Estudio de Notas de la Facultad de Ciencias Sociales
+  subtitle: Diagnóstico y análisis de las notas de estudiantes de pregrado
+  output-file: reporte-notas
+  repo-url: https://github.com/tomasurzuam/estudio-notas  #URL del repositorio del libro (cambia segun tu repo)
+  author:
+    - name: Tomás Urzúa Moreno
+      affiliation: Departamento de Sociología, Universidad de Chile
+      orcid: 0009-0008-3167-6819
+    - name: Juan Carlos Castillo
+      affiliation: Departamento de Sociología, Universidad de Chile
+      orcid: 0000-0003-1265-7854
+    - name: Daniel Miranda
+      affiliation: Departamento de Psicología, Universidad de Chile
+  date: today              # Usa fecha fija (YYYY-MM-DD) si necesitas control editorial
+  date-format: D [de] MMMM [de] YYYY
+  doi: ""
+  sidebar:
+    style: docked
+    search: true
+    collapse-level: 2
+    pinned: true
+    logo: assets/cover.jpg # Logo que aparece en el panel lateral
+  downloads:
+    - pdf
+  search: true             # Cambia a false si no quieres la caja de busqueda global
+  repo-actions: []         # Agrega ['source', 'issue'] si deseas botones de GitHub
+  page-navigation: true    # Controla flechas siguiente/anterior en la cabecera
+  favicon: assets/favicon-2025-20251031.svg  # Apunta al favicon versionado para romper cache
+  chapters:
+    - index.qmd            # Capitulo inicial o resumen ejecutivo
+    - 01-introduccion.qmd
+    - 02-metodos.qmd
+    - 03-resultados-est.qmd
+    - 04-resultados-curso.qmd
+    - 05-cursos-interac.qmd
+    - 06-conclusiones.qmd
+    - references.qmd
+    # Para agregar un nuevo capitulo duplica un archivo .qmd y agregalo aqui:
+    # ej: - 07-analisis-cualitativo.qmd
+  appendices:
+    - apendices/A-anexos-estudiantes.qmd
+    - apendices/B-anexos-cursos.qmd
+    # Guarda anexos extensos en apendices/ y listalos aqui.
+
+csl: refs/apa.csl                # Estilo de citas (cambia a otro .csl si lo prefieres)
+bibliography: refs/estudio-notas.bib
+link-citations: true             # Enlaces desde el texto hacia la bibliografia
+reference-location: section      # Citas agrupadas al final de cada seccion
+
+format:
+  html:
+    theme:
+      - datasoc.scss               # Cualquier tema Bootswatch (journal, litera, etc.)
+    toc: true                   
+    toc-depth: 1
+    toc-expand: 2
+    toc-title: Contenidos
+    toc-location: right
+    number-sections: true
+    code-fold: true              # Boton copiar codigo
+    code-tools: true             # Menu con toggles para mostrar/ocultar codigo
+    df-print: paged              # Usa "kable" o "default" si prefieres otra salida
+    css: assets/styles.scss      # Punto central para tus estilos personalizados
+    favicon: assets/favicon-2025-20251031.svg  # Cache-bust del favicon anterior
+    anchor-sections: true
+    smooth-scroll: true
+    link-external-newwindow: true
+    include-in-header:
+      - includes/justify.html     # Ajusta justificacion a nivel global
+    include-after-body:
+      - includes/logo-link.html   # Enlaces adicionales (logo clicable y descarga ZIP)
+      - includes/citefix.html     # Corrige estilos de citas
+      - includes/renumber.html    # Reajusta numeracion de figuras/tablas si es necesario
+      - includes/code-toggle.html # Boton global para mostrar/ocultar bloques de codigo
+      - includes/toc-enhance.html # Sincroniza el resaltado del TOC en el margen
+
+  pdf:
+    pdf-engine: xelatex          # Requiere LaTeX con soporte para fuentes OpenType
+    prefer-html: true            # Permite que chunks HTML no detengan el render a PDF
+    toc: false                   # Generamos TOC/LOF/LOT manualmente en title-pdf.tex
+    lof: false
+    lot: false
+    keep-tex: true
+    documentclass: scrbook       # Usa report/book si prefieres otra estructura
+    classoption:
+      - oneside
+    papersize: a4                # Cambia a letter si trabajas con papel tamano carta
+    geometry:
+      - top=25mm
+      - bottom=25mm
+      - left=30mm
+      - right=20mm
+    colorlinks: true
+    number-sections: true
+    include-in-header: includes/preamble.tex     # Configuracion avanzada PDF
+    include-before-body: includes/title-pdf.tex  # Portada personalizada
+    include-after-body: includes/backmatter.tex  # Material posterior (glosario, licencias, etc.)
+    fig-cap-location: top
+    tbl-cap-location: top
+
+execute:
+  echo: false                   # Oculta codigo por defecto en el reporte final
+  warning: false
+  message: false
+  freeze: false                 # Fuerza rerender completo para evitar salidas cacheadas
+  fig-path: "docs/figures/"
+
+lang: es
+
+crossref:
+  appendix-title: Anexo
+  appendix-delim: " - "
+
+metadata-files:
+  - _metadata.yml               # Ajustes adicionales (palabras clave, portada, etc.)
+
+# Estructura complementaria sugerida:
+# input/         -> insumos (data-orig, data-proc, imagenes, bib, prereg)
+# procesamiento/ -> cuadernos de preparacion y analisis
+# output/        -> tablas y graficos listos para el libro

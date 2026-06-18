@@ -1,0 +1,10 @@
+Base de datos,Código de la base,N,Unidad de análisis,Formato,Base creada
+Promedio final ,nota_unica.rds,2578,Estudiantes,Wide,No
+Notas por curso,notas_cursos.rds,291675,Estudiantes,Long,No
+Base madre,base_madre.rds,1619,Estudiantes,Wide,Sí
+Notas Sociología,df_socio.rds,373,Estudiantes,Wide,Sí
+Notas Psicología,df_psico.rds,442,Estudiantes,Wide,Sí
+Notas Antropología,df_antropo.rds,387,Estudiantes,Wide,Sí
+Notas Educación Parvularia,df_parvularia.rds,180,Estudiantes,Wide,Sí
+Notas Trabajo Social,df_trabajo.rds,237,Estudiantes,Wide,Sí
+Cursos Sociología,cc_socio.rds,97,Cursos,Long,Sí

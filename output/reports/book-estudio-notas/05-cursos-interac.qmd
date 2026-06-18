@@ -1,0 +1,9 @@
+---
+title: Panel interactivo Cursos FACSO
+---
+
+<iframe 
+  src="https://tomasurzuam.shinyapps.io/cursos-facso-interactivo/" 
+  width="100%" 
+  style="height: 800px !important; border: none; border-radius: 6px;">
+</iframe>

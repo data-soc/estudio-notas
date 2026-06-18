@@ -1,0 +1,1436 @@
+---
+title: "Resultados: Cursos"
+code-fold: show
+---
+
+```{r}
+#| echo: false
+
+pacman::p_load(knitr, digest, stargazer, sjPlot, codebook, summarytools, dplyr, tidyr,
+ tidyLPA, lme4, ggplot2, ggeffects, skimr, table1, patchwork, here, kableExtra, ggthemes, tidyverse,
+ ggbreak, texreg, coefplot, plotly, modelsummary)
+options(scipen = 999)
+```
+
+```{r}
+#| echo: false
+
+cc_facso <- readRDS("../../../input/data/proc_data/cc_sec.rds")
+cc_nosection <- readRDS("../../../input/data/proc_data/cc_facso_nosection.rds")
+```
+
+```{r}
+#| label: tbl-conteo-secciones
+#| tbl-cap: Listado de cursos con más de dos secciones
+#| tbl-cap-location: bottom
+
+tabla_cursos <- cc_facso %>%
+  count(ano, carrera, curso, name = "n_secciones") %>%
+  filter(n_secciones > 2) %>%
+  arrange(ano, carrera, desc(n_secciones))
+
+tabla_cursos %>%
+  kable(
+    col.names = c(
+      "Año",
+      "Carrera",
+      "Curso",
+      "N secciones"
+    )
+  ) %>%
+  kable_styling(
+    bootstrap_options = c(
+      "striped",
+      "hover",
+      "condensed",
+      "responsive"
+    ),
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  row_spec(
+    0,
+    bold = TRUE,
+    color = "white",
+    background = "#952626"
+  ) %>%
+  row_spec(
+    nrow(tabla_cursos),
+    bold = TRUE,
+    background = "#f2f2f2"
+  )
+```
+
+```{r}
+tabla_notas <- cc_facso %>%
+  select(ano, carrera, curso, n_estudiantes, nota_promedio) %>%
+  filter(nota_promedio < 4) %>%
+  arrange(ano, carrera, nota_promedio)
+
+tabla_notas %>%
+  kable(
+    col.names = c(
+      "Año",
+      "Carrera",
+      "Curso",
+      "Nota promedio",
+      "N estudiantes"
+    ),
+    digits = 2
+  ) %>%
+  kable_styling(
+    bootstrap_options = c(
+      "striped",
+      "hover",
+      "condensed",
+      "responsive"
+    ),
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  row_spec(
+    0,
+    bold = TRUE,
+    color = "white",
+    background = "#952626"
+  )
+```
+
+eliminación de cursos "electivos" "optativos" "núcleos" "prácticas" "seminario"
+
+Objetivo: quedarnos solamente con los cursos de malla
+
+Obstáculo: no comprendemos en profundidad cómo se construye la trayectoria académica en las demás carreras aparte de sociología. Por ello, puede que estemos contabilizando cursos que son electivos pero que no son fáciles de identificar, por ej. cursos optativos que no llevan esta credencial en su nombre. De momento, eliminamos todos los cursos que tienen alguna palabra relacionada a ser optativo o curso de titulación.
+
+```{r}
+
+# cc_facso <- cc_nosection %>%
+#   filter(!str_detect(curso, regex("Electivo|Optativo|Núcleo|Práctica|Seminario", ignore_case = TRUE)))
+
+# cc_facso <- cc_facso %>%
+#   arrange(codigo)
+```
+
+Generamos una nueva variable "carrera" a partir del identificador que nos proporciona la variable código
+
+```{r}
+
+cc_facso <- cc_facso %>%
+  mutate(carrera = case_when(
+    str_starts(codigo, "SOC") ~ "Sociología",
+    str_starts(codigo, "PSI") ~ "Psicología",
+    str_starts(codigo, "ANT") ~ "Antropología",  
+    str_starts(codigo, "TS") ~ "Trabajo Social",   
+    str_starts(codigo, "PV") ~ "Educación Parvularia",       
+    TRUE ~ NA_character_
+  ))
+```
+
+# Obligatorio/electivo
+
+## Psico
+
+```{r}
+psico <- cc_facso %>%
+  filter(carrera == "Psicología")
+```
+
+```{r}
+
+malla_caracter <- tibble::tibble(
+  curso = c(
+    "Filosofía","Psicología","Métodos de la Investigación Social","Historia Social de Chile","Psicobiología",
+    "Curso Transversal FACSO I","Inglés I",
+    "Epistemología de las Ciencias Sociales","Psicología de la Personalidad","Procesos Psicológicos Básicos",
+    "Estadística I","Procesos Básicos de Aprendizaje","CFG","Inglés II",
+    "Teorías y Sistemas Psicológicos","Psicopatología","Psicología del Desarrollo I","Estadística II",
+    "Psicología Social I","Neurofisiología","Curso Transversal FACSO II","Inglés III",
+    "Introducción a la Evaluación Psicológica","Psiquiatría","Psicología del Desarrollo II",
+    "Metodología Cualitativa","Psicología Social II","Neurociencia Cognitiva",
+    "Curso Artístico /Deportivo","Inglés IV",
+    "Psicología del Trabajo y las Organizaciones","Psicología Clínica","Psicología Educacional",
+    "Psicología Jurídica","Psicología Comunitaria",
+    "Cursos Optativos","Curso Transversal FACSO III",
+    "Seminario de Grado I","Curso Transversal FACSO IV","Seminario de Grado II",
+    "Práctica Profesional I","Seminario de Práctica I","Cursos de Formación Profesional",
+    "Práctica Profesional II","Seminario de Práctica II"
+  ),
+  caracter = c(
+    "Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio",
+    "Electivo","Obligatorio",
+    "Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio","Electivo","Obligatorio",
+    "Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio","Electivo","Obligatorio",
+    "Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio",
+    "Libre","Obligatorio",
+    "Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio",
+    "Electivo","Electivo",
+    "Electivo","Electivo","Electivo",
+    "Obligatorio","Obligatorio","Electivo",
+    "Obligatorio","Obligatorio"
+  )
+)
+```
+
+```{r}
+psico <- psico %>%
+  left_join(malla_caracter, by = "curso")
+
+psico <- psico %>%
+  mutate(caracter = ifelse(is.na(caracter), "Electivo", caracter))
+
+psico %>%
+  filter(is.na(caracter)) %>%
+  distinct(curso)
+```
+
+## Trabajo 
+
+```{r}
+trabajo <- cc_facso %>%
+  filter(carrera == "Trabajo Social")
+```
+
+```{r}
+flexibilidad_df <- tibble(
+  curso = c(
+    "Fundamentos Históricos y Políticos del Trabajo Social",
+    "Filosofía",
+    "Historia Social Contemporánea",
+    "Teoría Sociológica I",
+    "Metodología de la Investigación Social I",
+    "Inglés I",
+    "Curso Transversal Facultad",
+    "Análisis Comparado de Políticas Sociales",
+    "Análisis Social del Territorio",
+    "Evaluación Social de Programas y Proyectos",
+    "Indicadores Sociales", 
+    "Innovación Social y Transferencia", 
+    "Justicia Social, Derechos y Ciudadanía",
+    "Metodología de la Investigación Social III",
+    "NUCLEO DE TITULACIÓN I+D II",
+    "Normativas Jurídicas de la Intervención Social",
+    "Núcleo I + D - Disciplinar I: Metodología para la Intervención Social", 
+    "Núcleo I + D - Disciplinar II: Intervención en Fenómenos Sociales Extremos", 
+    "Núcleo I + D - Disciplinar III: Cuestión Social y Desigualdades", 
+    "Núcleo I + D - Disciplinar IV: Cosmopolitismo Diversidad e Intervención Social",
+    "Sustentabilidad e Impacto Social",
+    "Teoría Sociológica II",
+    "Teorías de Género",
+    "Planificación y Gestión Social",
+    "Políticas Sociales",
+    "Sujetos y Movimientos Sociales",
+    "Enfoques Críticos en Trabajo Social",
+    "Estado y Sociedad Contemporánea",
+    "Historia Social de Chile",
+    "Estadística I",
+    "Inglés II",
+    "Justicia Social y Desigualdades",
+    "Epistemología de las Ciencias Sociales",
+    "Psicología",
+    "Economía I",
+    "Estadística II",
+    "Inglés III",
+    "Deportivo o Artístico",
+    "Fundamentos de la Intervención Social",
+    "Ética Social",
+    "Antropología",
+    "Economía II",
+    "Metodología de la Investigación Social II",
+    "Inglés IV",
+    "Núcleo Temático Electivo I+D I:",
+    "Núcleo Temático Electivo I+D II:",
+    "NÚCLEO TEMÁTICO ELECTIVO I+D II:",
+    "NÚCLEO TEMÁTICO ELECTIVO I+D IV",
+    "NÚCLEO TEMÁTICO ELECTIVO I+D IV:",
+    "Núcleo Temático Electivo I+D III",
+    "Núcleo Temático Electivo I+D IV",
+    "Asignatura Diplomado o Magíster"
+  ),
+  caracter = c(
+    "Obligatorio",  # Fundamentos Históricos...
+    "Obligatorio",  # Filosofía
+    "Obligatorio",  # Historia social contemporánea
+    "Obligatorio",  # Teoría Sociológica I
+    "Obligatorio",  # Metodología I
+    "Obligatorio",  # Inglés I
+    "Obligatorio",  # Curso Transversal
+    "Obligatorio",  # Curso Transversal
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio", 
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio", 
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",  # Enfoques críticos
+    "Obligatorio",  # Estado y sociedad
+    "Obligatorio",  # Historia social Chile
+    "Obligatorio",  # Estadística I
+    "Obligatorio",  # Inglés II
+    "Obligatorio",  # Justicia Social
+    "Obligatorio",  # Epistemología
+    "Obligatorio",  # Psicología
+    "Obligatorio",  # Economía I
+    "Obligatorio",  # Estadística II
+    "Obligatorio",  # Inglés III
+    "Obligatorio",  # Deportivo/Artístico
+    "Obligatorio",  # Fundamentos intervención
+    "Obligatorio",  # Ética Social
+    "Obligatorio",  # Antropología
+    "Obligatorio",  # Economía II
+    "Obligatorio",  # Metodología II
+    "Obligatorio",  # Inglés IV
+    "Electivo",     # Núcleo Electivo I+D I
+    "Electivo",     # Núcleo Electivo I+D II
+    "Electivo",     # Núcleo Electivo I+D III
+    "Electivo",     # Núcleo Electivo I+D IV
+    "Electivo",
+    "Electivo",
+    "Electivo",
+    "Electivo"      # Diplomado/Magíster
+  )
+)
+
+malla_trabajo <- tibble(
+  codigo = c(
+    "TS201021",
+    "TS201025",
+    "TS201029",
+    "TS201033",
+    "TS201034",
+    "TS201070"
+  ),
+  caracter = c(
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio"
+  )
+)
+```
+
+
+```{r}
+trabajo <- trabajo %>%
+  
+  # join por curso
+  left_join(
+    flexibilidad_df,
+    by = "curso"
+  ) %>%
+  
+  # join por código
+  left_join(
+    malla_trabajo %>%
+      rename(caracter_codigo = caracter),
+    by = "codigo"
+  ) %>%
+  
+  # unificar ambas columnas
+  mutate(
+    caracter = coalesce(caracter, caracter_codigo)
+  ) %>%
+  
+  # eliminar auxiliar
+  select(-caracter_codigo)
+
+trabajo <- trabajo %>%
+  mutate(caracter = ifelse(is.na(caracter), "Electivo", caracter))
+
+trabajo %>%
+  filter(is.na(caracter)) %>%
+  distinct(curso)
+```
+
+# Socio
+
+```{r}
+socio <- cc_facso %>%
+  filter(carrera == "Sociología")
+```
+
+
+```{r}
+malla_caracter_socio <- tibble(
+  curso = c(
+    "Filosofía Social",
+    "Historia de la Sociedad Moderna",
+    "Introducción a la Sociología",
+    "Antropología",
+    "Psicología Social",
+    "Inglés I",
+    "Curso Transversal de Facultad",
+    "Teoría Sociológica Clásica",
+    "Historia Social de América Latina",
+    "Epistemología",
+    "Diseños de Investigación",
+    "Población y sociedad",
+    "Inglés II",
+    "Teorías Sociológicas de la Sociedad Moderna",
+    "Historia Social de Chile",
+    "Estrategias de Investigación Cualitativa",
+    "Estadística Descriptiva",
+    "Economía",
+    "Inglés III",
+    "Deportivo / Artístico",
+    "Teorías Sociológicas Contemporáneas",
+    "Sociología Política",
+    "Análisis de Información Cualitativa",
+    "Estadística Correlacional",
+    "Estrategias de Investigación Cuantitativa",
+    "Inglés IV",
+    "Curso Transversal de Facultad",
+    "Desigualdades y Estratificación Social",
+    "Sociología de la Cultura",
+    "Sociología del Género",
+    "Estadística Multivariada",
+    "Créditos electivos",
+    "CFG o Deportivo / Artístico",
+    "Teoría y Sociedad Latinoamericana",
+    "Sociología Económica",
+    "Sociología de las Políticas Públicas",
+    "Créditos Electivos",
+    "Transformaciones Sociales del Chile Contemporáneo",
+    "Investigación Evaluativa",
+    "Créditos Electivos",
+    "Seminario de Grado",
+    "Créditos Electivos",
+    "Seminario de Título I",
+    "Seminario de Título II",
+    "Práctica Profesional"
+  ),
+  caracter = c(
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Electivo",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Electivo",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Electivo",
+    "Electivo",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Electivo",
+    "Obligatorio",
+    "Obligatorio",
+    "Electivo",
+    "Obligatorio",
+    "Electivo",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio"
+  )
+)
+```
+
+```{r}
+socio <- socio %>%
+  left_join(malla_caracter_socio, by = "curso")
+
+socio <- socio %>%
+  mutate(caracter = ifelse(is.na(caracter), "Electivo", caracter))
+
+socio %>%
+  filter(is.na(caracter)) %>%
+  distinct(curso)
+```
+
+## Educación Parvularia
+
+```{r}
+educa <- cc_facso %>%
+  filter(carrera == "Educación Parvularia")
+```
+
+
+```{r}
+
+malla_caracter_parv <- tibble(
+  curso = c(
+    # Semestre I
+    "Bases del Desarrollo y Aprendizaje",
+    "Construcciones Sociales sobre la Infancia",
+    "Historia y Fundamentos de la Educación",
+    "Salud y Cuidado del Niño",
+    "Filosofía y Epistemología de las Ciencias Sociales",
+    "Práctica 1: Aproximaciones al Campo Profesional",
+    
+    # Semestre II
+    "Teorías del Desarrollo y Aprendizaje",
+    "Metodología de la Investigación",
+    "Pedagogía de la Diversidad e Inclusión Social",
+    "Currículo y Didáctica en la Educación Parvularia",
+    "Familia, Comunidad y Territorio",
+    "Práctica 2: Aproximaciones al Escenario Pedagógico",
+    
+    # Semestre III
+    "Saberes Pedagógicos de la Psicomotricidad, 1 Ciclo",
+    "Saberes Pedagógicos del Desarrollo Personal y Social, 1 Ciclo",
+    "Análisis de Procesos Evaluativos en Educación Parvularia, 1 Ciclo",
+    "Investigación Educativa",
+    "Práctica 3: Problematización de Experiencias de Aprendizaje, 1 Ciclo",
+    "Inglés I",
+    
+    # Semestre IV
+    "Saberes Pedagógicos de la Psicomotricidad, 2 Ciclo",
+    "Saberes Pedagógicos del Desarrollo Personal y Social, 2 Ciclo",
+    "Construcción Curricular",
+    "Análisis de Procesos Evaluativos en Educación Parvularia, 2 Ciclo",
+    "Práctica 4: Problematización de Experiencias de Aprendizaje, 2 Ciclo",
+    "Inglés II",
+    
+    # Semestre V
+    "Saberes Pedagógicos del Lenguaje y la Comunicación, 1 Ciclo",
+    "Creatividad y Expresiones Infantiles, 1 Ciclo",
+    "Proyectos Educativos",
+    "Gestión Curricular",
+    "Práctica 5: Desarrollo de Experiencias de Aprendizaje 1 Ciclo",
+    "Inglés III",
+    
+    # Semestre VI
+    "Saberes Pedagógicos del Lenguaje y la Comunicación, 2 Ciclo",
+    "Creatividad y Expresiones Infantiles, 2 Ciclo",
+    "Electivo",
+    "Liderazgo Pedagógico, Redes Profesionales y Recursos Comunicativos",
+    "Práctica 6: Desarrollo de Experiencias de Aprendizaje, 2 Ciclo",
+    "Inglés IV",
+    
+    # Semestre VII
+    "Saberes Pedagógicos del Razonamiento Lógico Matemático, 1 Ciclo",
+    "Saberes Pedagógicos del Medio Natural",
+    "Pedagogía para las Infancias: Transiciones y Articulación Curricular",
+    "Electivo",
+    "Práctica 7: Desarrollo de Experiencias de Aprendizaje en Contextos Diversos I",
+    "Curso Formación general",
+    "Curso deportivo",
+    
+    # Semestre VIII
+    "Saberes Pedagógicos del Razonamiento Lógico Matemático, 2 Ciclo",
+    "Saberes Pedagógicos del Medio Social y Cultural",
+    "Seminario Temático de Investigación",
+    "Práctica 8: Desarrollo de Experiencias de Aprendizaje en Contextos Diversos II",
+    "Formación general",
+    "Curso deportivo",
+    
+    # Semestre IX
+    "Seminario I",
+    "Electivo",
+    "Práctica Profesional 1 Ciclo",
+    "Taller de Práctica",
+    
+    # Semestre X
+    "Seminario II",
+    "Electivo",
+    "Práctica Profesional 2 Ciclo",
+    "Taller de Práctica"
+  ),
+  caracter = c(
+    # I
+    "Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio",
+    
+    # II
+    "Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio",
+    
+    # III
+    "Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio",
+    
+    # IV
+    "Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio",
+    
+    # V
+    "Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio",
+    
+    # VI
+    "Obligatorio","Obligatorio","Electivo","Obligatorio","Obligatorio","Obligatorio",
+    
+    # VII
+    "Obligatorio","Obligatorio","Electivo","Electivo","Obligatorio","Obligatorio","Obligatorio",
+    
+    # VIII
+    "Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio","Obligatorio",
+    
+    # IX
+    "Obligatorio","Electivo","Obligatorio","Obligatorio",
+    
+    # X
+    "Obligatorio","Electivo","Obligatorio","Obligatorio"
+  )
+)
+```
+
+```{r}
+educa <- educa %>%
+  left_join(malla_caracter_parv, by = "curso")
+
+educa <- educa %>%
+  mutate(caracter = ifelse(is.na(caracter), "Electivo", caracter))
+
+educa %>%
+  filter(is.na(caracter)) %>%
+  distinct(curso)
+```
+
+```{r}
+antropo <- cc_facso %>%
+  filter(carrera == "Antropología")
+```
+
+```{r}
+
+malla_antropologia <- tibble(
+  curso = c(
+    
+    # Semestre 1
+    "Evolución Humana",
+    "Formación de la Sociedad Moderna",
+    "Problemas Fundamentales de la Antropología I",
+    "Filosofía de las Ciencias Sociales",
+    "Taller I: El quehacer del antropólogo",
+    "Curso Transversal de Facultad",
+    "Inglés I",
+    
+    # Semestre 2
+    "Cazadores Recolectores",
+    "Formación de la Sociedad Chilena",
+    "Problemas Fundamentales de la Antropología II",
+    "Teoría Social",
+    "Taller II: Etnografía y Archivo",
+    "Deportivo/Artístico/Cultural",
+    "Inglés II",
+    
+    # Semestre 3
+    "Sociedades Complejas",
+    "Problemas Contemporáneos de la Antropología",
+    "Problemas Fundamentales de la Antropología III",
+    "Estadística I",
+    "Taller III: Materialidad y Bioantropología",
+    "CFG",
+    "Inglés III",
+    
+    # Semestre 4
+    "Electivo de Especialización",
+    "Problemas Fundamentales de la Antropología IV",
+    "Estadística II",
+    "Taller IV: El Proceso de Investigación",
+    "Curso Transversal de Facultad",
+    "Inglés IV",
+    
+    # Arqueología - Semestre 5
+    "Etnologías y Estudios Interculturales I",
+    "Teoría Arqueológica I",
+    "Problemas de Prehistoria I",
+    "Laboratorio I: Lítica",
+    "Laboratorio II: Zooarqueología",
+    "Métodos y Técnicas de Terreno I",
+    "Taller de Investigación Social Aplicada",
+    
+    # Antropología Física - Semestre 5
+    "Antropología Física I:",
+    "Anatomía",
+    "Genética",
+    "Método Científico",
+    
+    # Antropología Social - Semestre 5
+    "Problemas Teóricos en Antropología Social I",
+    "Antropologías Aplicadas I:  Antropología Rural I",
+    "Métodos y Técnicas de Investigación Social I",
+    "Cursos Electivos",
+    
+    # Arqueología - Semestre 6
+    "Etnologías y Estudios Interculturales II",
+    "Teoría Arqueológica II",
+    "Problemas de Prehistoria II",
+    "Laboratorio II: Cerámica",
+    "Laboratorio IV: Electro",
+    "Métodos y Técnicas de Terreno II",
+    "Taller de Arqueología Cuantitativa",
+    
+    # Antropología Física - Semestre 6
+    "Antropología Física II: Fisiopatología",
+    "Genética de Poblaciones",
+    "Taller Opcional Antropología Física",
+    
+    # Antropología Social - Semestre 6
+    "Problemas Teóricos en Antropología Social II",
+    "Antropologías Aplicadas II",
+    "Métodos y Técnicas de Investigación Social II",
+    
+    # Arqueología - Semestre 7
+    "Etnologías y Estudios Interculturales III",
+    "Teoría Arqueológica III",
+    "Problemas de Prehistoria III",
+    "Laboratorio VI: Bioarqueología",
+    "Manejo de Colecciones",
+    "Métodos y Técnicas de Terreno III",
+    "Taller de Investigación I",
+    
+    # Antropología Física - Semestre 7
+    "Bioarqueología",
+    "Crecimiento y Desarrollo",
+    "Evolución II",
+    "Cursos Electivos de Especialidad",
+    
+    # Antropología Social - Semestre 7
+    "Problemas Teóricos en Antropología Social III",
+    "Antropologías Aplicadas III",
+    "Métodos y Técnicas de Investigación Social III",
+    
+    # Arqueología - Semestre 8
+    "Problemas Contemporáneos",
+    "Teoría Arqueológica IV",
+    "Problemas de Prehistoria IV",
+    "Legislación y Patrimonio",
+    "Métodos y Técnicas de Terreno IV",
+    "Taller de Investigación II",
+    
+    # Antropología Física - Semestre 8
+    "Antropología Forense",
+    "Ecología Humana",
+    
+    # Antropología Social - Semestre 8
+    "Problemas Teóricos en Antropología Social IV",
+    "Antropologías Aplicadas IV",
+    "Métodos y Técnicas de Investigación Social IV",
+    
+    # Semestre 9
+    "Taller de Memoria I",
+    "Práctica Profesional",
+    
+    # Semestre 10
+    "Taller de Memoria II"
+    
+  ),
+  
+  caracter = c(
+    
+    # Semestre 1
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Semestre 2
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Semestre 3
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Semestre 4
+    "Electivo",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Arqueología - Semestre 5
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Antropología Física - Semestre 5
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Antropología Social - Semestre 5
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Electivo",
+    
+    # Arqueología - Semestre 6
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Electivo",
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Antropología Física - Semestre 6
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Antropología Social - Semestre 6
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Arqueología - Semestre 7
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Antropología Física - Semestre 7
+    "Obligatorio",
+    "Electivo",
+    "Obligatorio",
+    "Electivo",
+    
+    # Antropología Social - Semestre 7
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Arqueología - Semestre 8
+    "Electivo",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Antropología Física - Semestre 8
+    "Obligatorio",
+    "Electivo",
+    
+    # Antropología Social - Semestre 8
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Semestre 9
+    "Obligatorio",
+    "Obligatorio",
+    
+    # Semestre 10
+    "Obligatorio"
+  )
+)
+
+antropo_cod <- tibble(
+  codigo = c(
+    "ANT00200",
+    "ANT00036",
+    "ANT00038",
+    "ANT00034",
+    "ANT00146",
+    "ANT00078",
+    "ANT00081",
+    "ANT00079",
+    "ANT00080",
+    "ANT00077",
+    "ANT00131",
+    "ANT00120",
+    "ANT00070",
+    "ANT00068",
+    "ANT00030",
+    "ANT00033",
+    "ANT00032",
+    "ANT00075",
+    "ANT00031",
+    "ANT00126",
+    "ANT00125",
+    "ANT00063",
+    "ANT00060",
+    "ANT00163",
+    "ANT00157",
+    "ANT00130",
+    "ANT00089",
+    "ANT00088",
+    "ANT00091",
+    "ANT00112",
+    "ANT00093",
+    "ANT00111",
+    "ANT00164",
+    "ANT00054",
+    "ANT00101",
+    "ANT00155",
+    "ANT00045",
+    "ANT00043",
+    "ANT00044",
+    "ANT00162",
+    "ANT00085",
+    "ANT00082",
+    "ANT00084",
+    "ANT00049",
+    "ANT00087",
+    "ANT00104",
+    "ANT00105",
+    "ANT00062",
+    "ANT00051",
+    "ANT00027",
+    "ANT00028",
+    "ANT00145",
+    "ANT00165",
+    "ANT00166",
+    "ANT00095",
+    "ANT00099",
+    "ANT00042",
+    "ANT00040",
+    "ANT00097",
+    "ANT00106",
+    "ANT00039",
+    "ANT00041",
+    "ANT00096",
+    "ANT00138",
+    "ANT00151",
+    "ANT00127",
+    "ANT00005",
+    "ANT00015",
+    "ANT00010",
+    "ANT00018",
+    "ANT00061",
+    "ANT00161",
+    "ANT00170",
+    "ANT00178",
+    "ANT00074",
+    "ANT00071",
+    "ANT00153",
+    "ANT00172",
+    "ANT00113",
+    "ANT00064",
+    "ANT00117",
+    "ANT00114",
+    "ANT00065",
+    "ANT00118",
+    "ANT00050",
+    "ANT00115",
+    "ANT00058",
+    "ANT00149",
+    "ANT00148",
+    "ANT00116",
+    "ANT00100",
+    "ANT00119",
+    "ANT00135",
+    "ANT00132"
+  ),
+  caracter = c(
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio",
+    "Obligatorio"
+  )
+)
+```
+
+```{r}
+antropo_p <- antropo %>%
+    left_join(
+    malla_antropologia,
+    by = "curso"
+  ) %>%
+  
+  # join por código
+  left_join(
+    antropo_cod %>%
+      rename(caracter_codigo = caracter),
+    by = "codigo"
+  ) %>%
+  
+  # unificar ambas columnas
+  mutate(
+    caracter = coalesce(caracter, caracter_codigo)
+  ) %>%
+  
+  # eliminar auxiliar
+  select(-caracter_codigo)
+
+
+
+
+antropo_p <- antropo_p %>%
+  mutate(caracter = ifelse(is.na(caracter), "Electivo", caracter))
+
+antropo_p %>%
+  filter(is.na(caracter)) %>%
+  distinct(curso)
+```
+
+# Descriptivos
+
+
+## Cursos por carrera y año
+
+```{r}
+#| echo: false
+
+cc_resumen <- cc_facso %>%
+  group_by(ano, carrera) %>%
+  summarise(n_cursos = n(), .groups = "drop")
+```
+
+```{r}
+#| label: fig-cursos
+#| fig-cap: Cantidad de cursos por año y por carrera
+#| fig-cap-location: bottom
+
+ggplot(cc_resumen, aes(x = factor(ano), y = n_cursos, fill = carrera)) +
+  geom_col(position = position_dodge(width = 0.9)) +
+  geom_text(
+    aes(label = n_cursos),
+    position = position_dodge(width = 0.9),
+    vjust = -0.2,
+    size = 3
+  ) +
+  labs(
+    x     = "Año",
+    y     = "Cantidad de cursos",
+    fill  = "Carrera"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title   = element_text(hjust = 0.5, face = "bold"),
+    legend.position = "bottom"
+  )
+```
+
+Este gráfico llaman la atención la gran diferencia de cursos de Antropología respecto a las demás carreras. Una hipótesis es la gran diversidad de cursos que tienen debido a la especialización temprana que ofrece la carrera: desde tercer año la malla se bifurca en Arqueología, Social y Física.
+
+Para verificar si existe información faltante, contaremos los cursos que no aparecen 4 veces, es decir, que pierden alguna de sus versiones en los años que abarca el estudio.
+
+**Cursos con información faltante**
+
+```{r}
+cursos_incompletos <- cc_facso %>%
+  group_by(codigo) %>%
+  summarise(
+    curso = first(curso),
+    n = n(),
+    .groups = "drop"
+  ) %>%
+  filter(n != 4)
+
+cursos_incompletos %>%
+  kable(format = "html", caption = "Cursos que no están en los 4 años") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+## Box plots 
+
+### Pooled data
+
+```{r}
+#| label: fig-boxplot
+#| fig-cap: Distribución de notas de cursos por carrera
+#| fig-cap-location: bottom
+
+ggplot(cc_facso, aes(x = carrera, y = nota_promedio)) +
+  geom_boxplot() +
+  labs(
+    x = "Carrera",
+    y = "Notas",
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+Se puede ver que hay cursos con notas muy bajas, y esto puede hacer sentido al considerar que hay varios cursos con muy pocos estudiantes. Hay que tomar una decisión respecto a cuántos estudiantes mínimos debería tener un curso para que se considere válido. De momento, proponemos que los cursos con **menos de 10 estudiantes** queden fuera. Aplicaremos este filtro para comprobar si las distribuciones cambian.
+
+## Gráficos post filtro
+
+```{r}
+cc_facso_filter_10 <- cc_facso %>%
+  filter(n_estudiantes >= 10)
+```
+
+```{r}
+#| echo: false
+
+cc_resumen_filter <- cc_facso_filter_10 %>%
+  group_by(ano, carrera) %>%
+  summarise(n_cursos = n(), .groups = "drop")
+```
+
+```{r}
+#| label: fig-cursos-filter
+#| fig-cap: Cantidad de cursos por año y por carrera
+#| fig-cap-location: bottom
+
+ggplot(cc_resumen_filter, aes(x = factor(ano), y = n_cursos, fill = carrera)) +
+  geom_col(position = position_dodge(width = 0.9)) +
+  geom_text(
+    aes(label = n_cursos),
+    position = position_dodge(width = 0.9),
+    vjust = -0.2,
+    size = 3
+  ) +
+  labs(
+    x     = "Año",
+    y     = "Cantidad de cursos",
+    fill  = "Carrera"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title   = element_text(hjust = 0.5, face = "bold"),
+    legend.position = "bottom"
+  )
+```
+
+```{r}
+#| label: fig-boxplot-filter
+#| fig-cap: Distribución de notas de cursos por carrera post filtro
+#| fig-cap-location: bottom
+
+ggplot(cc_facso_filter_10, aes(x = carrera, y = nota_promedio)) +
+  geom_boxplot() +
+  labs(
+    x = "Carrera",
+    y = "Notas",
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+- inversamente %: mientras menos cursos, más dispersión
+
+### Boxplot por carrera
+
+::: panel-tabset
+
+#### Sociología
+```{r}
+#| echo: false
+
+cc_facso_filter_10 %>%
+  filter(carrera == "Sociología") %>%
+  ggplot(aes(x = factor(ano), y = nota_promedio)) +
+  geom_boxplot() +
+  labs(
+    x = "Año",
+    y = "Notas",
+    title = "Distribución de notas por año - Sociología"
+  ) +
+  theme_minimal()
+```
+
+#### Psicología
+```{r}
+#| echo: false
+
+cc_facso_filter_10 %>%
+  filter(carrera == "Psicología") %>%
+  ggplot(aes(x = factor(ano), y = nota_promedio)) +
+  geom_boxplot() +
+  labs(
+    x = "Año",
+    y = "Notas",
+  ) +
+  theme_minimal()
+```
+
+#### Antropología
+```{r}
+#| echo: false
+
+cc_facso_filter_10 %>%
+  filter(carrera == "Antropología") %>%
+  ggplot(aes(x = factor(ano), y = nota_promedio)) +
+  geom_boxplot() +
+  labs(
+    x = "Año",
+    y = "Notas",
+  ) +
+  theme_minimal()
+```
+
+#### Trabajo Social
+```{r}
+#| echo: false
+
+cc_facso_filter_10 %>%
+  filter(carrera == "Trabajo Social") %>%
+  ggplot(aes(x = factor(ano), y = nota_promedio)) +
+  geom_boxplot() +
+  labs(
+    x = "Año",
+    y = "Notas",
+  ) +
+  theme_minimal()
+```
+
+#### Educación Parvularia
+```{r}
+#| echo: false
+
+cc_facso_filter_10 %>%
+  filter(carrera == "Educación Parvularia") %>%
+  ggplot(aes(x = factor(ano), y = nota_promedio)) +
+  geom_boxplot() +
+  labs(
+    x = "Año",
+    y = "Notas",
+  ) +
+  theme_minimal()
+```
+:::
+
+
+
+## Trayectorias de los cursos
+
+### Opción 1: todos los cursos
+
+```{r}
+#| label: fig-trayec-socio
+#| fig-width: 14
+#| fig-height: 10
+
+cc_facso %>%
+  filter(carrera == "Sociología") %>%
+  ggplot(aes(x = ano, y = nota_promedio, group = curso, color = curso)) +
+  geom_line(alpha = 0.6) +
+  geom_point() +
+  scale_y_continuous(
+    limits = c(5, 7),
+    breaks = c(5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+  labs(
+    x = "Año",
+    y = "Notas",
+    title = "Trayectoria de cursos en el tiempo - Sociología"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+### Opción 2: Destacar los más llamativos
+
+
+```{r}
+cursos_extremos <- cc_facso %>%
+  filter(carrera == "Sociología") %>%
+  group_by(curso) %>%
+  summarise(sd_notas = sd(nota_promedio, na.rm = TRUE), .groups = "drop") %>%
+  arrange(desc(sd_notas)) %>%
+  slice(1:6) %>%
+  pull(curso)
+```
+
+
+```{r}
+#| label: fig-trayec-socio-2
+#| fig-width: 14
+#| fig-height: 10
+
+cc_facso %>%
+  filter(carrera == "Sociología", curso %in% cursos_extremos) %>%
+  ggplot(aes(x = ano, y = nota_promedio, group = curso, color = curso)) +
+  geom_line(size = 1) +
+  geom_point() +
+  scale_y_continuous(
+    limits = c(5, 7),
+    breaks = c(5.0, 5.5, 6.0, 6.5, 7.0)
+  ) +
+  labs(
+    x = "Año",
+    y = "Notas",
+    title = "Trayectorias de cursos extremos - Sociología"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+# Diagnóstico de obstáculos
+
+- Disonancia en año de curso impartido y año de ingreso: en la base original de UCampus hay una serie de casos donde aparece que una persona ingresó el año 2024 pero cursó un ramo el 2017. No obstante, al observarlo detenidamente, estos casos tienen códigos de cursos distintos a los que se imparten, al menos, entre 2021 y 2024. 
+
+Hipótesis: pueden ser cursos de una malla obsoleta, por lo que la fecha en que se impartió el curso es más fiable que el año de ingreso **para estos casos**.
+
+- Incertidumbre respecto a la presencia de cursos que pueden ser electivos y no lo sabemos
+
+- Datos faltantes: cursos perdidos y/o cursos con muy pocos casos, lo que no se condice con la realidad
+
+- Análisis de secciones: considerar las secciones complica contabilizar cada curso como único
+
+- Años a agregar en el estudio: tenemos disponibilidad de 10 años, pero podría dificultar la visualización en algunos casos y, en otros, operar como saturación de información más que una ayuda. Para esto, propongo utilizar casos desde 2018 o 2019, con el objetivo de poder encontrar diferencias pre-post pandemia.
+
+- Cursos antropo/psico: puede que el formalizar ciertos cursos en los últimos años haya provocado un crecimiento en la cantidad de ramos que figuran oficialmente
+
+<!-- ## To do
+
+- Resta entre el año impartido el curso y el año de ingreso para verificar información -> averiguar el % de los casos totales que presenta el problema de disonancia 
+
+- Ajustes estéticos 
+
+- Agregar las bases de años anteriores al estudio
+
+- Agregar a la discusión la desviación estándar - dispersión de las notas en los cursos
+
+- Descriptivos de % de aprobación -> esto puede nutrir bastante la discusión final
+
+- Correlación cantidad de estudiantes en cursos y % de aprobación
+
+- Descriptivos de género -->
+
+# Despejando incógnitas
+
+- Casos disonantes entre año cursado y año de ingreso:
+
+ - Disonancia Base 24: 3.6%
+ - Disonancia Base 23: 2.1%
+ - Disonancia Base 22: 1.8%
+ - Disonancia Base 21: 2.8%
+
+Propuesta: eliminarlos debido a la baja cantidad que representan respecto al total de casos
+
+- Variación de cursos a nivel general aplicando filtros de estudiantes:
+
+Cursos totales sin filtro: 845
+
+ ≥ 5 estudiantes: 688 cursos
+
+ ≥ 10 estudiantes: 627 cursos
+
+ ≥ 15 estudiantes: 559 cursos
+
+ ≥ 20 estudiantes: 513 cursos
+
+- 258 cursos tienen al menos un año sin información 
+

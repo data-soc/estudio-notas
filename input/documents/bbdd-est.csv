@@ -1,0 +1,10 @@
+Base de datos,Código de la base,N,Formato,Base creada
+Original general,original.rds,2578,Wide,No
+Notas por curso,notas_cursos.rds,291675,Long,No
+Notas por curso procesada,notas_cursos_proc.rds,3638,Wide,Sí
+Base madre,base_madre.rds,1981,Wide,Sí
+Notas sociología,df_socio.rds,459,Wide,Sí
+Notas psicología,df_psico.rds,549,Wide,Sí
+Notas antropología,df_antropo.rds,468,Wide,Sí
+Notas trabajo social,df_trabajo.rds,294,Wide,Sí
+Notas educación parvularia,df_parvularia.rds,211,Wide,Sí

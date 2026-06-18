@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<script src="pres-final_files/libs/clipboard/clipboard.min.js"></script>
+<script src="pres-final_files/libs/quarto-html/tabby.min.js"></script>
+<script src="pres-final_files/libs/quarto-html/popper.min.js"></script>
+<script src="pres-final_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="pres-final_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="pres-final_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="pres-final_files/libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.8.25">
+
+  <title>pres-final</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="pres-final_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="pres-final_files/libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for citations */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+      margin-bottom: 0em;
+    }
+    .hanging-indent div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }  </style>
+  <link rel="stylesheet" href="pres-final_files/libs/revealjs/dist/theme/quarto-c702a8f117c6e59a15fa28cbdc769865.css">
+  <link href="pres-final_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="pres-final_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="pres-final_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="pres-final_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <link href="pres-final_files/libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+  <script src="pres-final_files/libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+  <script src="pres-final_files/libs/plotly-binding-4.11.0/plotly.js"></script>
+  <script src="pres-final_files/libs/typedarray-0.1/typedarray.min.js"></script>
+  <script src="pres-final_files/libs/jquery-3.5.1/jquery.min.js"></script>
+  <link href="pres-final_files/libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+  <script src="pres-final_files/libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+  <link href="pres-final_files/libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+  <script src="pres-final_files/libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+
+<section id="section" class="title-slide slide level1 center" data-background-color="#a81014">
+<h1></h1>
+<p><span style="font-size:60px; color:white; font-weight:bold;">Estudio de notas de la Facultad de Ciencias Sociales</span></p>
+<p>Presentación de resultados</p>
+<hr>
+<div class="columns v-center-container">
+<div class="column" style="width:40%;">
+<p><img data-src="datasoc_red1.png" style="width:70.0%"></p>
+</div><div class="column" style="width:60%;">
+<p><strong>Tomás Urzúa</strong></p>
+<p><strong>Universidad de Chile <br> 03 de junio 2026</strong></p>
+<p><a href="https://tomasurzuam.github.io/estudio-notas/docs/">Informe del Estudio de Notas</a></p>
+</div></div>
+</section>
+
+<section>
+<section id="introducción-y-contexto" class="title-slide slide level1 center" data-background-color="#212525">
+<h1>Introducción y contexto</h1>
+
+</section>
+<section id="antecedentes" class="slide level2">
+<h2>Antecedentes</h2>
+<div class="highlight-last" style="font-size: 28px;">
+<ul>
+<li class="fragment"><p>En la educación superior, la asignación de notas es un elemento constitutivo de este sistema, siendo el principal indicador para el logro de aprendizajes <span class="citation" data-cites="lynch_learning_2017">(<a href="#/referencias" role="doc-biblioref" onclick="">Lynch y Hennessy 2017</a>)</span>.</p></li>
+<li class="fragment"><p>Durante los últimos años, se ha observado un alza sostenida de las calificaciones en las instituciones universitarias a nivel internacional <span class="citation" data-cites="achen_what_2009 jewell_whose_2011">(<a href="#/referencias" role="doc-biblioref" onclick="">Achen y Courant 2009</a>; <a href="#/referencias" role="doc-biblioref" onclick="">Jewell, McPherson, y Tieslau 2011</a>)</span>, lo que se ha problematizado como <em>inflación de notas</em>. <a href="https://www.nytimes.com/2026/05/20/us/harvard-grade-inflation.html"><strong>Caso Harvard</strong></a>.</p></li>
+<li class="fragment"><p>No existe un consenso claro respecto a la causa de este fenómeno</p>
+<ul>
+<li class="fragment">Se ha propuesto que algunas disciplinas han rebajado la exigencia de sus evaluaciones, lo que contribuye a obtener mejores notas <span class="citation" data-cites="hernandez-julian_measuring_2016">(<a href="#/referencias" role="doc-biblioref" onclick="">Hernández-Julián y Looney 2016</a>)</span>.</li>
+<li class="fragment">También se ha sugerido que los estudiantes han mejorado su calidad académica, lo que se refleja en un aumento de las calificaciones <span class="citation" data-cites="hernandez-julian_measuring_2016 lipnevich_what_2020">(<a href="#/referencias" role="doc-biblioref" onclick="">Hernández-Julián y Looney 2016</a>; <a href="#/referencias" role="doc-biblioref" onclick="">Lipnevich et&nbsp;al. 2020</a>)</span>.</li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section id="antecedentes-1" class="slide level2">
+<h2>Antecedentes</h2>
+<div class="highlight-last" style="font-size: 36px;">
+<ul>
+<li class="fragment"><p>La elevación sistemática de las calificaciones tiene consecuencias a nivel institucional y educativo:</p>
+<ul>
+<li class="fragment"><p>Dificultad para identificar estudiantes con mayores necesidades de apoyo</p></li>
+<li class="fragment"><p>Las notas pierden confiabilidad en su rol de indicador de competencias</p></li>
+<li class="fragment"><p>Obtener buenas notas independientemente de las exigencias del curso puede desincentivar la asistencia a clases</p></li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section id="contexto-de-la-universidad" class="slide level2">
+<h2>Contexto de la universidad</h2>
+<div class="highlight-last" style="font-size: 34px;">
+<ul>
+<li class="fragment"><p>En el segundo semestre del 2025 se realizó un análisis de las notas dirigido por la Dirección de Pregrado, el cual consideró las 7 carreras que imparte FACSO (N = 2578).</p></li>
+<li class="fragment"><p>El principal hallazgo fue que el promedio de notas de la Facultad sería un 6.4, el cual presenta diferencias entre carreras.</p></li>
+<li class="fragment"><p>El problema: el alto promedio de la facultad no permite identificar grupos de estudiantes que requieran algún tipo de acompañamiento, ni los estudiantes que sobresalen en materias. Además, este <strong>podría</strong> ser un caso de inflación de notas.</p></li>
+</ul>
+</div>
+</section>
+<section id="este-estudio" class="slide level2">
+<h2>Este estudio</h2>
+<div class="highlight-last" style="font-size: 34px;">
+<ul>
+<li class="fragment"><p>La Dirección de Investigación de la Facultad de Ciencias Sociales realizó un estudio enfocado en clarificar las interrogantes en torno a la <strong>distribución y asignación de las calificaciones</strong>.</p></li>
+<li class="fragment"><p>Para ello, se realizó un estudio en dos etapas:</p>
+<ul>
+<li class="fragment"><p><strong>Estudio 1: Centrado en estudiantes</strong> y sus características asociadas</p></li>
+<li class="fragment"><p><strong>Estudio 2: Centrado en cursos</strong> y sus factores asociados</p></li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section id="objetivos" class="slide level2">
+<h2>Objetivos</h2>
+<div class="box-inv-4 sp-after fragment" style="font-size: 90%;">
+<p>Describir y analizar el rendimiento académico en las y los <strong>estudiantes de pregrado</strong> de la Facultad de Ciencias Sociales entre 2021 y 2024, sus cambios en el tiempo y sus factores asociados</p>
+</div>
+<div class="box-inv-4 sp-after fragment" style="font-size: 90%;">
+<p>Describir y analizar el rendimiento académico de los <strong>cursos de pregrado</strong> de FACSO entre 2018 y 2025, sus variaciones en el tiempo y características asociadas</p>
+</div>
+</section></section>
+<section id="etapa-1-estudiantes" class="title-slide slide level1 center" data-background-color="#212525">
+<h1>Etapa 1: Estudiantes</h1>
+
+</section>
+
+<section>
+<section id="métodos" class="title-slide slide level1 center">
+<h1>Métodos</h1>
+
+</section>
+<section id="datos" class="slide level2">
+<h2>Datos</h2>
+<div class="highlight-last">
+<ul>
+<li class="fragment"><p>Nos entregaron 2 bases de datos iniciales: una incluía la nota final y la otra las notas de cada curso inscrito por cada estudiante</p></li>
+<li class="fragment"><p>Ambas bases son datos secundarios construidos a partir de información disponible en UCampus</p></li>
+<li class="fragment"><p>Se generó una <strong>base unificada</strong> que considera estudiantes ingresados <strong>desde 2021 hasta 2024 (N = 1983)</strong></p></li>
+</ul>
+</div>
+</section>
+<section id="decisiones-para-el-análisis" class="slide level2">
+<h2>Decisiones para el análisis</h2>
+<div class="highlight-last">
+<ul>
+<li class="fragment"><p>El promedio final de cada estudiante se calculó en base a:</p>
+<ul>
+<li class="fragment"><p><strong>Todos los ramos cursados</strong>, ya sean obligatorios o electivos en orden de someter la mayor cantidad de información a análisis</p></li>
+<li class="fragment"><p>Se contabilizaron las notas de los <strong>cursos aprobados como los reprobados</strong> para que las estimaciones fueran lo más cercanas a la realidad considerando los antecedentes de los estudiantes</p></li>
+</ul></li>
+</ul>
+</div>
+</section></section>
+<section>
+<section id="resultados" class="title-slide slide level1 center">
+<h1>Resultados</h1>
+
+</section>
+<section id="section-1" class="slide level2">
+<h2></h2>
+<h3 id="generales">Generales</h3>
+
+<img data-src="images/fig-histo-facso-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-histo-facso"><p class="caption">
+Figura&nbsp;1: Distribución de notas en FACSO (2021-2024)
+</p></section>
+<section id="section-2" class="slide level2">
+<h2></h2>
+<h3 id="generales-1">Generales</h3>
+
+<img data-src="images/fig-box-facso-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-box-facso"><p class="caption">
+Figura&nbsp;2: Distribución de notas en FACSO por carrera (2021-2024)
+</p></section>
+<section id="section-3" class="slide level2">
+<h2></h2>
+<h3 id="género">Género</h3>
+
+<img data-src="images/fig-hist-gen-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-hist-gen"><p class="caption">
+Figura&nbsp;3: Distribución de notas en FACSO según género (2021-2024)
+</p></section>
+<section id="section-4" class="slide level2">
+<h2></h2>
+<h3 id="section-5"></h3>
+<div class="cell fig-cap-location-top">
+<div id="fig-plotly-gen" class="cell-output-display quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
+<div aria-describedby="fig-plotly-gen-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-959f480d9e012495cfe2" style="width:960px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-959f480d9e012495cfe2">{"x":{"visdat":{"125b241a1b1b2":["function () ","plotlyVisDat"],"125b238b926a9":["function () ","data"],"125b242d292e1":["function () ","data"],"125b278bfc78c":["function () ","data"],"125b248d540df":["function () ","data"]},"cur_data":"125b248d540df","attrs":{"125b238b926a9":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"ymin":{},"ymax":{},"type":"scatter","mode":"lines","hoveron":"points","fill":"toself","fillcolor":"rgba(31, 119, 180, 0.25)","line":{"color":"transparent"},"name":"IC Hombre","legendgroup":"Hombre","showlegend":true,"hoverinfo":"skip","inherit":true},"125b242d292e1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"type":"scatter","mode":"lines","line":{"color":"rgb(31, 119, 180)","width":2},"name":"Hombre","legendgroup":"Hombre","showlegend":true,"hovertemplate":"<b>Hombre<\/b><br> Cohorte: %{x}<br> Promedio: %{y:.2f}<br> <extra><\/extra>","inherit":true},"125b278bfc78c":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"ymin":{},"ymax":{},"type":"scatter","mode":"lines","hoveron":"points","fill":"toself","fillcolor":"rgba(255, 127, 14, 0.25)","line":{"color":"transparent"},"name":"IC Mujer","legendgroup":"Mujer","showlegend":true,"hoverinfo":"skip","inherit":true},"125b248d540df":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"type":"scatter","mode":"lines","line":{"color":"rgb(255, 127, 14)","width":2},"name":"Mujer","legendgroup":"Mujer","showlegend":true,"hovertemplate":"<b>Mujer<\/b><br> Cohorte: %{x}<br> Promedio: %{y:.2f}<br> <extra><\/extra>","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"xaxis":{"domain":[0,1],"automargin":true,"title":"Cohorte","showgrid":true,"gridcolor":"rgb(230, 230, 230)","type":"category","categoryorder":"array","categoryarray":["2020","2021","2022","2023","2024","2025"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Promedio de notas","range":[1,7],"dtick":1,"showgrid":true,"gridcolor":"rgb(230, 230, 230)"},"legend":{"title":{"text":"<b>Sexo<\/b>"},"x":1.02,"y":1,"xanchor":"left"},"hovermode":"x unified","plot_bgcolor":"white","paper_bgcolor":"white","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["drawopenpath","eraseshape","hoverclosest","hovercompare"],"showSendToCloud":false,"displayModeBar":true,"modeBarButtonsToRemove":["lasso2d","select2d"]},"data":[{"fillcolor":"rgba(31, 119, 180, 0.25)","x":["2021","2022","2023","2024","2024","2024","2023","2022","2021"],"type":"scatter","mode":"lines","hoveron":"points","fill":"toself","line":{"color":"transparent"},"name":"IC Hombre","legendgroup":"Hombre","showlegend":true,"hoverinfo":["skip","skip","skip","skip","skip","skip","skip","skip","skip"],"y":[5.8199399079787959,5.7015488226548365,5.537122802691357,5.4271001950846607,5.4271001950846607,5.6474977423314581,5.7877870025024389,5.924746957173606,6.0048441672626396],"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2021","2022","2023","2024"],"y":[5.9123920376207177,5.8131478899142213,5.662454902596898,5.5372989687080594],"type":"scatter","mode":"lines","line":{"color":"rgb(31, 119, 180)","width":2},"name":"Hombre","legendgroup":"Hombre","showlegend":true,"hovertemplate":["<b>Hombre<\/b><br> Cohorte: %{x}<br> Promedio: %{y:.2f}<br> <extra><\/extra>","<b>Hombre<\/b><br> Cohorte: %{x}<br> Promedio: %{y:.2f}<br> <extra><\/extra>","<b>Hombre<\/b><br> Cohorte: %{x}<br> Promedio: %{y:.2f}<br> <extra><\/extra>","<b>Hombre<\/b><br> Cohorte: %{x}<br> Promedio: %{y:.2f}<br> <extra><\/extra>"],"marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null},{"fillcolor":"rgba(255, 127, 14, 0.25)","x":["2021","2022","2023","2024","2024","2024","2023","2022","2021"],"type":"scatter","mode":"lines","hoveron":"points","fill":"toself","line":{"color":"transparent"},"name":"IC Mujer","legendgroup":"Mujer","showlegend":true,"hoverinfo":["skip","skip","skip","skip","skip","skip","skip","skip","skip"],"y":[6.0674873657797308,5.9800282996740286,5.8578743216517113,5.6685988381934074,5.6685988381934074,5.8318184023283628,5.9682119435694974,6.0872735785910059,6.1743872713175945],"marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2021","2022","2023","2024"],"y":[6.1209373185486626,6.0336509391325173,5.9130431326106043,5.7502086202608851],"type":"scatter","mode":"lines","line":{"color":"rgb(255, 127, 14)","width":2},"name":"Mujer","legendgroup":"Mujer","showlegend":true,"hovertemplate":["<b>Mujer<\/b><br> Cohorte: %{x}<br> Promedio: %{y:.2f}<br> <extra><\/extra>","<b>Mujer<\/b><br> Cohorte: %{x}<br> Promedio: %{y:.2f}<br> <extra><\/extra>","<b>Mujer<\/b><br> Cohorte: %{x}<br> Promedio: %{y:.2f}<br> <extra><\/extra>","<b>Mujer<\/b><br> Cohorte: %{x}<br> Promedio: %{y:.2f}<br> <extra><\/extra>"],"marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-plotly-gen-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;4: Trayectoria de notas según género FACSO
+</figcaption>
+</figure>
+</div>
+</div>
+</section>
+<section id="section-6" class="slide level2">
+<h2></h2>
+<h3 id="tipo-de-colegio">Tipo de colegio</h3>
+
+<img data-src="images/fig-colegio-dens-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-colegio-dens"><p class="caption">
+Figura&nbsp;5: Distribución de notas en FACSO según tipo de colegio (2021-2024)
+</p></section>
+<section id="section-7" class="slide level2">
+<h2></h2>
+<h3 id="tipo-de-colegio-1">Tipo de colegio</h3>
+
+<img data-src="images/plotly-colegio.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-plotlt-col"><p class="caption">
+Figura&nbsp;6: Trayectoria de notas según tipo de colegio FACSO
+</p></section>
+<section id="section-8" class="slide level2">
+<h2></h2>
+<h3 id="nivel-socioeconómico">Nivel socioeconómico</h3>
+
+<img data-src="images/fig-nse-dens-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-nse-dens"><p class="caption">
+Figura&nbsp;7: Distribución de notas en FACSO según nivel socioeconómico (2021-2024)
+</p></section>
+<section id="section-9" class="slide level2">
+<h2></h2>
+<h3 id="nivel-socioeconómico-1">Nivel socioeconómico</h3>
+<div class="cell fig-cap-location-top">
+<div id="fig-plotly-nse" class="cell-output-display quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
+<div aria-describedby="fig-plotly-nse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-23dd87593e7ae8687fd6" style="width:960px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-23dd87593e7ae8687fd6">{"x":{"visdat":{"12f3246eb40f2":["function () ","plotlyVisDat"]},"cur_data":"12f3246eb40f2","attrs":{"12f3246eb40f2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"ymin":{},"ymax":{},"type":"scatter","mode":"lines","hoveron":"points","fill":"toself","color":{},"opacity":0.25,"line":{"width":0},"showlegend":false,"hoverinfo":"none","inherit":true},"12f3246eb40f2.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"type":"scatter","mode":"lines","color":{},"line":{"width":2},"name":{},"inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"xaxis":{"domain":[0,1],"automargin":true,"title":"Cohorte","type":"category","categoryorder":"array","categoryarray":["2020","2021","2022","2023","2024","2025"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Promedio de notas","range":[1,7],"tickmode":"linear","tick0":1,"dtick":1},"legend":{"title":{"text":"NSE"}},"hovermode":"x unified","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["drawopenpath","eraseshape","hoverclosest","hovercompare"],"showSendToCloud":false,"displayModeBar":true,"modeBarButtonsToRemove":["lasso2d","select2d"]},"data":[{"fillcolor":"rgba(102,194,165,0.5)","x":["2021","2022","2023","2024","2024","2023","2022","2021"],"type":"scatter","mode":"lines","hoveron":"points","fill":"toself","opacity":0.25,"line":{"color":"rgba(102,194,165,1)","width":0},"showlegend":false,"hoverinfo":["none","none","none","none","none","none","none","none"],"y":[5.6232458077765175,5.7853078864617737,5.4479300295707818,5.2930137591879571,6.0835850043673272,5.9137958221779536,6.0949935714085504,6.2517555021098046],"name":"Bajo","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"xaxis":"x","yaxis":"y","frame":null},{"fillcolor":"rgba(252,141,98,0.5)","x":["2021","2022","2023","2024","2024","2023","2022","2021"],"type":"scatter","mode":"lines","hoveron":"points","fill":"toself","opacity":0.25,"line":{"color":"rgba(252,141,98,1)","width":0},"showlegend":false,"hoverinfo":["none","none","none","none","none","none","none","none"],"y":[5.9964979066447652,5.8881496208433743,5.7648124746218645,5.5825355150883214,5.7329011398572627,5.8965510531736012,6.0162046687524198,6.1073197494374201],"name":"Medio","marker":{"color":"rgba(252,141,98,1)","line":{"color":"rgba(252,141,98,1)"}},"textfont":{"color":"rgba(252,141,98,1)"},"error_y":{"color":"rgba(252,141,98,1)"},"error_x":{"color":"rgba(252,141,98,1)"},"xaxis":"x","yaxis":"y","frame":null},{"fillcolor":"rgba(141,160,203,0.5)","x":["2021","2022","2023","2024","2024","2024","2023","2022","2021"],"type":"scatter","mode":"lines","hoveron":"points","fill":"toself","opacity":0.25,"line":{"color":"rgba(141,160,203,1)","width":0},"showlegend":false,"hoverinfo":["none","none","none","none","none","none","none","none","none"],"y":[5.9659584310566229,5.9522131855358404,5.7956565961839663,5.5780827820394165,5.5780827820394165,5.8657873263468208,6.0206239243248012,6.1230127641916114,6.1657327587030144],"name":"Alto","marker":{"color":"rgba(141,160,203,1)","line":{"color":"rgba(141,160,203,1)"}},"textfont":{"color":"rgba(141,160,203,1)"},"error_y":{"color":"rgba(141,160,203,1)"},"error_x":{"color":"rgba(141,160,203,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2021","2022","2023","2024"],"y":[5.937500654943161,5.940150728935162,5.6808629258743677,5.6882993817776422],"type":"scatter","mode":"lines","line":{"color":"rgba(102,194,165,1)","width":2},"name":"Bajo","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2021","2022","2023","2024"],"y":[6.0519088280410926,5.9521771447978971,5.8306817638977328,5.657718327472792],"type":"scatter","mode":"lines","line":{"color":"rgba(252,141,98,1)","width":2},"name":"Medio","marker":{"color":"rgba(252,141,98,1)","line":{"color":"rgba(252,141,98,1)"}},"textfont":{"color":"rgba(252,141,98,1)"},"error_y":{"color":"rgba(252,141,98,1)"},"error_x":{"color":"rgba(252,141,98,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2021","2022","2023","2024"],"y":[6.0658455948798187,6.0376129748637259,5.9081402602543838,5.7219350541931187],"type":"scatter","mode":"lines","line":{"color":"rgba(141,160,203,1)","width":2},"name":"Alto","marker":{"color":"rgba(141,160,203,1)","line":{"color":"rgba(141,160,203,1)"}},"textfont":{"color":"rgba(141,160,203,1)"},"error_y":{"color":"rgba(141,160,203,1)"},"error_x":{"color":"rgba(141,160,203,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-plotly-nse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;8: Trayectoria de notas según nivel socioeconómico FACSO
+</figcaption>
+</figure>
+</div>
+</div>
+</section>
+<section id="section-10" class="slide level2">
+<h2></h2>
+<h3 id="prueba-de-admisión">Prueba de admisión</h3>
+
+<img data-src="images/fig-admision-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-admision"><p class="caption">
+Figura&nbsp;9: Asociación entre nota de estudiantes y puntaje PSU-PAES (2021-2024)
+</p></section>
+<section id="section-11" class="slide level2">
+<h2></h2>
+<h3 id="modelamiento">Modelamiento</h3>
+
+<img data-src="images/fig-coefplot-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-coef"><p class="caption">
+Figura&nbsp;10: Modelo de regresión nivel FACSO (2021-2024)
+</p></section></section>
+<section>
+<section id="etapa-2-cursos" class="title-slide slide level1 center" data-background-color="#212525">
+<h1>Etapa 2: Cursos</h1>
+
+</section>
+<section id="métodos-1" class="slide level2">
+<h2>Métodos</h2>
+<div class="highlight-last" style="font-size: 34px;">
+<ul>
+<li class="fragment"><p>En esta etapa logramos acceder a mayores volúmenes de información gracias al ingreso de las bases de datos en UCampus, llegando a recopilar información <strong>entre 2018 y 2025</strong></p></li>
+<li class="fragment"><p>Las bases estaban construidas a partir de la información de los estudiantes, por lo que tuvo que aplicarse un procesamiento para volver los cursos la unidad de análisis</p></li>
+<li class="fragment"><p>Se llegó a una base que contiene información de <strong>8 años de cursos impartidos en FACSO (N = 2291)</strong></p></li>
+<li class="fragment"><p>Además de las calificaciones (1), se añadieron como variables centrales para el análisis el <strong>porcentaje de aprobación (2)</strong> y la <strong>dispersión de las notas (3)</strong></p></li>
+</ul>
+</div>
+</section>
+<section id="decisiones-para-el-análisis-1" class="slide level2">
+<h2>Decisiones para el análisis</h2>
+<div class="highlight-last">
+<ul>
+<li class="fragment"><p>Se consideraron solamente los cursos que son impartidos en las carreras dentro del estudio (Sociología, Psicología, Antropología, Trabajo Social, Educación Parvularia)</p></li>
+<li class="fragment"><p><strong>Cada sección de un curso es contabilizada como un caso</strong>, es decir, un curso con 8 secciones representa 8 cursos; orientado a garantizar el mayor nivel de variabilidad posible</p></li>
+<li class="fragment"><p>Los cursos que forman parte del análisis son aquellos que tienen como <strong>mínimo 10 estudiantes</strong></p></li>
+</ul>
+</div>
+</section></section>
+<section>
+<section id="resultados-1" class="title-slide slide level1 center">
+<h1>Resultados</h1>
+
+</section>
+<section id="section-12" class="slide level2">
+<h2></h2>
+<h3 id="cantidad-de-cursos">Cantidad de cursos</h3>
+
+<img data-src="images/stack-facso.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-cantidad-facso"><p class="caption">
+Figura&nbsp;11: Cantidad de cursos por año
+</p></section>
+<section id="section-13" class="slide level2">
+<h2></h2>
+<h3 id="cantidad-de-cursos-1">Cantidad de cursos</h3>
+
+<img data-src="images/stack-carrera.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-cantidad-carr"><p class="caption">
+Figura&nbsp;12: Cantidad de cursos por carrera (2018-2025)
+</p></section>
+<section id="section-14" class="slide level2">
+<h2></h2>
+<h3 id="volúmen-de-estudiantes">Volúmen de estudiantes</h3>
+
+<img data-src="images/dens-est.png" style="width:80.0%" class="r-stretch quarto-figure-center"><p class="caption">Volúmen de estudiantes por curso (2018-2025)</p></section>
+<section id="section-15" class="slide level2">
+<h2></h2>
+<h3 id="estudiantes-por-semestre">Estudiantes por semestre</h3>
+
+<img data-src="images/semestre-est.png" style="width:80.0%" class="r-stretch quarto-figure-center"><p class="caption">Cantidad de estudiantes por semestre curricular (2018-2025)</p></section>
+<section id="section-16" class="slide level2">
+<h2></h2>
+<h3 id="tamaño-de-cursos">Tamaño de cursos</h3>
+
+<img data-src="images/tamano-peq.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-dist-tamano"><p class="caption">
+Figura&nbsp;13: Distribución de notas en FACSO de cursos de tamaño pequeño
+</p></section>
+<section id="section-17" class="slide level2">
+<h2></h2>
+<h3 id="tamaño-de-cursos-1">Tamaño de cursos</h3>
+
+<img data-src="images/tamano-gr.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-dist-tamano-gr"><p class="caption">
+Figura&nbsp;14: Distribución de notas en FACSO de cursos de tamaño normal
+</p></section>
+<section id="section-18" class="slide level2">
+<h2></h2>
+<h3 id="notas">Notas</h3>
+
+<img data-src="images/notas-facso.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-notas-facso"><p class="caption">
+Figura&nbsp;15: Distribución de notas en FACSO (2018-2025)
+</p></section>
+<section id="section-19" class="slide level2">
+<h2></h2>
+<h3 id="notas-1">Notas</h3>
+
+<img data-src="images/notas-facso-tiempo.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-notas-facso-t"><p class="caption">
+Figura&nbsp;16: Trayectoria de notas en FACSO
+</p></section>
+<section id="section-20" class="slide level2">
+<h2></h2>
+<h3 id="notas-2">Notas</h3>
+
+<img data-src="images/notas-carreras.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-notas-carr"><p class="caption">
+Figura&nbsp;17: Distribución de notas por carrera (2018-2025)
+</p></section>
+<section id="section-21" class="slide level2">
+<h2></h2>
+<h3 id="aprobación">% Aprobación</h3>
+
+<img data-src="images/aprob.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-aprob"><p class="caption">
+Figura&nbsp;18: Trayectoria de % aprobación por carrera
+</p></section>
+<section id="section-22" class="slide level2">
+<h2></h2>
+<h3 id="dispersión-de-notas">Dispersión de notas</h3>
+
+<img data-src="images/disp.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-disp"><p class="caption">
+Figura&nbsp;19: Trayectoria de la dispersión de notas
+</p></section>
+<section id="section-23" class="slide level2">
+<h2></h2>
+<h3 id="tipo-de-curso">Tipo de curso</h3>
+
+<img data-src="images/box-carac.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-carac"><p class="caption">
+Figura&nbsp;20: Distribución de notas según tipo de curso (2018-2025)
+</p></section>
+<section id="section-24" class="slide level2">
+<h2></h2>
+<h3 id="tipo-de-curso-1">Tipo de curso</h3>
+
+<img data-src="images/trayec-carac.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-trayec-carac"><p class="caption">
+Figura&nbsp;21: Trayectoria de notas según tipo de curso FACSO
+</p></section>
+<section id="section-25" class="slide level2">
+<h2></h2>
+<h3 id="composición-de-género">Composición de género</h3>
+
+<img data-src="images/compgen-facso.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-compgen"><p class="caption">
+Figura&nbsp;22: Distribución de notas según género FACSO (2018-2025)
+</p></section>
+<section id="section-26" class="slide level2">
+<h2></h2>
+<h3 id="composición-de-género-1">Composición de género</h3>
+
+<img data-src="images/trayec-compgen.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-compgen-t"><p class="caption">
+Figura&nbsp;23: Trayectoria de notas según composición de género FACSO
+</p></section>
+<section id="section-27" class="slide level2">
+<h2></h2>
+<h3 id="tamaño-de-cursos-2">Tamaño de cursos</h3>
+
+<img data-src="images/n-facso.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-n-facso"><p class="caption">
+Figura&nbsp;24: Distribución de notas según tamaño del curso FACSO (2018-2025)
+</p></section>
+<section id="section-28" class="slide level2">
+<h2></h2>
+<h3 id="tamaño-de-cursos-3">Tamaño de cursos</h3>
+
+<img data-src="images/trayec-n.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%" id="fig-n-facso-t"><p class="caption">
+Figura&nbsp;25: Trayectoria de notas según tamaño del curso FACSO
+</p></section>
+<section id="limitaciones" class="slide level2">
+<h2>Limitaciones</h2>
+<ul>
+<li>Durante el estudio se observó una dificultad de acceso a la información y deficiencias en el registro, construcción y documentación previa de los datos de UCampus</li>
+</ul>
+</section>
+<section id="conclusiones" class="slide level2">
+<h2>Conclusiones</h2>
+<div class="highlight-last">
+<ul>
+<li class="fragment"><p>Notas en el tiempo: las calificaciones se elevaron durante la pandemia, pero han tendido a disminuir conforme el paso del tiempo</p></li>
+<li class="fragment"><p>Rendimiento académico femenino: Tanto a niveles absolutos como proporcionales, las mujeres se relacionan positivamente con las notas, y obtienen mejores resultados que su contraparte masculina</p></li>
+<li class="fragment"><p>Tipo de colegio: A nivel facultad, los estudiantes provenientes de colegios subvencionados obtienen mejores calificaciones que aquellos de particulares privados</p></li>
+</ul>
+</div>
+</section>
+<section id="conclusiones-1" class="slide level2">
+<h2>Conclusiones</h2>
+<div class="highlight-last">
+<ul>
+<li class="fragment"><p>Tamaño de cursos: Los cursos con menos de 10 estudiantes tienen una distribución notoriamente distinta en comparación a cursos normales</p></li>
+<li class="fragment"><p>Reprobación como caso excepcional: El porcentaje de aprobación por carrera no baja del 95%, volviéndose una experiencia poco común en la facultad</p></li>
+<li class="fragment"><p>Homogeneización de calificaciones: A medida que transcurre el tiempo, las notas tienen una menor dispersión, sugiriendo una homogeneidad en las evaluaciones</p></li>
+</ul>
+</div>
+</section>
+<section id="conclusiones-2" class="slide level2">
+<h2>Conclusiones</h2>
+<div class="highlight-last">
+<ul>
+<li class="fragment"><p>Es necesario levantar una discusión seria sobre el panorama actual de la dimensión formativa-evaluativa de la facultad</p></li>
+<li class="fragment"><p>Consecuencias para la población estudiantil: desde el deterioro de la salud mental hasta la carencia formativa para el campo laboral</p></li>
+<li class="fragment"><p>Ete estudio cumple como un diagnóstico de las dinámicas en la calificación académica, pero se debe trabajar en un reconocimiento de cómo operan los sistemas de evaluación actuales en FACSO</p></li>
+</ul>
+</div>
+</section>
+<section id="referencias" class="slide level2 smaller scrollable">
+<h2>Referencias</h2>
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-achen_what_2009" class="csl-entry" role="listitem">
+Achen, Alexandra C., y Paul N. Courant. 2009. <span>«What Are Grades Made Of?»</span> <em>Journal of Economic Perspectives</em> 23 (3): 77-92. <a href="https://doi.org/10.1257/jep.23.3.77">https://doi.org/10.1257/jep.23.3.77</a>.
+</div>
+<div id="ref-hernandez-julian_measuring_2016" class="csl-entry" role="listitem">
+Hernández-Julián, Rey, y Adam Looney. 2016. <span>«Measuring Inflation in Grades: An Application of Price Indexing to Undergraduate Grades»</span>. <em>Economics of Education Review</em> 55 (diciembre): 220-32. <a href="https://doi.org/10.1016/j.econedurev.2016.11.001">https://doi.org/10.1016/j.econedurev.2016.11.001</a>.
+</div>
+<div id="ref-jewell_whose_2011" class="csl-entry" role="listitem">
+Jewell, R. Todd, Michael A. McPherson, y Margie A. Tieslau. 2011. <span>«Whose Fault Is It? Assigning Blame for Grade Inflation in Higher Education»</span>. <em>Applied Economics</em> 45 (9): 1185-1200. <a href="https://doi.org/10.1080/00036846.2011.621884">https://doi.org/10.1080/00036846.2011.621884</a>.
+</div>
+<div id="ref-lipnevich_what_2020" class="csl-entry" role="listitem">
+Lipnevich, Anastasiya A., Thomas R. Guskey, Dana M. Murano, y Jeffrey K. Smith. 2020. <span>«What Do Grades Mean? Variation in Grading Criteria in American College and University Courses»</span>. <em>Assessment in Education: Principles, Policy &amp; Practice</em> 27 (5): 480-500. <a href="https://doi.org/10.1080/0969594X.2020.1799190">https://doi.org/10.1080/0969594X.2020.1799190</a>.
+</div>
+<div id="ref-lynch_learning_2017" class="csl-entry" role="listitem">
+Lynch, Raymond, y Jennifer Hennessy. 2017. <span>«Learning to Earn? The Role of Performance Grades in Higher Education»</span>. <em>Studies in Higher Education</em> 42 (9): 1750-63. <a href="https://doi.org/10.1080/03075079.2015.1124850">https://doi.org/10.1080/03075079.2015.1124850</a>.
+</div>
+</div>
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="pres-final_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="pres-final_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="pres-final_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="pres-final_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="pres-final_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="pres-final_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="pres-final_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="pres-final_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="pres-final_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="pres-final_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'print',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'slide',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'slow',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copiado");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copiado");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

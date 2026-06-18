@@ -1,0 +1,851 @@
+---
+title: "Resultados: Estudiantes"
+toc: true
+toc-depth: 2
+toc-expand: 3
+---
+
+```{r}
+#| echo: false
+
+pacman::p_load(knitr, digest, stargazer, sjPlot, codebook, summarytools, dplyr, tidyr,
+ # tidyLPA, 
+ lme4, ggplot2, ggeffects, skimr, table1, patchwork, here, kableExtra, ggthemes, tidyverse,
+ ggbreak, texreg, coefplot, plotly, modelsummary)
+options(scipen = 999)
+```
+
+```{r}
+#| echo: false
+
+here::i_am("output/reports/book-estudio-notas/03-resultados-est.qmd")
+base_madre <- readRDS(here::here("input/data/proc_data/base_madre.rds"))
+original_general <- readRDS(here::here("input/data/proc_data/original_general.rds"))
+notas_cursos <- readRDS(here::here("input/data/proc_data/notas_cursos_proc.rds"))
+
+socio <- readRDS(here::here("input/data/proc_data/df_socio.rds"))
+psico <- readRDS(here::here("input/data/proc_data/df_psico.rds"))
+trabajo <- readRDS(here::here("input/data/proc_data/df_trabajo.rds"))
+educa <- readRDS(here::here("input/data/proc_data/df_parvularia.rds"))
+antropo <- readRDS(here::here("input/data/proc_data/df_antropo.rds"))
+```
+
+Este apartado tiene como objetivo presentar los principales resultados de la investigación con los estudiantes como unidad de análisis. En primer lugar, se exponen resultados descriptivos a nivel de Facultad y, posteriormente, se detallan a nivel de carrera. En segundo lugar, se analizan las asociaciones entre las notas y las variables de caracterización más relevantes (sexo, colegio de procedencia, nivel socioeconómico y prueba de admisión universitaria). Por último, se estima un modelo de regresión con el objetivo de identificar qué variables resultan más determinantes en las calificaciones de las y los estudiantes. 
+
+La presentación de los resultados descriptivos y de asociación se organiza de la siguiente manera: (1) tabla de promedios de notas por carrera y categoría; (2) gráfico de distribución de las notas a nivel de Facultad y (3) gráficos de distribución de las notas según carrera. 
+
+## Descriptivos generales
+
+Esta sección tiene como objetivo determinar el promedio general de los estudiantes de FACSO. En primer lugar, se va a estimar la distribución de las notas a partir de la base de promedios generales UCampus, la cual tiene un N total de 2578. 
+
+```{r}
+#| echo: false 
+#| label: fig-histo-og
+#| fig-cap: Elaboración propia  - datos de promedios generales UCampus (2026)
+#| fig-cap-location: bottom
+
+ggplot(original_general, aes(x = PROMEDIO)) + 
+  geom_histogram(
+    aes(y = after_stat(count / sum(count) * 100)),
+    position = "identity",
+    bins = 20,
+    alpha = 0.8,
+    color = "black",
+    fill = "#b90000"
+  ) +
+  geom_vline(
+    xintercept = mean(original_general$PROMEDIO, na.rm = TRUE),
+    linewidth = 1.2,
+    linetype = "dashed",
+    color = "black"
+  ) +
+  scale_x_continuous(limits = c(0, 7)) +
+  labs(
+    x = "Notas",
+    y = "Frecuencia (%)",
+    title = "Distribución de notas promedio general FACSO 2020-2024 (N Estudiantes = 2578)"
+  ) +
+  theme(
+    plot.title  = element_text(size = 12))
+```
+
+Considerando la @fig-histo-og, se confirma que la estimación del promedio general realizada en el análisis previo por la Dirección de Pregrado de la facultad es correcta. El gráfico presenta una distribución asimétrica, donde la mayoría de los casos se concentran en notas entre 6.0 y 7.0, mientras que las notas menores a 5.0 son inperceptibles, destacándose un promedio a nivel facultad de 6.4. Además, el peak de concentración de notas está por sobre el promedio, es decir, cercano al 6.6-6.7. Respecto a la dispersión de las notas, el promedio de la base original general cuenta con una desviación estándar de 0.33, lo que significa que aproximadamente dos tercios de los estudiantes tienen un promedio final de notas entre de 6.1 y 6.7 (asumiendo distribución normal). En suma, la información entregada por la figura refleja una concentración de las notas de los estudiantes en la parte más alta de la escala de notas, acompañado de una baja dispersión.
+
+Ahora bien, con la base general de promedios de UCampus no teníamos información clara respecto al proceso de construcción del promedio general de cada estudiante. Debido a ello, se solicitó una base con las notas desagregadas por curso para así calcular el promedio de estudiantes a partir de sus notas en cada curso. Al realizar este cálculo, el resultado es el siguiente:  
+
+```{r}
+#| echo: false
+#| label: fig-histo-c
+#| fig-cap: Elaboración propia - datos de notas por cursos UCampus (2026)
+#| fig-cap-location: bottom
+
+ggplot(notas_cursos, aes(x = promedio_calculado)) + 
+  geom_histogram(
+    aes(y = after_stat(count / sum(count) * 100)),
+    position = "identity",
+    bins = 20,
+    alpha = 0.8,
+    color = "black",
+    fill = "#b90000"
+  ) +
+  geom_vline(
+    xintercept = mean(notas_cursos$promedio_calculado, na.rm = TRUE),
+    linewidth = 1.2,
+    linetype = "dashed",
+    color = "black"
+  ) +
+  scale_x_continuous(limits = c(0, 7)) +
+  labs(
+    x = "Notas",
+    y = "Frecuencia (%)",
+    title = "Distribución de notas promedio general FACSO 2020-2024 (N Estudiantes = 3638)"
+  ) +
+  theme(
+    plot.title  = element_text(size = 12))
+```
+
+
+Se observa que la @fig-histo-c tiene una distribución de las calificaciones menos concentrada en la parte alta de la escala de notas, lo cual se condice con una disminución del promedio a nivel facultad a un 6.1. En relación con esto, la desviación estándar corresponde a un 0.62, lo que significa que el 68% de los casos (asumiendo distribución normal) se encuentra entre un 5.5 y un 6.7, afirmando que este cálculo del promedio presenta una mayor dispersión en las notas. Aun así, el promedio general sigue siendo alto e, incluso, el 50% de los casos se concentra por encima del 6.2.
+
+La disminución del promedio respecto a la @fig-histo-og se debe a las decisiones tomadas para el cálculo de los promedios. En este caso, se decidió considerar las notas de los cursos aprobados y reprobados por cada estudiante para estimar su promedio final. Esto se debe al enfoque del estudio, puesto que nos interesa reflejar de mejor manera el proceso de calificación en la facultad más que solamente la nota final. Otra razón para considerar este promedio de notas es que este cálculo puede reflejar mayor varianza y, por tanto, entregar más información respecto a la asociación con variables de caracterización. Sin embargo, las variables de caracterización se encontraban solo en la base inicial de promedios generales, por lo que se realizó una fusión de la base original general (que cuenta con variables de caracterización) y la base de notas por curso. Esto trajo el siguiente resultado:
+
+```{r}
+#| echo: false
+#| label: fig-histo-facso
+#| fig-cap: Elaboración propia en base a datos de UCampus (2026)
+#| fig-cap-location: bottom
+
+ggplot(base_madre, aes(x = promedio_calculado)) + 
+  geom_histogram(
+    aes(y = after_stat(count / sum(count) * 100)),
+    position = "identity",
+    bins = 20,
+    alpha = 0.8,
+    color = "black",
+    fill = "#b90000"
+  ) +
+  geom_vline(
+    xintercept = mean(base_madre$promedio_calculado, na.rm = TRUE),
+    linewidth = 1.2,
+    linetype = "dashed",
+    color = "black"
+  ) +
+  scale_x_continuous(limits = c(0, 7)) +
+  labs(
+    x = "Notas",
+    y = "Frecuencia (%)",
+    title = "Distribución de notas FACSO 2020-2024 (N = 1981)"
+  ) +
+  theme(
+    plot.title  = element_text(size = 12))
+```
+
+Al unir las dos bases se reducen los casos a 1981 estudiantes. La primera diferencia que se observa en la @fig-histo-facso es que el promedio disminuye a un 5.9. Esto se complementa con la distribución de las notas, donde la columna que representa las calificaciones más altas ya no es la que tiene la mayor concentración. La desviación estándar corresponde a 0.6, lo que significa que el 68% de los casos se mantiene entre el 5.3 y el 6.5, presentando una mayor variabilidad que la @fig-histo-og. Cabe considerar que este es el escenario con el resultado más bajo que se puede encontrar. Aun así, la mitad de los estudiantes obtienen notas sobre 6.0, incluyendo los cursos reprobados en sus trayectorias. En síntesis, si bien este cálculo del promedio de los estudiantes permite observar una mayor dispersión respecto al promedio que contenía la base original general, la concentración de las calificaciones sigue ubicándose en la parte superior de la escala de notas.
+
+
+```{r}
+#| echo: false 
+#| label: fig-box-facso
+#| fig-cap: Elaboración propia en base a datos de UCampus (2026)
+#| fig-cap-location: bottom
+
+ggplot(base_madre, aes(x = carrera, y = promedio_calculado)) +
+  geom_boxplot(
+    fill = "#b90000",
+    alpha = 0.8,
+    color = "black"
+  ) +
+  scale_y_continuous(
+    limits = c(1, 7),
+    breaks = seq(1, 7, 1)
+  ) +
+  labs(
+    x = "Carrera",
+    y = "Promedio de notas",
+    title = "Distribución de notas por carrera 2020-2024"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+Para profundizar en la comprensión del promedio general de la facultad, en la @fig-box-facso se presentan las diferencias en los promedios de notas según carrera. Se observa que Educación Parvularia presenta los valores centrales más, seguido de Psicolgía. Antropología, Sociología y Trabajo Social exhiben valores muy similares. Cabe resaltar que en todas las carreras se observan algunos valores atípicos bajos, lo que indica la existencia de muy pocos estudiantes con promedios considerablemente inferiores al promedio general.
+
+## Asociación entre nota y variables de caracterización
+
+### Género
+
+```{r}
+#| echo: false
+
+tabla_promedios <- base_madre %>%
+  mutate(
+    sexo = factor(
+      sexo,
+      levels = c(0, 1),
+      labels = c("Hombre", "Mujer")
+    )
+  ) %>%
+  group_by(carrera, sexo) %>%
+  summarise(
+    promedio = mean(promedio_calculado, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = sexo,
+    values_from = promedio
+  ) %>%
+  mutate(
+    diferencia_mujer_hombre = round(Mujer - Hombre, 2)
+  ) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+```
+
+```{r}
+#| echo: false
+#| label: tbl-gen
+#| tbl-cap: Promedios por carrera según género 2020-2024
+#| tbl-cap-location: bottom
+
+tabla_promedios %>%
+  arrange(carrera) %>%
+  kable(
+    format    = if (knitr::is_latex_output()) "latex" else "html",
+    align     = c("l", "c", "c", "c"),
+    col.names = c(
+      "Carrera",
+      "Hombre",
+      "Mujer",
+      "Diferencia (Mujer - Hombre)"
+    ),
+    digits = 2
+  ) %>%
+  kable_styling(
+    bootstrap_options = if (knitr::is_html_output()) c(
+      "striped",   # filas alternadas
+      "hover",     # efecto al pasar el mouse
+      "condensed", # reduce espacio vertical
+      "responsive" # adapta a pantallas pequeñas
+    ) else NULL,
+    latex_options = if (knitr::is_latex_output()) c("hold_position", "scale_down") else NULL,
+    full_width = FALSE,
+    position   = "center",
+    font_size  = 14
+  )
+```
+
+La @tbl-gen exhibe los promedios de notas por carrera distinguiendo entre hombres y mujeres. Se observa una tendencia consistente en las cinco carreras del estudio, donde las mujeres sistemáticamente obtienen mejores calificaciones. En este contexto, Trabajo Social es la carrera que presenta la mayor brecha en rendimiento académico por género, con 0.48 décimas a favor de las estudiantes.
+
+```{r}
+#| echo: false
+
+p <- ggplot(base_madre, aes(x = promedio_calculado, fill = sexo)) +
+    geom_histogram(
+      aes(y = after_stat(count / tapply(count, group, sum)[group] * 100)),
+      position = "identity",
+      bins = 20,
+      alpha = 0.7,
+      color = "black"
+    ) +
+    scale_y_continuous(labels = scales::percent_format(scale = 1),
+                       limits = c(0, 40)) +
+    scale_fill_manual(
+    values = c("0" = "#0082fc", "1" = "#fa7a03"),
+    labels = c("0" = "Hombre", "1" = "Mujer"),
+    name = "Sexo"
+  ) +
+  labs(title = "Facultad", x = NULL, y = NULL) +
+  theme_minimal()               
+```
+
+```{r}
+#| echo: false
+
+a <- ggplot(socio, aes(x = promedio_calculado, fill = sexo)) +
+  geom_histogram(
+    aes(y = after_stat(count / tapply(count, group, sum)[group] * 100)),
+    position = "identity",
+    bins = 20,
+    alpha = 0.7,
+    color = "black"
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1),
+                     limits = c(0, 40)) +
+  scale_fill_manual(
+    values = c("0" = "#0082fc", "1" = "#fa7a03"),
+    labels = c("0" = "Hombre", "1" = "Mujer"),
+    name = "Sexo"
+  ) +
+  labs(title = "Sociología", x = NULL, y = NULL) +
+  theme_minimal()
+```
+
+```{r}
+#| echo: false
+
+b <- ggplot(psico, aes(x = promedio_calculado, fill = sexo)) +
+  geom_histogram(
+    aes(y = after_stat(count / tapply(count, group, sum)[group] * 100)),
+    position = "identity",
+    bins = 20,
+    alpha = 0.7,
+    color = "black"
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1),
+                     limits = c(0, 40)) +
+  scale_fill_manual(
+    values = c("0" = "#0082fc", "1" = "#fa7a03"),
+    labels = c("0" = "Hombre", "1" = "Mujer"),
+    name = "Sexo"
+  ) +
+  labs(title = "Psicología", x = NULL, y = NULL) +
+  theme_minimal()
+```
+
+```{r}
+#| echo: false
+
+c <- ggplot(antropo, aes(x = promedio_calculado, fill = sexo)) +
+  geom_histogram(
+    aes(y = after_stat(count / tapply(count, group, sum)[group] * 100)),
+    position = "identity",
+    bins = 20,
+    alpha = 0.7,
+    color = "black"
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1),
+                     limits = c(0, 40)) +
+  scale_fill_manual(
+    values = c("0" = "#0082fc", "1" = "#fa7a03"),
+    labels = c("0" = "Hombre", "1" = "Mujer"),
+    name = "Sexo"
+  ) +
+  labs(title = "Antropología", x = NULL, y = NULL) +
+  theme_minimal()
+```
+
+```{r}
+#| echo: false
+
+d <- ggplot(educa, aes(x = promedio_calculado, fill = sexo)) +
+  geom_histogram(
+    aes(y = after_stat(count / tapply(count, group, sum)[group] * 100)),
+    position = "identity",
+    bins = 20,
+    alpha = 0.7,
+    color = "black"
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1),
+                     limits = c(0, 40)) +
+  scale_fill_manual(
+    values = c("0" = "#0082fc", "1" = "#fa7a03"),
+    labels = c("0" = "Hombre", "1" = "Mujer"),
+    name = "Sexo"
+  ) +
+  labs(title = "Educación Parvularia", x = NULL, y = NULL) +
+  theme_minimal()
+```
+
+```{r}
+#| echo: false
+
+e <- ggplot(trabajo, aes(x = promedio_calculado, fill = sexo)) +
+  geom_histogram(
+    aes(y = after_stat(count / tapply(count, group, sum)[group] * 100)),
+    position = "identity",
+    bins = 20,
+    alpha = 0.7,
+    color = "black"
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1),
+                     limits = c(0, 40)) +
+  scale_fill_manual(
+    values = c("0" = "#0082fc", "1" = "#fa7a03"),
+    labels = c("0" = "Hombre", "1" = "Mujer"),
+    name = "Sexo"
+  ) +
+  labs(title = "Trabajo Social", x = NULL, y = NULL) +
+  theme_minimal()
+```
+
+```{r}
+#| echo: false 
+#| label: fig-hist-gen
+#| fig-cap: Elaboración propia en base a datos de UCampus (2026)
+#| fig-cap-location: bottom
+#| fig-height: 24
+#| fig-width: 10
+
+p / a / b / c / d / e
+```
+
+En la @fig-hist-gen se encuentran histogramas que presentan la distribución de las notas por género, primero a nivel facultad y luego por carrera. Un primer hallazgo a reportar es la forma de la distribución entre hombres y mujeres, las cuales son claramente distintas. Aquello se evidencia en que los hombres presentan más casos en la cola izquierda de la distribución, aludiendo a notas más bajas, mientras que las mujeres tienen una concentración mayor desde el 6 en adelante. Trabajo Social demuestra claramente este resultado, donde destacan varias barras pequeñas azules entre el 1 y el 5, contrario a la menor dispersión de las barras naranjas, acumuladas entre el 6 y 6.3. Por último, en Educación Parvularia no se logran divisar barras de hombres, lo que se debe a la mínima cantidad de estudiantes varones que cursan esa carrera. 
+
+### Tipo de colegio
+
+```{r}
+#| echo: false
+
+tabla_promedios_col <- base_madre %>%
+  filter(!is.na(colegio)) %>%
+  group_by(carrera, colegio) %>%
+  summarise(
+    promedio = mean(promedio_calculado, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = colegio,
+    values_from = promedio
+  ) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+```
+
+```{r}
+#| echo: false
+#| label: tbl-notas-col
+#| tbl-cap: Promedios por carrera según colegio 2020-2024
+#| tbl-cap-location: bottom
+
+tabla_promedios_col %>%
+  arrange(carrera) %>%
+  kable(
+    format  = if (knitr::is_latex_output()) "latex" else "html",
+    align   = c("l", rep("c", ncol(tabla_promedios_col) - 1))
+  ) %>%
+  kable_styling(
+    bootstrap_options = if (knitr::is_html_output()) c(
+      "striped",
+      "hover",
+      "condensed",
+      "responsive"
+    ) else NULL,
+    latex_options = if (knitr::is_latex_output()) c("hold_position", "scale_down") else NULL,
+    full_width = FALSE,
+    position   = "center",
+    font_size  = 14
+  )
+```
+
+La @tbl-notas-col muestra los promedios por carrera, distinguiendo el tipo de colegio del que provienen los estudiantes. En antropología, educación parvularia y sociología se aprecia un patrón escalonado ascendente según el financiamiento de las escuelas, donde las notas más bajas son de aquellos que egresaron de un colegio municipal, siendo superados por los particulares subvencionados, y los que estudiaron en particulares pagados son quienes poseen mejores calificaciones. Sin embargo, en Psicología y Trabajo Social se presenta un patrón distinto al ya visto, pues el grupo de particulares subvencionados es el que obtiene las calificaciones más altas, mientras que los particulares pagados son relegados al segundo lugar.
+
+```{r}
+#| echo: false
+
+p2 <- ggplot(base_madre %>% filter(!is.na(colegio)), 
+       aes(x = promedio_calculado, fill = colegio, color = colegio)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +  
+  labs(title = "Facultad",
+       x = NULL, y = "Densidad",
+       fill = "Colegio", color = "Colegio") +
+  theme_minimal() +
+  theme(legend.position = "top")
+
+```
+
+```{r}
+#| echo: false
+
+aa <- ggplot(socio %>% filter(!is.na(colegio)), 
+       aes(x = promedio_calculado, fill = colegio, color = colegio)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +  
+  labs(title = "Sociología",
+       x = NULL, y = "Densidad",
+       fill = "Colegio", color = "Colegio") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| echo: false
+
+ab <- ggplot(psico %>% filter(!is.na(colegio)), 
+       aes(x = promedio_calculado, fill = colegio, color = colegio)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +
+  labs(title = "Psicología",
+       x = NULL, y = "Densidad",
+       fill = "Colegio", color = "Colegio") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| echo: false
+
+ac <- ggplot(antropo %>% filter(!is.na(colegio)), 
+       aes(x = promedio_calculado, fill = colegio, color = colegio)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +
+  labs(title = "Antropología",
+       x = NULL, y = "Densidad",
+       fill = "Colegio", color = "Colegio") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| echo: false
+
+ad <- ggplot(educa %>% filter(!is.na(colegio)), 
+       aes(x = promedio_calculado, fill = colegio, color = colegio)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +
+  labs(title = "Educación Parvularia",
+       x = NULL, y = "Densidad",
+       fill = "Colegio", color = "Colegio") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| echo: false
+
+ae <- ggplot(trabajo %>% filter(!is.na(colegio)), 
+       aes(x = promedio_calculado, fill = colegio, color = colegio)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +
+  labs(title = "Trabajo Social",
+       x = NULL, y = "Densidad",
+       fill = "Colegio", color = "Colegio") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| echo: false 
+#| label: fig-dens-carreras
+#| fig-cap: Elaboración propia en base a datos de UCampus (2026)
+#| fig-cap-location: bottom
+#| fig-height: 24
+#| fig-width: 8
+
+p2 / aa / ab / ac / ad / ae
+```
+
+La @fig-dens-carreras presenta las distribuciones de densidad, primero en un nivel de facultad, y posteriormente por cada carrera. A nivel facultad se observa claramente que los colegios municipales poseen una concentración menor de notas desde el 6 en adelante, a comparación con los particulares subvencionados y pagados. Las curvas verdes y azules mantienen una forma bastante similar, lo que da a entender que, en promedio en FACSO, quienes provienen de algún tipo de colegio particular, tienen un rendimiento académico similar. En sociología y psicología se mantiene este patrón, no así en antropología y educación parvularia, donde los particulares subvencionados tienen una concentración mayor entre el 6 y 6.5 por sobre los particulares pagados, mientras los municipales se mantienen en último lugar. Sin embargo, en trabajo social se da algo distinto a las demás carreras, y es que las notas de los provenientes de particulares pagados son las más bajas, lo que queda demostrado al ser la curva más baja de las tres, seguido de los municipales y los subvencionados.
+
+### Nivel socioeconómico
+
+La variable nivel socioeconómico fue obtenida mediante una encuesta institucional de caracterización aplicada de manera externa a la plataforma UCampus, siendo posteriormente integrada a sus bases de datos. Esta variable refleja el nivel de vulnerabilidad de la comuna de origen del estudiante, con valores que oscilan entre 0 y 8, donde los valores más bajos indican mayor vulnerabilidad socioeconómica. Con el propósito de facilitar su interpretación y análisis, la variable fue recategorizada en tres niveles: bajo (0, 1 y 2), medio (3, 4 y 5) y alto (6, 7 y 8).
+
+```{r}
+tabla_promedios_nse <- base_madre %>%
+  filter(!is.na(nse)) %>%
+  group_by(carrera, nse) %>%
+  summarise(
+    promedio = mean(promedio_calculado, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = nse,
+    values_from = promedio
+  ) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+```
+
+```{r}
+#| echo: false
+#| label: tbl-notas-nse
+#| tbl-cap: Promedios por carrera según nivel socioeconómico 2020-2024
+#| tbl-cap-location: bottom
+
+tabla_promedios_nse %>%
+  arrange(carrera) %>%
+  kable(
+    format  = if (knitr::is_latex_output()) "latex" else "html",
+    align   = c("l", rep("c", ncol(tabla_promedios_nse) - 1))
+  ) %>%
+  kable_styling(
+    bootstrap_options = if (knitr::is_html_output()) c(
+      "striped",
+      "hover",
+      "condensed",
+      "responsive"
+    ) else NULL,
+    latex_options = if (knitr::is_latex_output()) c("hold_position", "scale_down") else NULL,
+    full_width = FALSE,
+    position   = "center",
+    font_size  = 14
+  )
+```
+
+La @tbl-notas-nse presenta los promedios de nota de las carreras, distinguiendo por nivel socioeconómico. En los casos de antropología, psicología y sociología se exhibe un patrón ascendente de notas desde el menor al mayor estatus socioeconómico, reflejando que, aquellos con mejores condiciones económicas de base obtienen un logro académico superior. No obstante, es interesante observar que esta tendencia no se cumple en educación parvularia ni trabajo social. Respecto a educación parvularia, son los estudiantes de nivel socioeconómico medio quienes tienen calificaciones más altas que aquellos con estatus más alto, mientras que los de nivel bajo siguen siendo los de menor rendimiento. Por su parte, en trabajo social, los estudiantes de nivel socioeconómico más alto son los que tienen las notas más bajas, al contrario de los niveles bajos y medios que, coincidentemente, poseen la misma nota promediada.
+
+```{r}
+#| echo: false
+
+p3 <- ggplot(base_madre %>% filter(!is.na(nse)), 
+       aes(x = promedio_calculado, fill = nse, color = nse)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +
+  labs(title = "Facultad",
+       x = NULL, y = "Densidad",
+       fill = "NSE", color = "NSE") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| echo: false
+
+ba <- ggplot(socio %>% filter(!is.na(nse)), 
+       aes(x = promedio_calculado, fill = nse, color = nse)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +
+  labs(title = "Sociología",
+       x = NULL, y = "Densidad",
+       fill = "NSE", color = "NSE") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| echo: false
+
+bb <- ggplot(psico %>% filter(!is.na(nse)), 
+       aes(x = promedio_calculado, fill = nse, color = nse)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +
+  labs(title = "Psicología",
+       x = NULL, y = "Densidad",
+       fill = "NSE", color = "NSE") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| echo: false
+
+bc <- ggplot(antropo %>% filter(!is.na(nse)), 
+       aes(x = promedio_calculado, fill = nse, color = nse)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +
+  labs(title = "Antropología",
+       x = NULL, y = "Densidad",
+       fill = "NSE", color = "NSE") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| echo: false
+
+bd <- ggplot(educa %>% filter(!is.na(nse)), 
+       aes(x = promedio_calculado, fill = nse, color = nse)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +
+  labs(title = "Educación Parvularia",
+       x = NULL, y = "Densidad",
+       fill = "NSE", color = "NSE") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| echo: false
+
+be <- ggplot(trabajo %>% filter(!is.na(nse)), 
+       aes(x = promedio_calculado, fill = nse, color = nse)) +
+  geom_density(aes(y = after_stat(density) * 100), 
+               alpha = 0, linewidth = 1.5) +
+  coord_cartesian(xlim = c(1,7), ylim = c(0, 180)) +
+  labs(title = "Trabajo Social",
+       x = NULL, y = "Densidad",
+       fill = "NSE", color = "NSE") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| echo: false 
+#| label: fig-dens-carreranse
+#| fig-cap: Elaboración propia en base a datos de UCampus (2026)
+#| fig-cap-location: bottom
+#| fig-height: 24
+#| fig-width: 8
+
+p3 / ba / bb / bc / bd / be
+```
+
+La @fig-dens-carreranse presenta gráficos de densidad del promedio de notas según nivel socioeconómico (NSE), primero a nivel de facultad y luego desagregados por carrera. A nivel agregado se observa un patrón estratificado claro: el NSE bajo presenta una menor concentración de densidad en notas superiores a 6, seguido del NSE medio, mientras que el NSE alto concentra su distribución en los valores más altos del rendimiento académico.
+
+En Sociología se observa un patrón distinto, ya que el NSE bajo exhibe una distribución bimodal, con una mayor frecuencia cercana al 6 —aunque levemente desplazado hacia la izquierda— y otra en torno a la nota 5. El NSE alto, en cambio, concentra sus valores hacia el extremo derecho de la distribución, pese a presentar menor densidad. Por su parte, psicología reproduce un patrón estratificado similar al de la facultad.
+
+En Antropología y Educación Parvularia destaca que el NSE medio presenta una mayor concentración en torno a la nota 6 en comparación con los otros grupos; en Antropología, además, la distribución del NSE bajo sugiere una estructura multimodal, lo que indica mayor heterogeneidad en el desempeño. Finalmente, en Trabajo Social el NSE medio concentra la mayor densidad cerca del 6, mientras que el NSE bajo presenta adicionalmente una masa relevante en torno a notas cercanas a 4, y el NSE alto muestra una distribución más extendida entre aproximadamente 4.5 y 6.
+
+### Asociación de nota y prueba de admisión (PSU/PAES)
+
+```{r}
+#| echo: false
+#| label: fig-scat-facso
+#| fig-cap: Elaboración propia en base a datos de UCampus (2026)
+#| fig-cap-location: bottom
+
+base_madre %>% 
+  filter(!is.na(pct_paes_psu)) %>%
+  ggplot(aes(x = pct_paes_psu, y = promedio_calculado)) +
+  geom_point(color = "#990000", alpha = 0.3) +
+  geom_smooth(method = "lm", se = TRUE, color = "black", linewidth = 2) +
+  annotate(
+    "text",
+    x = Inf, y = Inf,
+    hjust = 1.1, vjust = 1.5,
+    label = paste0("r = ", round(cor(base_madre$pct_paes_psu, base_madre$promedio_calculado, use = "complete.obs"), 2)),
+    size = 5
+  ) +
+  labs(
+    x = "Percentil Prueba Admisión",
+    y = "Nota universidad",
+    title = "Relación Notas universidad y Puntaje Prueba de Admisión FACSO 2020-2024"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+En la @fig-scat-facso se presenta la asociación entre el promedio de notas de los estudiantes y su percentil en la prueba de admisión universitaria (PSU o PAES). A nivel facultad, se encontró una relación positiva pero débil (*r* = .22), sin haber un patrón claro en cómo se distribuyen los puntos en el plano. Además se observa que la dispersión es levemente más pronunciada en los percentiles bajos y medios, donde coexisten estudiantes con notas muy disímiles, mientras que en los percentiles altos la distribución tiende a concentrarse, aunque las diferencias son poco notorias. Por lo tanto, el desempeño académico en la universidad no parece estar relacionado con el desempeño previo. 
+
+
+## Modelamiento
+
+```{r}
+#| echo: false 
+
+base_madre_coef <- base_madre %>%
+  mutate(
+    carrera = forcats::fct_relevel(
+      carrera,
+      "Educación Parvularia",
+      "Psicología",
+      "Antropología",
+      "Sociología",      
+      "Trabajo Social"),
+    nse = forcats::fct_relevel(
+      nse,
+      "Bajo",
+      "Medio",
+      "Alto"),
+    colegio = forcats::fct_relevel(
+      colegio,
+      "Municipal",
+      "Particular Subvencionado",
+      "Particular Pagado"
+    ))
+    
+
+base_madre_coef$colegio <- relevel(base_madre_coef$colegio, ref = "Municipal")
+base_madre_coef$nse <- relevel(base_madre_coef$nse, ref = "Bajo")
+base_madre_coef$carrera <- relevel(base_madre_coef$carrera, ref = "Psicología")
+```
+
+```{r}
+#| echo: false
+
+model = lm(promedio_calculado ~ nse, data = base_madre_coef)
+model1 = lm(promedio_calculado ~ carrera + sexo + colegio + nse, data = base_madre_coef)
+model2 = lm(promedio_calculado ~ carrera + sexo + colegio + nse + pct_paes_psu, data = base_madre_coef)
+```
+
+```{r}
+# Extraer coeficientes y p-valores
+coef_summary <- summary(model2)$coefficients
+coef_df <- data.frame(
+  variable = rownames(coef_summary),
+  estimate = coef_summary[, "Estimate"],
+  pvalue = coef_summary[, "Pr(>|t|)"]
+)
+
+# Crear etiquetas de significancia
+coef_df$sig <- ifelse(coef_df$pvalue < 0.001, "***",
+                      ifelse(coef_df$pvalue < 0.01, "**",
+                             ifelse(coef_df$pvalue < 0.05, "*",
+                                    ifelse(coef_df$pvalue < 0.1, ".", ""))))
+
+# Crear etiquetas combinadas (valor + significancia)
+coef_df$label <- paste0(round(coef_df$estimate, 3), coef_df$sig)
+
+# Remover intercepto si existe
+coef_df <- coef_df[coef_df$variable != "(Intercept)", ]
+```
+
+```{r}
+#| echo: false
+#| label: fig-coefplot
+#| fig-cap: Elaboración propia en base a datos de UCampus (2026)
+#| fig-cap-location: bottom
+
+coef_data <- coefplot::buildModelCI(model2)
+
+orden_variables <- c(
+  "carreraEducación Parvularia",
+  "carreraAntropología",
+  "carreraSociología",
+  "carreraTrabajo Social",
+  "colegioParticular Pagado",
+  "colegioParticular Subvencionado",
+  "nseAlto",
+  "nseMedio",
+  "sexo1",
+  "pct_paes_psu"
+)
+
+coef_data$Coefficient <- factor(coef_data$Coefficient, levels = orden_variables)
+
+ggplot((coef_data %>% filter(!is.na(Coefficient))), aes(x = Value, y = Coefficient)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_errorbarh(aes(xmin = LowOuter, xmax = HighOuter), height = 0, linewidth = 0.5, color = "#990000") +
+  geom_errorbarh(aes(xmin = LowInner, xmax = HighInner), height = 0, linewidth = 1.5, color = "#990000") +
+  geom_point(color = "#990000", size = 3) +
+  scale_x_continuous(limits = c(NA, 0.50)) +
+  scale_y_discrete(labels = c(
+    "pct_paes_psu"                    = "Percentil PAES-PSU",
+    "sexo1"                           = "Mujer (ref. Hombre)",
+    "nseMedio"                        = "Nivel socioeconómico medio (ref. Bajo)",
+    "nseAlto"                         = "Nivel socioeconómico alto",
+    "colegioParticular Subvencionado" = "Subvencionado (ref. Municipal)",
+    "colegioParticular Pagado"        = "Particular Pagado",
+    "carreraTrabajo Social"           = "Trabajo Social (ref. Psicología)",
+    "carreraSociología"               = "Sociología",
+    "carreraAntropología"             = "Antropología",
+    "carreraEducación Parvularia"     = "Educación Parvularia"
+  )) +
+  labs(
+    title = "Coeficientes del modelo de regresión (FACSO 2020 - 2024)",
+    x = "Coeficiente",
+    y = "Variables"
+  ) +
+  geom_text(
+    data = coef_df,
+    aes(x = estimate, y = variable, label = label),
+    hjust = -0.2, vjust = 1.8,
+    size = 2.8, color = "#990000", fontface = "bold"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.margin = margin(t = 10, r = 80, b = 10, l = 10),
+    panel.grid.major.y = element_line(color = "grey90"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+En la @fig-coefplot se presentan los coeficientes de regresión de un modelo multivariado con los datos a nivel de facultad, donde el promedio de notas es la variable predicha. En primer lugar, las mujeres obtienen, en promedio, 0.208 puntos más que los hombres (β = 0.208***), diferencia estadísticamente significativa y consistente con los resultados bivariados. Este hallazgo confirma una ventaja sistemática femenina en el desempeño académico dentro de la facultad, independientemente de las demás variables del modelo.
+
+ En segundo lugar, los resultados muestran que tanto los estudiantes de nivel socioeconómico medio (β = 0.145) como alto (β = 0.176) obtienen promedios significativamente superiores a aquellos estudiante de estrato bajo. La magnitud de ambos coeficientes es similar, aunque el nivel alto presenta una ventaja leve.
+
+En tercer lugar, tomando como referencia el colegio municipal, tanto los estudiantes provenientes de establecimientos subvencionados (β = 0.126) como particulares pagados (β = 0.092) presentan un rendimiento significativamente superior. Resulta llamativo que la ventaja de los subvencionados sobre el municipal sea mayor que la de los particulares pagados, lo que podría sugerir que, una vez controladas otras variables como el nivel socioeconómico, el origen en un establecimiento particular pagado no representa una ventaja adicional tan marcada como podría esperarse.
+
+Por último, al considerar la carrera, Educación Parvularia destaca con el coeficiente más alto de todo el modelo (β = 0.416), lo que indica que sus estudiantes obtienen promedios notablemente superiores a los de Psicología, confirmando que esta carrera concentra el rendimiento académico más elevado de la facultad. Por su parte, Trabajo Social (β = −0.006) y Sociología (β = 0.005) muestran coeficientes prácticamente nulos y no significativos, lo que indica que su rendimiento es estadísticamente indistinguible del de Psicología. Antropología presenta el único coeficiente negativo y marginalmente significativo (β = −0.067), sugiriendo un rendimiento levemente inferior al de Psicología.
