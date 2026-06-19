@@ -11,7 +11,7 @@ book:
   title: Estudio de Notas de la Facultad de Ciencias Sociales
   subtitle: Diagnóstico y análisis de las notas de estudiantes de pregrado
   output-file: reporte-notas
-  repo-url: https://github.com/tomasurzuam/estudio-notas  #URL del repositorio del libro (cambia segun tu repo)
+  repo-url: https://github.com/data-soc/estudio-notas  #URL del repositorio del libro (cambia segun tu repo)
   author:
     - name: Tomás Urzúa Moreno
       affiliation: Departamento de Sociología, Universidad de Chile
@@ -21,6 +21,7 @@ book:
       orcid: 0000-0003-1265-7854
     - name: Daniel Miranda
       affiliation: Departamento de Psicología, Universidad de Chile
+      orcid: 0000-0001-8466-2607
   date: today              # Usa fecha fija (YYYY-MM-DD) si necesitas control editorial
   date-format: D [de] MMMM [de] YYYY
   doi: ""
