@@ -10,7 +10,7 @@ El estudio estuvo a cargo de [DATASOC](https://datasoc.cl/), centro de datos soc
 ```
 ├── input: Información de entrada para el desarrollo de los análisis:
 │ ├─── data: Bases de datos.
-| | ├─── raw_data: Bases en bruto.
+| | ├─── raw_data: Bases en bruto (no disponibles por anonimización).
 | | ├─── proc_data: Bases procesadas. 
 │ ├─── documents: Documentos técnicos que orientan el trabajo con los datos sin procesar.
 │ ├─── libs: Bibliografía y diseño customizado (CSS)
