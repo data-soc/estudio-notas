@@ -1476,5 +1476,15 @@
     "crumbs": [
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>Conclusiones</span>"
     ]
+  },
+  {
+    "objectID": "05-cursos-interac.html",
+    "href": "05-cursos-interac.html",
+    "title": "6  Panel interactivo Cursos FACSO",
+    "section": "",
+    "text": "Este panel se encuentra disponible en línea en la siguiente dirección: https://tomasurzuam.shinyapps.io/cursos-facso-interactivo/",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Panel interactivo Cursos FACSO</span>"
+    ]
   }
 ]

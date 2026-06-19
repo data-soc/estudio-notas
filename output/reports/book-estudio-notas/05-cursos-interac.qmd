@@ -2,6 +2,8 @@
 title: Panel interactivo Cursos FACSO
 ---
 
+Este panel se encuentra disponible en línea en la siguiente dirección: [https://tomasurzuam.shinyapps.io/cursos-facso-interactivo/](https://tomasurzuam.shinyapps.io/cursos-facso-interactivo/)
+
 <iframe 
   src="https://tomasurzuam.shinyapps.io/cursos-facso-interactivo/" 
   width="100%" 

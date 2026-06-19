@@ -753,6 +753,7 @@ En la @fig-car-facso-tiempo se muestran los promedios de notas de los cursos ele
 #| label: fig-box-socio
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 aa <- ggplot((cc_facso %>% filter(carrera == "Sociología")),
        aes(x = caracter,
@@ -784,6 +785,7 @@ aa
 #| label: fig-box-psico
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 ab <- ggplot((cc_facso %>% filter(carrera == "Psicología")),
        aes(x = caracter,
@@ -815,6 +817,7 @@ ab
 #| label: fig-box-ant
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 ac <- ggplot((cc_facso %>% filter(carrera == "Antropología")),
        aes(x = caracter,
@@ -846,6 +849,7 @@ ac
 #| label: fig-box-ts
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 ad <- ggplot((cc_facso %>% filter(carrera == "Trabajo Social")),
        aes(x = caracter,
@@ -877,6 +881,7 @@ ad
 #| label: fig-box-ed
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 ae <- ggplot((cc_facso %>% filter(carrera == "Educación Parvularia") %>% filter(!is.na(caracter))),
        aes(x = caracter,
@@ -915,6 +920,7 @@ En este panel se observan las distribuciones de las notas distinguiendo cursos e
 #| label: fig-car-socio-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 af <- ggplot((trayectoria_carrera %>% filter(carrera == "Sociología")),
        aes(x = ano,
@@ -962,6 +968,7 @@ af
 #| label: fig-car-psico-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 ag <- ggplot((trayectoria_carrera %>% filter(carrera == "Psicología")),
        aes(x = ano,
@@ -1008,6 +1015,7 @@ ag
 #| label: fig-car-ant-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 ah <- ggplot((trayectoria_carrera %>% filter(carrera == "Antropología")),
        aes(x = ano,
@@ -1055,6 +1063,7 @@ ah
 #| label: fig-car-ts-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 ai <- ggplot((trayectoria_carrera %>% filter(carrera == "Trabajo Social")),
        aes(x = ano,
@@ -1101,6 +1110,7 @@ ai
 #| label: fig-car-ed-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 aj <- ggplot((trayectoria_carrera %>% filter(carrera == "Educación Parvularia") %>% filter(!is.na(caracter))),
        aes(x = ano,
@@ -1283,6 +1293,7 @@ En la @fig-gen-facso-tiempo se presentan las trayectorias de los cursos agrupand
 #| label: fig-gen-socio
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 ba <- ggplot((base_genero) %>% filter(carrera == "Sociología"),
        aes(x = tramo_mujeres,
@@ -1321,6 +1332,7 @@ ba
 #| label: fig-gen-psico
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 bb <- ggplot((base_genero) %>% filter(carrera == "Psicología"),
        aes(x = tramo_mujeres,
@@ -1359,6 +1371,7 @@ bb
 #| label: fig-gen-ant
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 bc <- ggplot((base_genero) %>% filter(carrera == "Antropología"),
        aes(x = tramo_mujeres,
@@ -1397,6 +1410,7 @@ bc
 #| label: fig-gen-ts
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 bd <- ggplot((base_genero) %>% filter(carrera == "Trabajo Social"),
        aes(x = tramo_mujeres,
@@ -1435,6 +1449,7 @@ bd
 #| label: fig-gen-ed
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 be <- ggplot((base_genero) %>% filter(carrera == "Educación Parvularia"),
        aes(x = tramo_mujeres,
@@ -1493,6 +1508,7 @@ trayectoria_genero <- base_genero %>%
 #| label: fig-gen-socio-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 bf <- ggplot((trayectoria_genero %>% filter(carrera == "Sociología")),
        aes(x     = ano,
@@ -1543,6 +1559,7 @@ bf
 #| label: fig-gen-psico-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 bg <- ggplot((trayectoria_genero %>% filter(carrera == "Psicología")),
        aes(x     = ano,
@@ -1591,6 +1608,7 @@ bg
 #| label: fig-gen-ant-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 bh <- ggplot((trayectoria_genero %>% filter(carrera == "Antropología")),
        aes(x     = ano,
@@ -1639,6 +1657,7 @@ bh
 #| label: fig-gen-ts-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 bi <- ggplot((trayectoria_genero %>% filter(carrera == "Trabajo Social")),
        aes(x     = ano,
@@ -1687,6 +1706,7 @@ bi
 #| label: fig-gen-ed-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 bj <- ggplot((trayectoria_genero %>% filter(carrera == "Educación Parvularia")),
        aes(x     = ano,
@@ -1870,6 +1890,7 @@ La @fig-est-facso-tiempo muestra la trayectoria de notas según tamaño del curs
 #| label: fig-n-carrera-socio
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 ca <- ggplot((cc_n) %>% filter(carrera == "Sociología"),
        aes(x = tramo_estudiantes,
@@ -1908,6 +1929,7 @@ ca
 #| label: fig-n-carrera-psico
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 cb <- ggplot((cc_n) %>% filter(carrera == "Psicología"),
        aes(x = tramo_estudiantes,
@@ -1946,6 +1968,7 @@ cb
 #| label: fig-n-ant
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 cc <- ggplot((cc_n) %>% filter(carrera == "Antropología"),
        aes(x = tramo_estudiantes,
@@ -1984,6 +2007,7 @@ cc
 #| label: fig-n-ts
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 cd <- ggplot((cc_n) %>% filter(carrera == "Trabajo Social"),
        aes(x = tramo_estudiantes,
@@ -2022,6 +2046,7 @@ cd
 #| label: fig-n-ed
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 ce <- ggplot((cc_n) %>% filter(carrera == "Educación Parvularia"),
        aes(x = tramo_estudiantes,
@@ -2079,6 +2104,7 @@ trayectoria_n <- cc_n %>%
 #| label: fig-n-socio-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 cf <- ggplot((trayectoria_n %>% filter(carrera == "Sociología")),
        aes(x     = ano,
@@ -2126,6 +2152,7 @@ cf
 #| label: fig-n-psico-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 cg <- ggplot((trayectoria_n %>% filter(carrera == "Psicología")),
        aes(x     = ano,
@@ -2173,6 +2200,7 @@ cg
 #| label: fig-n-ant-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 ch <- ggplot((trayectoria_n %>% filter(carrera == "Antropología")),
        aes(x     = ano,
@@ -2220,6 +2248,7 @@ ch
 #| label: fig-n-ts-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 ci <- ggplot((trayectoria_n %>% filter(carrera == "Trabajo Social")),
        aes(x     = ano,
@@ -2267,6 +2296,7 @@ ci
 #| label: fig-n-ed-t
 #| fig-cap: Elaboración propia (2026)
 #| fig-cap-location: bottom
+#| fig-pos: H
 
 cj <- ggplot(
   (trayectoria_n %>% filter(carrera == "Educación Parvularia")),
