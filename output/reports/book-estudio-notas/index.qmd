@@ -28,11 +28,12 @@ div[data-when-format="pdf"] { display: none !important; }
 
 Esta investigación fue desarrollada por Tomás Urzúa, sociólogo y estudiante del Magister en Ciencias Sociales del Departamento de Sociología de la Universidad de Chile. Contó con la asesoría de los profesores Juan Carlos Castillo (Departamento de Sociología), y Daniel Miranda (Departamento de Psicología), de la Universidad de Chile. 
 
-El informe se encuentra disponible en versión web en [https://data-soc.github.io/estudio-notas/](https://data-soc.github.io/estudio-notas/) y en formato PDF en [https://data-soc.github.io/estudio-notas/estudio-notas.pdf](https://data-soc.github.io/estudio-notas/estudio-notas.pdf).
+El informe se encuentra disponible en versión web en [https://data-soc.github.io/estudio-notas/docs/](https://data-soc.github.io/estudio-notas/docs/) y en formato PDF en [https://data-soc.github.io/estudio-notas/docs/reporte-notas.pdf](https://data-soc.github.io/estudio-notas/docs/reporte-notas.pdf).
 
 **Citar de la siguiente manera:**
 
-- _Urzúa, T., Castillo, J-C & Miranda, D. (2026). Estudio de Notas: Análisis de las calificaciones de los estudiantes de la Facultad de Ciencias Sociales. Informe técnico. Dirección de Investigación, Facultad de Ciencias Sociales,  Universidad de Chile. Disponible en https://data-soc.github.io/estudio-notas/estudio-notas.pdf_
+- _Urzúa, T., Castillo, J-C & Miranda, D. (2026). Estudio de Notas: Análisis de las calificaciones de los estudiantes de la Facultad de Ciencias Sociales. Informe técnico. Dirección de Investigación, Facultad de Ciencias Sociales,  Universidad de Chile. Disponible en [https://data-soc.github.io/estudio-notas/docs/](https://data-soc.github.io/estudio-notas/docs/)
+
 
 :::
 :::
